@@ -1,0 +1,25 @@
+Package: mlvocab
+Title: String processing for magistral.
+Version: 0.0.0.9000
+Authors@R: person("Vitalie", "Spinu", email = "spinuvit@gmail.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+Depends: R (>= 3.4.0)
+License: GPL3
+Encoding: UTF-8
+Imports:
+  magistral,
+  Rcpp (>= 0.12),
+  Matrix,
+  digest (>= 0.6.8),
+  sparsepp (>= 0.2.0)
+LinkingTo:
+  Rcpp,
+  digest (>= 0.6.8),
+  sparsepp (>= 0.2.0)
+LazyData: true
+SystemRequirements: C++11
+VignetteBuilder: knitr
+BugReports: https://github.com/vspinu/mlvocab/issues
+URL: https://github.com/vspinu/mlvocab/
+RoxygenNote: 6.0.1
+Roxygen: list(markdown = TRUE)
