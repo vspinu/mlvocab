@@ -29,8 +29,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_corpus2ixseq
-List C_corpus2ixseq(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf, bool keep_unknown, int unknown_buckets);
-RcppExport SEXP _mlvocab_C_corpus2ixseq(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP keep_unknownSEXP, SEXP unknown_bucketsSEXP) {
+List C_corpus2ixseq(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf, bool keep_unknown, int unknown_buckets, bool reverse);
+RcppExport SEXP _mlvocab_C_corpus2ixseq(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP keep_unknownSEXP, SEXP unknown_bucketsSEXP, SEXP reverseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -38,13 +38,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
     Rcpp::traits::input_parameter< bool >::type keep_unknown(keep_unknownSEXP);
     Rcpp::traits::input_parameter< int >::type unknown_buckets(unknown_bucketsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_corpus2ixseq(corpus, vocabdf, keep_unknown, unknown_buckets));
+    Rcpp::traits::input_parameter< bool >::type reverse(reverseSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_corpus2ixseq(corpus, vocabdf, keep_unknown, unknown_buckets, reverse));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_corpus2ixmat
-IntegerMatrix C_corpus2ixmat(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf, int maxlen, bool pad_right, bool trunc_right, bool keep_unknown, int unknown_buckets);
-RcppExport SEXP _mlvocab_C_corpus2ixmat(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP maxlenSEXP, SEXP pad_rightSEXP, SEXP trunc_rightSEXP, SEXP keep_unknownSEXP, SEXP unknown_bucketsSEXP) {
+IntegerMatrix C_corpus2ixmat(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf, int maxlen, bool pad_right, bool trunc_right, bool keep_unknown, int unknown_buckets, bool reverse);
+RcppExport SEXP _mlvocab_C_corpus2ixmat(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP maxlenSEXP, SEXP pad_rightSEXP, SEXP trunc_rightSEXP, SEXP keep_unknownSEXP, SEXP unknown_bucketsSEXP, SEXP reverseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -55,7 +56,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type trunc_right(trunc_rightSEXP);
     Rcpp::traits::input_parameter< bool >::type keep_unknown(keep_unknownSEXP);
     Rcpp::traits::input_parameter< int >::type unknown_buckets(unknown_bucketsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_corpus2ixmat(corpus, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, unknown_buckets));
+    Rcpp::traits::input_parameter< bool >::type reverse(reverseSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_corpus2ixmat(corpus, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, unknown_buckets, reverse));
+    return rcpp_result_gen;
+END_RCPP
+}
+// C_embed_vocab
+NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row, int unknown_buckets, int min_to_average);
+RcppExport SEXP _mlvocab_C_embed_vocab(SEXP vocabdfSEXP, SEXP embeddingsSEXP, SEXP by_rowSEXP, SEXP unknown_bucketsSEXP, SEXP min_to_averageSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type embeddings(embeddingsSEXP);
+    Rcpp::traits::input_parameter< bool >::type by_row(by_rowSEXP);
+    Rcpp::traits::input_parameter< int >::type unknown_buckets(unknown_bucketsSEXP);
+    Rcpp::traits::input_parameter< int >::type min_to_average(min_to_averageSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_embed_vocab(vocabdf, embeddings, by_row, unknown_buckets, min_to_average));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -63,8 +80,9 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_mlvocab_murmur3hash", (DL_FUNC) &_mlvocab_murmur3hash, 1},
     {"_mlvocab_C_vocab", (DL_FUNC) &_mlvocab_C_vocab, 2},
-    {"_mlvocab_C_corpus2ixseq", (DL_FUNC) &_mlvocab_C_corpus2ixseq, 4},
-    {"_mlvocab_C_corpus2ixmat", (DL_FUNC) &_mlvocab_C_corpus2ixmat, 7},
+    {"_mlvocab_C_corpus2ixseq", (DL_FUNC) &_mlvocab_C_corpus2ixseq, 5},
+    {"_mlvocab_C_corpus2ixmat", (DL_FUNC) &_mlvocab_C_corpus2ixmat, 8},
+    {"_mlvocab_C_embed_vocab", (DL_FUNC) &_mlvocab_C_embed_vocab, 5},
     {NULL, NULL, 0}
 };
 

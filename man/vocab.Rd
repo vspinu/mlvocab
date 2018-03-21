@@ -2,17 +2,20 @@
 % Please edit documentation in R/vocab.R
 \name{vocab}
 \alias{vocab}
-\alias{vocab_update}
-\alias{vocab_prune}
+\alias{update_vocab}
+\alias{prune_vocab}
+\alias{embed_vocab}
 \title{Manipulate vocabularies}
 \usage{
 vocab(corpus, ngram = c(1, 1), chargram = FALSE)
 
-vocab_update(vocab, corpus)
+update_vocab(vocab, corpus)
 
-vocab_prune(vocab, max_terms = Inf, term_count_min = 1L,
+prune_vocab(vocab, max_terms = Inf, term_count_min = 1L,
   term_count_max = Inf, doc_proportion_min = 0, doc_proportion_max = 1,
   doc_count_min = 1L, doc_count_max = Inf)
+
+embed_vocab(vocab, embeddings, unknown_buckets = 0, min_to_average = 30)
 }
 \arguments{
 \item{corpus}{list of character vectors}
@@ -33,10 +36,27 @@ vocab_prune(vocab, max_terms = Inf, term_count_min = 1L,
 \item{doc_count_min, doc_proportion_min}{keep terms appearing in at \emph{least} this many docs}
 
 \item{doc_count_max, doc_proportion_max}{keep terms appearing in at \emph{most} this many docs}
+
+\item{embeddings}{embeddings matrix. The terms dimension must be named. If
+both \code{\link[=colnames]{colnames()}} and \code{\link[=rownames]{rownames()}} are non-null, dimension with more
+elements is considered term-dimension.}
+
+\item{unknown_buckets}{How many unknown buckets to create along the terms of
+the \code{vocab}. For each unknown bucket at least \code{min_to_average} embedding
+vectors will be hashed into the bucket and averaged.}
+
+\item{min_per_bucket}{At least this many embedding vectors will be averaged
+into each unknown or missing bucket (see details. Lower number will
+results in faster processing.}
 }
 \description{
-\code{\link[=vocab]{vocab()}} creates a vocabulry from a text corpus. \code{\link[=vocab_update]{vocab_update()}} updates
-an existing vocabulary. \code{\link[=vocab_prune]{vocab_prune()}} prunes vocabulary.
+\code{\link[=vocab]{vocab()}} creates a vocabulry from a text corpus. \code{\link[=update_vocab]{update_vocab()}} updates
+an existing vocabulary. \code{\link[=prune_vocab]{prune_vocab()}} prunes vocabulary.
 
-\code{vocab_prune} is an adaptation of \code{\link[text2vec:prune_vocabulary]{text2vec::prune_vocabulary()}}.
+\code{prune_vocab} is an adaptation of \code{\link[text2vec:prune_vocabulary]{text2vec::prune_vocabulary()}}.
+
+Similarly, when a term from the vocabulary is not present in the embedding
+matrix (aka missing) \code{min_to_average} embeddings are averaged to produce the
+missing embedding. Different buckets are used for "missing" and "unknown"
+embeddings because \code{unknown_buckets} can be 0.
 }

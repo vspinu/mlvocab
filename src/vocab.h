@@ -36,9 +36,12 @@
 namespace spp {
 inline void exit(int status) throw() {}
 }
+
 #include <sparsepp/spp.h>
 using spp::sparse_hash_map;
-typedef sparse_hash_map<string, uint32_t>::iterator sparse_hash_map_iter;
+using spp::sparse_hash_set;
+typedef sparse_hash_map<string, uint_fast32_t>::iterator sparse_hash_map_iter;
+typedef sparse_hash_set<string>::iterator sparse_hash_set_iter;
 
 
 
@@ -46,9 +49,9 @@ typedef sparse_hash_map<string, uint32_t>::iterator sparse_hash_map_iter;
 
 class VocabEntry {
  public:
-  VocabEntry(size_t id, size_t n = 1, size_t ndocs = 1):
-    id(id), n(n), ndocs(ndocs) {};
-  size_t id;
+  VocabEntry(string term, size_t n = 1, size_t ndocs = 1):
+    term(term), n(n), ndocs(ndocs) {};
+  string term;
   size_t n;      // total count in corpus
   size_t ndocs;  // total count of docs
 };
@@ -97,11 +100,11 @@ class Vocab {
     IntegerVector doc_counts(N);
 
     size_t i = 0;
-    for(auto it : vocabix) {
+    for(const VocabEntry& ve : vocab) {
       // return UTF8: see https://github.com/dselivanov/text2vec/issues/101
-      terms[i] = Rf_mkCharLenCE(it.first.c_str(), it.first.size(), CE_UTF8);
-      term_counts[i] = vocab[it.second].n;
-      doc_counts[i] = vocab[it.second].ndocs;
+      terms[i] = Rf_mkCharLenCE(ve.term.c_str(), ve.term.size(), CE_UTF8);
+      term_counts[i] = ve.n;
+      doc_counts[i] = ve.ndocs;
       i++;
     }
     
@@ -126,7 +129,7 @@ class Vocab {
     if (vit == vocabix.end()) {
       size_t id = vocab.size();
       vocabix.insert(make_pair(term, id));
-      vocab.push_back(VocabEntry(id, n, ndocs));
+      vocab.push_back(VocabEntry(term, n, ndocs));
     } else {
       vocab[vit->second].n =+ n;
       vocab[vit->second].ndocs =+ ndocs;
@@ -142,7 +145,7 @@ class Vocab {
       if (vit == vocabix.end()) {
         id = vocab.size();
         vocabix.insert(make_pair(term, id));
-        vocab.push_back(VocabEntry(id, 1, 0));
+        vocab.push_back(VocabEntry(term, 1, 0));
       } else {
         id = vit->second;
         vocab[id].n = vocab[id].n + 1;
@@ -165,14 +168,81 @@ class Vocab {
   }
 
   
+  /// EMBEDDING
+  NumericMatrix embed_vocab(NumericMatrix& embeddings, bool by_row, 
+                            int unknown_buckets, int max_per_bucket) {
+    // embedding as columns for efficiency
+    size_t nembs = vocabix.size() + unknown_buckets;
+    size_t esize = by_row ? embeddings.ncol() : embeddings.nrow();
+    size_t nallembs = by_row ? embeddings.nrow() : embeddings.ncol();
+
+    CharacterVector embnames = by_row ? rownames(embeddings) : colnames(embeddings);
+    sparse_hash_map<string, uint_fast32_t> embmap;
+    uint_fast32_t i = 0;
+    for (auto nm : embnames) {
+      const string term = as<string>(nm);
+      embmap.insert(make_pair(term, i));
+      i++;
+    }
+    vector<size_t> missing_terms;
+    missing_terms.reserve(vocab.size() / 10);
+    NumericMatrix out(esize, nembs);
+
+    sparse_hash_map_iter eit;  
+    string term;
+    for (size_t i = 0; i < vocab.size(); i++) {
+      const string& term = vocab[i].term;
+      eit = embmap.find(term);
+      if (eit == embmap.end()) {
+        missing_terms.push_back(i);
+      } else {
+        // copy embedding into output matrix
+        NumericMatrix::Column ocol = out(_, i);
+        if (by_row) {
+          NumericMatrix::Row erow = embeddings(eit->second, _);
+          copy(erow.begin(), erow.end(), ocol.begin());
+        } else {
+          NumericMatrix::Column ecol = embeddings(_, eit->second);
+          copy(ecol.begin(), ecol.end(), ocol.begin());
+        }
+      }
+    }
+
+    // fill missing terms with average embeddings
+    if (missing_terms.size() > 0) {
+      size_t nmissing = missing_terms.size();;
+      size_t n = std::max(size_t{1}, std::min(nallembs/max_per_bucket, nmissing));
+      NumericMatrix meanembs(esize, n);
+      fill_mean_embeddings(meanembs, 0, embeddings, by_row, max_per_bucket);
+      for (size_t i = 0; i < nmissing; i++) {
+        /* size_t bkt = murmur3hash(vocab[i].term) % n; */
+        size_t bkt = i % n;
+        /* Rprintf("bkt:%d nembs:%d mpb:%d n:%d\n", bkt, nembs, max_per_bucket,n); */
+        NumericMatrix::Column ecol = meanembs(_, bkt);
+        copy(ecol.begin(), ecol.end(), out(_, missing_terms[i]).begin());
+      }
+    }
+
+    // fill unknown buckets with average embeddings
+    if (unknown_buckets > 0) {
+      fill_mean_embeddings(out, vocabix.size(), embeddings, by_row, max_per_bucket);
+    }
+
+    if (by_row) {
+      return transpose(out);
+    } else {
+      return out;
+    }
+  }
+
+  
   /// IX SEQUENCE GENERATORS
   
   ListOf<IntegerVector> corpus2ixseq(const ListOf<const CharacterVector>& corpus,
-                                     bool keep_unknown, int unknown_buckets) {
+                                     bool keep_unknown, int unknown_buckets, bool doreverse) {
     size_t CN = corpus.size();
     vector<vector<int>> out;
     out.reserve(CN);
-    sparse_hash_map_iter vit;
     for (size_t i = 0; i < CN; i++) {
       const CharacterVector& doc(corpus[i]);
       size_t ND = doc.size();
@@ -181,6 +251,8 @@ class Vocab {
       for (auto el : doc) {
         push_ix_maybe(v, as<string>(el), keep_unknown, unknown_buckets);
       }
+      if (doreverse)
+        reverse(v.begin(), v.end());
       out.push_back(v);
     }
     return wrap(out);
@@ -188,7 +260,7 @@ class Vocab {
   
   IntegerMatrix corpus2ixmat(const ListOf<const CharacterVector>& corpus,
                              size_t maxlen, bool pad_right, bool trunc_right,
-                             bool keep_unknown, int unknown_buckets) {
+                             bool keep_unknown, int unknown_buckets, bool doreverse) {
     
     size_t CN = corpus.size();
     IntegerMatrix out(CN, maxlen);
@@ -209,6 +281,9 @@ class Vocab {
           push_ix_maybe(v, as<string>(*it), keep_unknown, unknown_buckets);
         }
       }
+
+      if (doreverse)
+        reverse(v.begin(), v.end());
 
       IntegerMatrix::Row row = out(i, _);
       if (pad_right) {
@@ -242,7 +317,40 @@ class Vocab {
     } else {
       v.push_back(vit->second + 1);
     }
-  }  
+  }
+
+  void fill_mean_embeddings(NumericMatrix& meanembs, size_t offset,
+                            NumericMatrix& embeddings, bool by_row,
+                            int max_per_bucket) {
+    size_t n = meanembs.ncol() - offset;
+    size_t nfull = n;
+    size_t nallembs = by_row ? embeddings.nrow() : embeddings.ncol();
+    CharacterVector embnames = by_row ? rownames(embeddings) : colnames(embeddings);
+    vector<int> sofar(n);
+    size_t bkt;
+    /* Rprintf("nallembs:%d n:%d\n", nallembs, n); */
+    for (size_t i = 0; i < nallembs; i++) {
+      if (nfull == 0) break;
+      bkt = murmur3hash(embnames[i].begin()) % n;
+      if (sofar[bkt] < max_per_bucket) {
+        NumericMatrix::Column col = meanembs(_, offset + bkt);
+        if (by_row) {
+          col = col + embeddings(i, _);
+        } else {
+          /* Rprintf("col:%d bkt:%d i:%d sofar[bkt]:%d\n", offset + bkt, bkt, i, sofar[bkt]); */
+          col = col + embeddings(_, i);
+        }        
+        sofar[bkt]++;
+        if (sofar[bkt] == max_per_bucket) nfull--;
+      }
+    }
+    for (size_t bkt = 0; bkt < n; bkt++) {
+      if (sofar[bkt] > 0) {
+        NumericMatrix::Column col = meanembs(_, offset + bkt);
+        col = col/static_cast<double>(sofar[bkt]);
+      }
+    }
+  }
 };
 
 

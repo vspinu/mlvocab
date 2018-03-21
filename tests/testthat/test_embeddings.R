@@ -1,0 +1,71 @@
+context("embeddings")
+
+corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the",
+                     "lazy", "dog"), 
+               b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
+                     "dog", "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
+                     "dog"))
+
+
+test_that("average embedding works", {
+
+    library(mlvocab)
+    library(testthat)
+    embs <- matrix(rep(seq_along(letters), each = 10), nrow = 10, dimnames = list(NULL, letters))
+    N <- 8
+    vocab <- vocab(letters[1:N])
+
+    ## simple
+    expect_equal(embed_vocab(vocab, embs), embs[, 1:N])
+
+    ## with buckets
+    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, min_to_average = 0)
+    expect_true(all(ev[, -c(1:N)] == 0))
+
+    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, min_to_average = 1)
+    tev <- ev[, -c(1:N)]
+    expect_true(all(tev - floor(tev) == 0))
+
+    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, min_to_average = 2)
+    tev <- ev[, -c(1:N)]
+    expect_equal(unique(c(tev - floor(tev))), c(0.0, 0.5))
+
+    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, min_to_average = 3)
+    tev <- ev[, -c(1:N)]
+    expect_equal(unique(c(tev - floor(tev))), c(0, 0.5, 1/3, 2/3))
+    expect_equal(ev[, 1:N], embs[, 1:N])
+
+    vocab2 <- vocab(tail(letters, N))
+    expect_equal(embed_vocab(vocab2, embs),
+                 embs[, (ncol(embs) - N + 1):ncol(embs)])
+
+    ev <- embed_vocab(vocab2, embs, unknown_buckets = 10, min_to_average = 3)
+    tev <- ev[, -c(1:N)]
+    expect_equal(unique(c(tev - floor(tev))), c(0, 0.5, 1/3, 2/3))
+    expect_equal(ev[, 1:N], embs[, (ncol(embs) - N + 1):ncol(embs)])
+
+    expect_equal(dim(embed_vocab(vocab2, embs, unknown_buckets = 2, min_to_average = 100)),
+                 c(10, N + 2))
+})
+
+test_that("average embedding works with missing values", {
+    embs <- matrix(rep(seq_along(letters), each = 10), nrow = 10, dimnames = list(NULL, letters))
+    N <- 8
+    vocab <- vocab(c("a", "b", "dd", "ee", "h"))
+    ## one bucket is used
+    e <- embed_vocab(vocab, embs, min_to_average = 100)
+    expect_equal(e[, "dd"], e[, "ee"])
+    ## two buckets are used
+    e <- embed_vocab(vocab, embs, min_to_average = 10)
+    expect_true(!all(e[, "dd"] == e[, "ee"]))
+})
+
+
+
+### SPEED TEST
+
+embs <- readRDS("~/data/nlp/fastvec.crawl-300d-2M.rds")
+v <- vocab(colnames(embs))
+rm(e); gc()
+system.time(e <- embed_vocab(v, embs))
+gc()

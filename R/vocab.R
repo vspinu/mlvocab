@@ -1,8 +1,8 @@
 
 ##' Manipulate vocabularies
 ##'
-##' [vocab()] creates a vocabulry from a text corpus. [vocab_update()] updates
-##' an existing vocabulary. [vocab_prune()] prunes vocabulary.  
+##' [vocab()] creates a vocabulry from a text corpus. [update_vocab()] updates
+##' an existing vocabulary. [prune_vocab()] prunes vocabulary.  
 ##' @param corpus list of character vectors
 ##' @param ngram a vector of the form `c(min_ngram, max_ngram)`.
 ##' @param chargram currently unused
@@ -19,7 +19,7 @@ vocab <- function(corpus, ngram = c(1, 1), chargram = FALSE) {
 ##'     [text2vec::create_vocab()] from `text2vec` package.
 ##' @rdname vocab
 ##' @export
-vocab_update <- function(vocab, corpus) {
+update_vocab <- function(vocab, corpus) {
     if (!inherits(vocab, c("mlvocab_vocab", "text2vec_vocabulary")))
         stop("'vocab' must be of class 'mlvocab_vocab' or 'text2vec_vocabulary'")
     ## if (isTRUE(attr(vocab, "chargram", F)))
@@ -28,7 +28,7 @@ vocab_update <- function(vocab, corpus) {
 }
 
 ##'
-##' `vocab_prune` is an adaptation of [text2vec::prune_vocabulary()].
+##' `prune_vocab` is an adaptation of [text2vec::prune_vocabulary()].
 ##' @param max_terms max number of terms to preserve
 ##' @param term_count_min keep terms occurring at _least_ this many times over all docs
 ##' @param term_count_max keep terms occurring at _most_ this many times over all docs
@@ -36,7 +36,7 @@ vocab_update <- function(vocab, corpus) {
 ##' @param doc_count_max,doc_proportion_max keep terms appearing in at _most_ this many docs
 ##' @rdname vocab
 ##' @export
-vocab_prune <- function(vocab,
+prune_vocab <- function(vocab,
                         max_terms = Inf, 
                         term_count_min = 1L,
                         term_count_max = Inf,
@@ -74,16 +74,66 @@ vocab_prune <- function(vocab,
         ind <- ind & (doc_proportion <= doc_proportion_max)
     }
 
+    ## fixme: define custom [ which drops row.names
     out <- vocab[ind, ]
 
     if (is.finite(max_terms) && nrow(out) > max_terms) {
-        ord <- order(out[["term_count"]], decreasing = TRUE)
-        out <- out[ord[ord <= max_terms]]
+        rnk <- rank(-out[["term_count"]])
+        out <- out[rnk <= max_terms, ]
     }
 
-    attributes(out) <- modifyList(attributes(vocab), list(row.names = NULL))
+    row.names(out) <- NULL
+    for (a in setdiff(names(attributes(out)), "row.names")) {
+        attr(out, a) <- attr(vocab, a, TRUE)
+    }
     out
 }
+
+##'
+##'
+##' [embed_vocab()] is commonly used in conjunction with sequence generators
+##' ([text2ixmat()] and [text2ixseq()]). When a terms in a corpus is not present
+##' in a vocabulary (aka unknown), it is hashed into one of the
+##' `unknown_buckets` (hashing trick). Embeddings hashed into a bucket are
+##' averaged to produce the embedding for that bucket.
+##'
+##' Similarly, when a term from the vocabulary is not present in the embedding
+##' matrix (aka missing) `min_to_average` embeddings are averaged to produce the
+##' missing embedding. Different buckets are used for "missing" and "unknown"
+##' embeddings because `unknown_buckets` can be 0.
+##' 
+##' @param embeddings embeddings matrix. The terms dimension must be named. If
+##'     both [colnames()] and [rownames()] are non-null, dimension with more
+##'     elements is considered term-dimension.
+##' @param unknown_buckets How many unknown buckets to create along the terms of
+##'     the `vocab`. For each unknown bucket at least `max_in_bucket` embedding
+##'     vectors will be hashed into the bucket and averaged.
+##' @param max_in_bucket At most this many embedding vectors will be averaged
+##'     into each unknown or missing bucket (see details). Lower number results
+##'     in faster processing. For large `unknown_buckets` this number might not
+##'     be reached due to the finiteness of the `embeddings` vocabulary, or even
+##'     result in `0` embeddings being hashed into a bucket producing `[0 0
+##'     ...]` embeddings for some buckets.
+##' @rdname vocab
+##' @export
+embed_vocab <- function(vocab, embeddings, unknown_buckets = 0, max_in_bucket = 30) {
+    if (is.null(colnames(embeddings)) && is.null(rownames(embeddings)))
+        stop("Terms dimension of `embeddings` must be named")
+    by_row <-
+        if (!is.null(rownames(embeddings)))
+            is.null(colnames(embeddings)) || nrow(embeddings) > ncol(embeddings)
+        else FALSE
+    out <- C_embed_vocab(vocab, embeddings, by_row, unknown_buckets, max_in_bucket)
+    names <- vocab$term
+    if (unknown_buckets > 0)
+        names <- c(names, paste0("bkt", seq_len(unknown_buckets)))
+    if (by_row) rownames(out) <- names
+    else colnames(out) <- names
+    out
+}
+
+
+### OTHERS
 
 ##' @export
 mlvocab <- function(x = identity, corpus_var, ngram = c(1, 1), chargram = FALSE,
@@ -101,11 +151,10 @@ mlvocab <- function(x = identity, corpus_var, ngram = c(1, 1), chargram = FALSE,
                               if (is.null(old_vocab))
                                   vocab(corpus = corpus, ngram = ngram, chargram = chargram)
                               else
-                                  vocab_update(old_vocab, corpus)
+                                  update_vocab(old_vocab, corpus)
                           }), 
                       x))
 }
-
 
 #' @export
 #' @method print mlvocab_vocab
@@ -122,4 +171,12 @@ print.mlvocab_vocab <- function(x, ...) {
     }
     print(newx)
     invisible(x)
+}
+
+#' @keywords internal
+#' @export
+arrange.mlvocab_vocab <- function(.data, ...) {
+    out <- NextMethod("arrange")
+    oldClass(out) <- class(.data)
+    out
 }
