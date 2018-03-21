@@ -124,11 +124,11 @@ embed_vocab <- function(vocab, embeddings, unknown_buckets = 0, max_in_bucket = 
             is.null(colnames(embeddings)) || nrow(embeddings) > ncol(embeddings)
         else FALSE
     out <- C_embed_vocab(vocab, embeddings, by_row, unknown_buckets, max_in_bucket)
-    names <- vocab$term
-    if (unknown_buckets > 0)
-        names <- c(names, paste0("bkt", seq_len(unknown_buckets)))
-    if (by_row) rownames(out) <- names
-    else colnames(out) <- names
+    ## names <- vocab$term
+    ## if (unknown_buckets > 0)
+    ##     names <- c(names, paste0("bkt", seq_len(unknown_buckets)))
+    ## if (by_row) rownames(out) <- names
+    ## else colnames(out) <- names
     out
 }
 

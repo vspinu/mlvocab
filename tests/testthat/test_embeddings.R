@@ -64,8 +64,15 @@ test_that("average embedding works with missing values", {
 
 ### SPEED TEST
 
-embs <- readRDS("~/data/nlp/fastvec.crawl-300d-2M.rds")
-v <- vocab(colnames(embs))
+embs1 <- readRDS("~/tmp/embs1.tmp.rds")
+embs <- embs1
+
+library(mlvocab)
+system.time(v <- vocab(colnames(embs)))
 rm(e); gc()
-system.time(e <- embed_vocab(v, embs))
-gc()
+system.time(e <- embed_vocab(v, embs1))
+
+colnames(e)[head(tt, 30)]
+dput(colnames(embs)[head(tt, 30)])
+
+

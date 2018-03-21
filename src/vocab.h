@@ -208,6 +208,7 @@ class Vocab {
       }
     }
 
+    Rprintf("missing:%d\n", missing_terms.size());
     // fill missing terms with average embeddings
     if (missing_terms.size() > 0) {
       size_t nmissing = missing_terms.size();;
