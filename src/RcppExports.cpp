@@ -76,6 +76,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// C_is_ascii
+LogicalVector C_is_ascii(const CharacterVector& vec);
+RcppExport SEXP _mlvocab_C_is_ascii(SEXP vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const CharacterVector& >::type vec(vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_is_ascii(vec));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mlvocab_murmur3hash", (DL_FUNC) &_mlvocab_murmur3hash, 1},
@@ -83,6 +94,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mlvocab_C_corpus2ixseq", (DL_FUNC) &_mlvocab_C_corpus2ixseq, 5},
     {"_mlvocab_C_corpus2ixmat", (DL_FUNC) &_mlvocab_C_corpus2ixmat, 8},
     {"_mlvocab_C_embed_vocab", (DL_FUNC) &_mlvocab_C_embed_vocab, 5},
+    {"_mlvocab_C_is_ascii", (DL_FUNC) &_mlvocab_C_is_ascii, 1},
     {NULL, NULL, 0}
 };
 

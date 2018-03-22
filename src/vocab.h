@@ -1,18 +1,18 @@
 // Copyright (C) 2018  Vitalie Spinu
-// This file is part of magistral_string
+// This file is part of mlvocab
 //
-// magistral_string free software: you can redistribute it and/or modify it
+// mlvocab free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
 // Software Foundation, either version 2 of the License, or (at your option) any
 // later version.
 //
-// magistral_string is distributed in the hope that it will be useful, but
+// mlvocab is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
 //
 // You should have received a copy of the GNU General Public License along with
-// magistral_string.  If not, see <http://www.gnu.org/licenses/>.
+// mlvocab. If not, see <http://www.gnu.org/licenses/>.
 
  
 #ifndef MAGISTRAL_VOCAB_H
@@ -39,10 +39,8 @@ inline void exit(int status) throw() {}
 
 #include <sparsepp/spp.h>
 using spp::sparse_hash_map;
-using spp::sparse_hash_set;
-typedef sparse_hash_map<string, uint_fast32_t>::iterator sparse_hash_map_iter;
-typedef sparse_hash_set<string>::iterator sparse_hash_set_iter;
-
+typedef sparse_hash_map<string, uint_fast32_t>::iterator shm_string_iter;
+typedef sparse_hash_map<const char*, uint_fast32_t>::iterator shm_char_iter;
 
 
 /// VOCAB CODE
@@ -101,8 +99,9 @@ class Vocab {
 
     size_t i = 0;
     for(const VocabEntry& ve : vocab) {
-      // return UTF8: see https://github.com/dselivanov/text2vec/issues/101
-      terms[i] = Rf_mkCharLenCE(ve.term.c_str(), ve.term.size(), CE_UTF8);
+      // UTF8 issue in text2vec: see https://github.com/dselivanov/text2vec/issues/101
+      // this screws the bijection between vocab and source mapping
+      terms[i] = Rf_mkCharCE(ve.term.c_str(), CE_UTF8);
       term_counts[i] = ve.n;
       doc_counts[i] = ve.ndocs;
       i++;
@@ -125,7 +124,7 @@ class Vocab {
   /// INSERT
   
   void insert_entry(const string& term, size_t n = 1, size_t ndocs = 1) {
-    sparse_hash_map_iter vit = vocabix.find(term);
+    shm_string_iter vit = vocabix.find(term);
     if (vit == vocabix.end()) {
       size_t id = vocab.size();
       vocabix.insert(make_pair(term, id));
@@ -137,7 +136,7 @@ class Vocab {
   }
   
   void insert_doc(const vector<string>& doc) {
-    sparse_hash_map_iter vit;
+    shm_string_iter vit;
     unordered_set<size_t> termset;
     size_t id;
     for (const string& term : doc) {
@@ -188,7 +187,7 @@ class Vocab {
     missing_terms.reserve(vocab.size() / 10);
     NumericMatrix out(esize, nembs);
 
-    sparse_hash_map_iter eit;  
+    shm_string_iter eit;  
     string term;
     for (size_t i = 0; i < vocab.size(); i++) {
       const string& term = vocab[i].term;
@@ -200,10 +199,10 @@ class Vocab {
         NumericMatrix::Column ocol = out(_, i);
         if (by_row) {
           NumericMatrix::Row erow = embeddings(eit->second, _);
-          copy(erow.begin(), erow.end(), ocol.begin());
+          /* copy(erow.begin(), erow.end(), ocol.begin()); */
         } else {
           NumericMatrix::Column ecol = embeddings(_, eit->second);
-          copy(ecol.begin(), ecol.end(), ocol.begin());
+          /* copy(ecol.begin(), ecol.end(), ocol.begin()); */
         }
       }
     }
@@ -230,10 +229,12 @@ class Vocab {
     }
 
     if (by_row) {
-      return transpose(out);
+      out = transpose(out);
+      rownames(out) = embedding_names(unknown_buckets);
     } else {
-      return out;
+      colnames(out) = embedding_names(unknown_buckets);
     }
+    return out;
   }
 
   
@@ -306,7 +307,7 @@ class Vocab {
  private: // utils
   
   void push_ix_maybe(vector<int>& v, const string& term, bool keep_unknown, int unknown_buckets) {
-    sparse_hash_map_iter vit = vocabix.find(term);
+    shm_string_iter vit = vocabix.find(term);
     if (vit == vocabix.end()) {
       if (keep_unknown) {
         if (unknown_buckets > 0) {
@@ -352,6 +353,22 @@ class Vocab {
       }
     }
   }
+
+  CharacterVector embedding_names(size_t nbuckets) {
+    CharacterVector out(vocab.size() + nbuckets);
+    size_t i = 0;
+    for (const VocabEntry& ve : vocab) {
+      out[i] = Rf_mkChar(ve.term.c_str());
+      i++;
+    }
+    string tmpname = "";
+    for (size_t bkt = 1; bkt <= nbuckets; bkt++) {
+      out[i] = "bkt" + to_string(bkt);
+      i++;
+    }
+    return out;
+  }
+
 };
 
 

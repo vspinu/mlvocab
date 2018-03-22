@@ -29,3 +29,14 @@ NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings,
   Vocab* v = new Vocab(vocabdf);
   return(v->embed_vocab(embeddings, by_row, unknown_buckets, min_to_average));
 }
+
+
+// [[Rcpp::export]]
+LogicalVector C_is_ascii(const CharacterVector& vec) {
+  LogicalVector out(vec.size());
+  size_t N = vec.size();
+  for (size_t i = 0; i < N; i++) {
+    out[i] = is_ascii(vec[i].begin());
+  }
+  return out;
+}

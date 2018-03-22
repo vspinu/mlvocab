@@ -27,3 +27,7 @@ C_embed_vocab <- function(vocabdf, embeddings, by_row, unknown_buckets, min_to_a
     .Call(`_mlvocab_C_embed_vocab`, vocabdf, embeddings, by_row, unknown_buckets, min_to_average)
 }
 
+C_is_ascii <- function(vec) {
+    .Call(`_mlvocab_C_is_ascii`, vec)
+}
+

@@ -60,19 +60,3 @@ test_that("average embedding works with missing values", {
     expect_true(!all(e[, "dd"] == e[, "ee"]))
 })
 
-
-
-### SPEED TEST
-
-embs1 <- readRDS("~/tmp/embs1.tmp.rds")
-embs <- embs1
-
-library(mlvocab)
-system.time(v <- vocab(colnames(embs)))
-rm(e); gc()
-system.time(e <- embed_vocab(v, embs1))
-
-colnames(e)[head(tt, 30)]
-dput(colnames(embs)[head(tt, 30)])
-
-
