@@ -68,3 +68,36 @@ test_that("text2seq with bucketing works",  {
 test_that("murmur3hash works", {
     expect_equal(length(unique(murmur3hash(letters))), length(letters))
 })
+
+
+test_that("encodding doesn't matter", {
+
+    txt <- c("”", "“", "–", "’", "…", "—", "‘", "•", "»", 
+             "·", "�", "£", "«", "→", "®", "🙂", "←", "€", "™", 
+             "©", "﻿", "­", "​", "−", "\u0093", "\u0094", "›", "\u0097", 
+             "×", "§")
+
+    v <- vocab(txt)
+
+    txt1 <- txt
+    Encoding(txt1) <- "UTF-8"
+    v1 <- vocab(txt1)
+
+    txt2 <- txt
+    Encoding(txt[1:5]) <- "native"
+    Encoding(txt[6:10]) <- "latin1"
+    v2 <- vocab(txt2)
+
+    mat <- text2ixmat(list(txt, txt1, txt2), v)
+    expect_equal(mat[1, ], mat[2, ])
+    expect_equal(mat[1, ], mat[3, ])
+
+    mat <- text2ixmat(list(txt, txt1, txt2), v1)
+    expect_equal(mat[1, ], mat[2, ])
+    expect_equal(mat[1, ], mat[3, ])
+
+    mat <- text2ixmat(list(txt, txt1, txt2), v2, unknown_buckets = 10)
+    expect_equal(mat[1, ], mat[2, ])
+    expect_equal(mat[1, ], mat[3, ])
+
+})

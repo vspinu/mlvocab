@@ -19,18 +19,18 @@ test_that("average embedding works", {
     expect_equal(embed_vocab(vocab, embs), embs[, 1:N])
 
     ## with buckets
-    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, min_to_average = 0)
+    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, max_in_bucket = 0)
     expect_true(all(ev[, -c(1:N)] == 0))
 
-    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, min_to_average = 1)
+    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, max_in_bucket = 1)
     tev <- ev[, -c(1:N)]
     expect_true(all(tev - floor(tev) == 0))
 
-    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, min_to_average = 2)
+    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, max_in_bucket = 2)
     tev <- ev[, -c(1:N)]
     expect_equal(unique(c(tev - floor(tev))), c(0.0, 0.5))
 
-    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, min_to_average = 3)
+    ev <- embed_vocab(vocab, embs, unknown_buckets = 10, max_in_bucket = 3)
     tev <- ev[, -c(1:N)]
     expect_equal(unique(c(tev - floor(tev))), c(0, 0.5, 1/3, 2/3))
     expect_equal(ev[, 1:N], embs[, 1:N])
@@ -39,12 +39,12 @@ test_that("average embedding works", {
     expect_equal(embed_vocab(vocab2, embs),
                  embs[, (ncol(embs) - N + 1):ncol(embs)])
 
-    ev <- embed_vocab(vocab2, embs, unknown_buckets = 10, min_to_average = 3)
+    ev <- embed_vocab(vocab2, embs, unknown_buckets = 10, max_in_bucket = 3)
     tev <- ev[, -c(1:N)]
     expect_equal(unique(c(tev - floor(tev))), c(0, 0.5, 1/3, 2/3))
     expect_equal(ev[, 1:N], embs[, (ncol(embs) - N + 1):ncol(embs)])
 
-    expect_equal(dim(embed_vocab(vocab2, embs, unknown_buckets = 2, min_to_average = 100)),
+    expect_equal(dim(embed_vocab(vocab2, embs, unknown_buckets = 2, max_in_bucket = 100)),
                  c(10, N + 2))
 })
 
@@ -53,10 +53,10 @@ test_that("average embedding works with missing values", {
     N <- 8
     vocab <- vocab(c("a", "b", "dd", "ee", "h"))
     ## one bucket is used
-    e <- embed_vocab(vocab, embs, min_to_average = 100)
+    e <- embed_vocab(vocab, embs, max_in_bucket = 100)
     expect_equal(e[, "dd"], e[, "ee"])
     ## two buckets are used
-    e <- embed_vocab(vocab, embs, min_to_average = 10)
+    e <- embed_vocab(vocab, embs, max_in_bucket = 10)
     expect_true(!all(e[, "dd"] == e[, "ee"]))
 })
 

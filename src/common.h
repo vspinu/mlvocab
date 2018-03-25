@@ -34,4 +34,35 @@ inline bool is_ascii(const char *str) {
   return TRUE;
 }
 
+ 
+
+/// SPARSE HASH MAP
+
+/// comment from text2vec:
+// spp has calls to 'exit' on failure, which upsets R CMD check.
+// We won't bump into them during normal test execution so just override
+// it in the spp namespace before we include 'sparsepp'.
+// https://github.com/hadley/testthat/blob/c7e8330867645c174f9a286d00eb0036cea78b0c/inst/include/testthat/testthat.h#L44-L50
+// https://stackoverflow.com/questions/43263880/no-ambiguous-reference-error-even-after-using-namespace-directive/43294812
+namespace spp {
+inline void exit(int status) throw() {}
+}
+
+#include <sparsepp/spp.h>
+using spp::sparse_hash_map;
+typedef sparse_hash_map<string, uint_fast32_t>::iterator shm_string_iter;
+typedef sparse_hash_map<const char*, uint_fast32_t>::iterator shm_char_iter;
+
+
+/// generic matrix types
+enum class MatrixType
+  {
+   BASE,
+   DGT,
+   DGC,
+   DGR,
+   DF,
+   SIMPLE
+  };
+
 #endif /* MLVOCAB_H */

@@ -1,4 +1,10 @@
 
+`_empty_vocab` <- structure(data.frame(term = character(), term_count = integer(), doc_count = integer()),
+                            document_count = 0,
+                            sep_ngram = " ",
+                            ngram = c(1L, 1L),
+                            chargram = FALSE)
+
 ##' Manipulate vocabularies
 ##'
 ##' [vocab()] creates a vocabulry from a text corpus. [update_vocab()] updates
@@ -8,10 +14,9 @@
 ##' @param chargram currently unused
 ##' @export
 vocab <- function(corpus, ngram = c(1, 1), chargram = FALSE) {
-    old_vocab <-
-        structure(data.frame(term = character(), term_count = integer(), doc_count = integer()),
-                  document_count = 0, sep_ngram = " ", ngram = as.integer(ngram),
-                  chargram = as.logical(chargram))
+    old_vocab <- structure(`_empty_vocab`,
+                           ngram = as.integer(ngram),
+                           chargram = as.logical(chargram))
     C_vocab(corpus, old_vocab)
 }
 

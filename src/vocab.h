@@ -19,28 +19,11 @@
 #define MAGISTRAL_VOCAB_H
 
 #include "common.h"
+#include "TripletMatrix.h"
 #include "hash.h"
 #include "ngram.h"
 #include <algorithm>
 #include <unordered_set>
-
-
-/// SPARSE HASH MAP
-
-/// comment from text2vec:
-// spp has calls to 'exit' on failure, which upsets R CMD check.
-// We won't bump into them during normal test execution so just override
-// it in the spp namespace before we include 'sparsepp'.
-// https://github.com/hadley/testthat/blob/c7e8330867645c174f9a286d00eb0036cea78b0c/inst/include/testthat/testthat.h#L44-L50
-// https://stackoverflow.com/questions/43263880/no-ambiguous-reference-error-even-after-using-namespace-directive/43294812
-namespace spp {
-inline void exit(int status) throw() {}
-}
-
-#include <sparsepp/spp.h>
-using spp::sparse_hash_map;
-typedef sparse_hash_map<string, uint_fast32_t>::iterator shm_string_iter;
-typedef sparse_hash_map<const char*, uint_fast32_t>::iterator shm_char_iter;
 
 
 /// VOCAB CODE
@@ -99,8 +82,8 @@ class Vocab {
 
     size_t i = 0;
     for(const VocabEntry& ve : vocab) {
-      // UTF8 issue in text2vec: see https://github.com/dselivanov/text2vec/issues/101
-      // this screws the bijection between vocab and source mapping
+      // output UTF8 which is not correct if input encoding is non-ascii or
+      // non-utf8. Consider saving encoding (and maybe strlen).
       terms[i] = Rf_mkCharCE(ve.term.c_str(), CE_UTF8);
       term_counts[i] = ve.n;
       doc_counts[i] = ve.ndocs;
@@ -199,15 +182,14 @@ class Vocab {
         NumericMatrix::Column ocol = out(_, i);
         if (by_row) {
           NumericMatrix::Row erow = embeddings(eit->second, _);
-          /* copy(erow.begin(), erow.end(), ocol.begin()); */
+          copy(erow.begin(), erow.end(), ocol.begin());
         } else {
           NumericMatrix::Column ecol = embeddings(_, eit->second);
-          /* copy(ecol.begin(), ecol.end(), ocol.begin()); */
+          copy(ecol.begin(), ecol.end(), ocol.begin());
         }
       }
     }
 
-    Rprintf("missing:%d\n", missing_terms.size());
     // fill missing terms with average embeddings
     if (missing_terms.size() > 0) {
       size_t nmissing = missing_terms.size();;
@@ -230,9 +212,9 @@ class Vocab {
 
     if (by_row) {
       out = transpose(out);
-      rownames(out) = embedding_names(unknown_buckets);
+      rownames(out) = vocab_names(unknown_buckets);
     } else {
-      colnames(out) = embedding_names(unknown_buckets);
+      colnames(out) = vocab_names(unknown_buckets);
     }
     return out;
   }
@@ -304,6 +286,41 @@ class Vocab {
     return out;
   }
 
+  
+  /// DTM/TCM
+
+  template <MatrixType mattype>
+  SEXP term_matrix(const ListOf<CharacterVector>& corpus, int unknown_buckets, bool dtm = true) {
+    TripletMatrix* tm = new TripletMatrix();
+    int& doc_dim = dtm ? tm->nrow : tm->ncol; 
+
+    size_t csize = corpus.size();
+    shm_string_iter vit;
+    
+    for (size_t i = 0; i < csize; i++) {
+      const CharacterVector doc(corpus[i]);
+      for (auto termc : doc) {
+        string term = as<string>(termc);
+        vit = vocabix.find(term);
+        // Matrix classes are 0-based indexed
+        if (vit == vocabix.end()) {
+          if (unknown_buckets > 0) {
+            tm->add(doc_dim, murmur3hash(term) % unknown_buckets + vocab.size(), 1.0, dtm);
+          } 
+        } else {
+          tm->add(doc_dim, vit->second, 1.0, dtm);
+        }
+      }
+      doc_dim++;
+    }
+
+    if (dtm) {
+      return tm->get(mattype, corpus.attr("names"), vocab_names(unknown_buckets));
+    } else {
+      return tm->get(mattype, vocab_names(unknown_buckets), corpus.attr("names"));
+    }
+  }
+  
  private: // utils
   
   void push_ix_maybe(vector<int>& v, const string& term, bool keep_unknown, int unknown_buckets) {
@@ -354,7 +371,7 @@ class Vocab {
     }
   }
 
-  CharacterVector embedding_names(size_t nbuckets) {
+  CharacterVector vocab_names(size_t nbuckets) {
     CharacterVector out(vocab.size() + nbuckets);
     size_t i = 0;
     for (const VocabEntry& ve : vocab) {

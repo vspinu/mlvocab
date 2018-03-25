@@ -28,6 +28,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// C_embed_vocab
+NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row, int unknown_buckets, int min_to_average);
+RcppExport SEXP _mlvocab_C_embed_vocab(SEXP vocabdfSEXP, SEXP embeddingsSEXP, SEXP by_rowSEXP, SEXP unknown_bucketsSEXP, SEXP min_to_averageSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type embeddings(embeddingsSEXP);
+    Rcpp::traits::input_parameter< bool >::type by_row(by_rowSEXP);
+    Rcpp::traits::input_parameter< int >::type unknown_buckets(unknown_bucketsSEXP);
+    Rcpp::traits::input_parameter< int >::type min_to_average(min_to_averageSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_embed_vocab(vocabdf, embeddings, by_row, unknown_buckets, min_to_average));
+    return rcpp_result_gen;
+END_RCPP
+}
 // C_corpus2ixseq
 List C_corpus2ixseq(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf, bool keep_unknown, int unknown_buckets, bool reverse);
 RcppExport SEXP _mlvocab_C_corpus2ixseq(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP keep_unknownSEXP, SEXP unknown_bucketsSEXP, SEXP reverseSEXP) {
@@ -61,18 +76,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// C_embed_vocab
-NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row, int unknown_buckets, int min_to_average);
-RcppExport SEXP _mlvocab_C_embed_vocab(SEXP vocabdfSEXP, SEXP embeddingsSEXP, SEXP by_rowSEXP, SEXP unknown_bucketsSEXP, SEXP min_to_averageSEXP) {
+// C_dtm
+S4 C_dtm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf, int unknown_buckets, std::string output);
+RcppExport SEXP _mlvocab_C_dtm(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP unknown_bucketsSEXP, SEXP outputSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const ListOf<CharacterVector>& >::type corpus(corpusSEXP);
     Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type embeddings(embeddingsSEXP);
-    Rcpp::traits::input_parameter< bool >::type by_row(by_rowSEXP);
     Rcpp::traits::input_parameter< int >::type unknown_buckets(unknown_bucketsSEXP);
-    Rcpp::traits::input_parameter< int >::type min_to_average(min_to_averageSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_embed_vocab(vocabdf, embeddings, by_row, unknown_buckets, min_to_average));
+    Rcpp::traits::input_parameter< std::string >::type output(outputSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_dtm(corpus, vocabdf, unknown_buckets, output));
+    return rcpp_result_gen;
+END_RCPP
+}
+// C_tdm
+S4 C_tdm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf, int unknown_buckets, std::string output);
+RcppExport SEXP _mlvocab_C_tdm(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP unknown_bucketsSEXP, SEXP outputSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const ListOf<CharacterVector>& >::type corpus(corpusSEXP);
+    Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
+    Rcpp::traits::input_parameter< int >::type unknown_buckets(unknown_bucketsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type output(outputSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_tdm(corpus, vocabdf, unknown_buckets, output));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -91,9 +119,11 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_mlvocab_murmur3hash", (DL_FUNC) &_mlvocab_murmur3hash, 1},
     {"_mlvocab_C_vocab", (DL_FUNC) &_mlvocab_C_vocab, 2},
+    {"_mlvocab_C_embed_vocab", (DL_FUNC) &_mlvocab_C_embed_vocab, 5},
     {"_mlvocab_C_corpus2ixseq", (DL_FUNC) &_mlvocab_C_corpus2ixseq, 5},
     {"_mlvocab_C_corpus2ixmat", (DL_FUNC) &_mlvocab_C_corpus2ixmat, 8},
-    {"_mlvocab_C_embed_vocab", (DL_FUNC) &_mlvocab_C_embed_vocab, 5},
+    {"_mlvocab_C_dtm", (DL_FUNC) &_mlvocab_C_dtm, 4},
+    {"_mlvocab_C_tdm", (DL_FUNC) &_mlvocab_C_tdm, 4},
     {"_mlvocab_C_is_ascii", (DL_FUNC) &_mlvocab_C_is_ascii, 1},
     {NULL, NULL, 0}
 };

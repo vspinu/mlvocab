@@ -15,6 +15,10 @@ C_vocab <- function(corpus, oldvocab) {
     .Call(`_mlvocab_C_vocab`, corpus, oldvocab)
 }
 
+C_embed_vocab <- function(vocabdf, embeddings, by_row, unknown_buckets, min_to_average) {
+    .Call(`_mlvocab_C_embed_vocab`, vocabdf, embeddings, by_row, unknown_buckets, min_to_average)
+}
+
 C_corpus2ixseq <- function(corpus, vocabdf, keep_unknown, unknown_buckets, reverse) {
     .Call(`_mlvocab_C_corpus2ixseq`, corpus, vocabdf, keep_unknown, unknown_buckets, reverse)
 }
@@ -23,8 +27,12 @@ C_corpus2ixmat <- function(corpus, vocabdf, maxlen, pad_right, trunc_right, keep
     .Call(`_mlvocab_C_corpus2ixmat`, corpus, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, unknown_buckets, reverse)
 }
 
-C_embed_vocab <- function(vocabdf, embeddings, by_row, unknown_buckets, min_to_average) {
-    .Call(`_mlvocab_C_embed_vocab`, vocabdf, embeddings, by_row, unknown_buckets, min_to_average)
+C_dtm <- function(corpus, vocabdf, unknown_buckets, output) {
+    .Call(`_mlvocab_C_dtm`, corpus, vocabdf, unknown_buckets, output)
+}
+
+C_tdm <- function(corpus, vocabdf, unknown_buckets, output) {
+    .Call(`_mlvocab_C_tdm`, corpus, vocabdf, unknown_buckets, output)
 }
 
 C_is_ascii <- function(vec) {

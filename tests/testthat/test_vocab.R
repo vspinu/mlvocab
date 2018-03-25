@@ -65,19 +65,20 @@ test_that("prune_vocab works as expected", {
                  c("The", "quick", "brown", "fox", "jumps", "over", "lazy", "dog"))
 })
 
-test_that("encodding is preserved", {
+test_that("encodding doesn't matter", {
 
     txt <- c("”", "“", "–", "’", "…", "—", "‘", "•", "»", 
              "·", "�", "£", "«", "→", "®", "🙂", "←", "€", "™", 
              "©", "﻿", "­", "​", "−", "\u0093", "\u0094", "›", "\u0097", 
              "×", "§")
 
-    mlvocab:::C_is_ascii(txt)
-
+    v1 <- vocab(txt)
     Encoding(txt) <- "UTF-8"
+    v2 <- vocab(txt)
     Encoding(txt[1:5]) <- "native"
+    v3 <- vocab(txt)
 
-    expect_equal(txt, v$term)
-    ## expect_equal(Encoding(txt), Encoding(v$term))
+    expect_equal(Encoding(v1$term), Encoding(v2$term))
+    expect_equal(Encoding(v1$term), Encoding(v3$term))
 
 })

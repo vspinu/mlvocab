@@ -15,7 +15,7 @@ prune_vocab(vocab, max_terms = Inf, term_count_min = 1L,
   term_count_max = Inf, doc_proportion_min = 0, doc_proportion_max = 1,
   doc_count_min = 1L, doc_count_max = Inf)
 
-embed_vocab(vocab, embeddings, unknown_buckets = 0, min_to_average = 30)
+embed_vocab(vocab, embeddings, unknown_buckets = 0, max_in_bucket = 30)
 }
 \arguments{
 \item{corpus}{list of character vectors}
@@ -42,12 +42,14 @@ both \code{\link[=colnames]{colnames()}} and \code{\link[=rownames]{rownames()}}
 elements is considered term-dimension.}
 
 \item{unknown_buckets}{How many unknown buckets to create along the terms of
-the \code{vocab}. For each unknown bucket at least \code{min_to_average} embedding
+the \code{vocab}. For each unknown bucket at least \code{max_in_bucket} embedding
 vectors will be hashed into the bucket and averaged.}
 
-\item{min_per_bucket}{At least this many embedding vectors will be averaged
-into each unknown or missing bucket (see details. Lower number will
-results in faster processing.}
+\item{max_in_bucket}{At most this many embedding vectors will be averaged
+into each unknown or missing bucket (see details). Lower number results
+in faster processing. For large \code{unknown_buckets} this number might not
+be reached due to the finiteness of the \code{embeddings} vocabulary, or even
+result in \code{0} embeddings being hashed into a bucket producing \code{[0 0 ...]} embeddings for some buckets.}
 }
 \description{
 \code{\link[=vocab]{vocab()}} creates a vocabulry from a text corpus. \code{\link[=update_vocab]{update_vocab()}} updates

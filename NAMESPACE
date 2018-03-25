@@ -2,10 +2,12 @@
 
 S3method(print,mlvocab_vocab)
 export(arrange.mlvocab_vocab)
+export(dtm)
 export(embed_vocab)
 export(mlvocab)
 export(murmur3hash)
 export(prune_vocab)
+export(tdm)
 export(text2ixmat)
 export(text2ixseq)
 export(update_vocab)

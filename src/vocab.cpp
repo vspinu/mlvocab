@@ -7,6 +7,13 @@ DataFrame C_vocab(const ListOf<const CharacterVector>& corpus, const DataFrame& 
   vocab->insert_corpus(corpus);
   return vocab->df();
 }
+ 
+// [[Rcpp::export]]
+NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row,
+                            int unknown_buckets, int min_to_average) {
+  Vocab* v = new Vocab(vocabdf);
+  return(v->embed_vocab(embeddings, by_row, unknown_buckets, min_to_average));
+}
 
 // [[Rcpp::export]]
 List C_corpus2ixseq(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf,
@@ -24,12 +31,34 @@ IntegerMatrix C_corpus2ixmat(const ListOf<const CharacterVector>& corpus, const 
 }
 
 // [[Rcpp::export]]
-NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row,
-                            int unknown_buckets, int min_to_average) {
+S4 C_dtm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
+         int unknown_buckets, std::string output) {
   Vocab* v = new Vocab(vocabdf);
-  return(v->embed_vocab(embeddings, by_row, unknown_buckets, min_to_average));
+  if (output == "triplet") {
+    return v->term_matrix<MatrixType::DGT>(corpus, unknown_buckets, true);
+  } else if (output == "column") {
+    return v->term_matrix<MatrixType::DGC>(corpus, unknown_buckets, true);
+  } else if (output == "row") {
+    return v->term_matrix<MatrixType::DGR>(corpus, unknown_buckets, true);
+  } else {
+    Rf_error("Invalid `output_type` (%s)", output.c_str());
+  }
 }
 
+// [[Rcpp::export]]
+S4 C_tdm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
+         int unknown_buckets, std::string output) {
+  Vocab* v = new Vocab(vocabdf);
+  if (output == "triplet") {
+    return v->term_matrix<MatrixType::DGT>(corpus, unknown_buckets, false);
+  } else if (output == "column") {
+    return v->term_matrix<MatrixType::DGC>(corpus, unknown_buckets, false);
+  } else if (output == "row") {
+    return v->term_matrix<MatrixType::DGR>(corpus, unknown_buckets, false);
+  } else {
+    Rf_error("Invalid `output_type` (%s)", output.c_str());
+  }
+}
 
 // [[Rcpp::export]]
 LogicalVector C_is_ascii(const CharacterVector& vec) {
