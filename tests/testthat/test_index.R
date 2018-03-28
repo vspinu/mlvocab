@@ -17,34 +17,34 @@ test_that("text2seq works",  {
     vocab <- vocab(corpus)
     tcorpus <- c(corpus, list(c = c("dog", "eats", "dog")))
 
-    ixs <- text2ixseq(tcorpus, vocab, keep_unknown = T)
+    ixs <- tixseq(tcorpus, vocab, keep_unknown = T)
     expect_equal(corpus$a, vocab$term[ixs$a])
     expect_equal(corpus$b, vocab$term[ixs$b])
     expect_equal(ixs$c[[2]], 0L)
 
-    ixs <- text2ixseq(tcorpus, vocab, keep_unknown = F)
+    ixs <- tixseq(tcorpus, vocab, keep_unknown = F)
     expect_equal(ixs$c, c(9L, 9L))
 
     dogix <- which(vocab$term == "dog")
 
-    expect_equal(text2ixmat(tcorpus, vocab, maxlen = 12, keep_unknown = F)[3, 1:3],
+    expect_equal(tixmat(tcorpus, vocab, maxlen = 12, keep_unknown = F)[3, 1:3],
                  c(dogix, dogix, 0))
-    expect_equal(text2ixmat(tcorpus, vocab, maxlen = 12, keep_unknown = T)[3, 1:3],
+    expect_equal(tixmat(tcorpus, vocab, maxlen = 12, keep_unknown = T)[3, 1:3],
                  c(dogix, 0, dogix))
-    expect_equal(text2ixmat(tcorpus, vocab, maxlen = 12, keep_unknown = T)[, 9],
+    expect_equal(tixmat(tcorpus, vocab, maxlen = 12, keep_unknown = T)[, 9],
                  c(a = dogix, b = dogix, c = 0))
-    expect_equal(text2ixmat(tcorpus, vocab, maxlen = 12, pad_right = F, keep_unknown = T)[3, 9:12],
+    expect_equal(tixmat(tcorpus, vocab, maxlen = 12, pad_right = F, keep_unknown = T)[3, 9:12],
                  c(0, dogix, 0, dogix))
 
-    expect_equal(text2ixmat(tcorpus, vocab, maxlen = 12, trunc_right = F, keep_unknown = T)[, 12],
+    expect_equal(tixmat(tcorpus, vocab, maxlen = 12, trunc_right = F, keep_unknown = T)[, 12],
                  c(a = 0, b = dogix, c = 0))
-    expect_equal(text2ixmat(tcorpus, vocab, maxlen = 12, pad_right = F, trunc_right = F, keep_unknown = T)[, 12],
+    expect_equal(tixmat(tcorpus, vocab, maxlen = 12, pad_right = F, trunc_right = F, keep_unknown = T)[, 12],
                  c(a = dogix, b = dogix, c = dogix))
 
 })
 
-test_that("text2ixseq preserves order", {
-    expect_equal(text2ixseq(list(vocab$term), vocab)[[1]], 1:nrow(vocab))
+test_that("tixseq preserves order", {
+    expect_equal(tixseq(list(vocab$term), vocab)[[1]], 1:nrow(vocab))
 })
 
 test_that("text2seq with bucketing works",  {
@@ -58,10 +58,10 @@ test_that("text2seq with bucketing works",  {
     tcorpus <- c(corpus, list(c = c("dog", "eats", "apples", "and", "oranges")))
 
     nterms <- length(unique(unlist(corpus)))
-    ixs <- text2ixseq(tcorpus, vocab, unknown_buckets = 2)
+    ixs <- tixseq(tcorpus, vocab, unknown_buckets = 2)
     expect_equal(sort(unique(unlist(ixs))), 1:(nterms + 2))
 
-    ixs <- text2ixseq(tcorpus, vocab, unknown_buckets = 100)
+    ixs <- tixseq(tcorpus, vocab, unknown_buckets = 100)
     expect_equal(length(unique(unlist(ixs))), nterms + 4)
 })
 
@@ -88,15 +88,15 @@ test_that("encodding doesn't matter", {
     Encoding(txt[6:10]) <- "latin1"
     v2 <- vocab(txt2)
 
-    mat <- text2ixmat(list(txt, txt1, txt2), v)
+    mat <- tixmat(list(txt, txt1, txt2), v)
     expect_equal(mat[1, ], mat[2, ])
     expect_equal(mat[1, ], mat[3, ])
 
-    mat <- text2ixmat(list(txt, txt1, txt2), v1)
+    mat <- tixmat(list(txt, txt1, txt2), v1)
     expect_equal(mat[1, ], mat[2, ])
     expect_equal(mat[1, ], mat[3, ])
 
-    mat <- text2ixmat(list(txt, txt1, txt2), v2, unknown_buckets = 10)
+    mat <- tixmat(list(txt, txt1, txt2), v2, unknown_buckets = 10)
     expect_equal(mat[1, ], mat[2, ])
     expect_equal(mat[1, ], mat[3, ])
 

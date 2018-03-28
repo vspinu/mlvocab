@@ -54,7 +54,7 @@ typedef sparse_hash_map<string, uint_fast32_t>::iterator shm_string_iter;
 typedef sparse_hash_map<const char*, uint_fast32_t>::iterator shm_char_iter;
 
 
-/// generic matrix types
+/// GENERIC MATRIX TYPES
 enum class MatrixType
   {
    BASE,
@@ -64,5 +64,30 @@ enum class MatrixType
    DF,
    SIMPLE
   };
+
+
+/// WINDOW CONTEXT TYPES
+enum class ContextType
+  {
+   SYMMETRIC,
+   RIGHT,
+   LEFT
+  };
+
+
+/// DIMMENSION TYPE
+enum class MatrixDimType
+  {
+   ROW,
+   COL,
+   BOTH             
+  };
+
+
+/// DBG
+
+// adapted from https://stackoverflow.com/a/24118024/453735
+// used to analyze pas by ref semantics
+#define REFS(MSG,X) Rprintf("%20s SEXP=<%p>. OBJ=<%p>\n", MSG, (SEXP)X, &X ) ;
 
 #endif /* MLVOCAB_H */

@@ -21,6 +21,10 @@ class TripletMatrix {
   TripletMatrix(uint32_t nrow, uint32_t ncol):
     nrow(nrow), ncol(ncol) {};
 
+  inline void add(uint32_t i, uint32_t j, double d) {
+      vals[to64(i, j)] += d;
+  };
+
   void add(uint32_t i, uint32_t j, double d, bool iprimary) {
     if (iprimary)
       vals[to64(i, j)] += d;
@@ -41,20 +45,53 @@ class TripletMatrix {
   // verbose helper struct or a switch style dispatch.
   // https://stackoverflow.com/questions/2097811/c-syntax-for-explicit-specialization-of-a-template-function-in-a-template-clas
 
-  SEXP get(const MatrixType& mattype, Nullable<const CharacterVector&> inames, Nullable<const CharacterVector&> jnames) {
+  SEXP get(const MatrixType& mattype,
+           Nullable<const CharacterVector&> inames,
+           Nullable<const CharacterVector&> jnames,
+           bool symmetric = false) {
 
     switch(mattype) {
      case MatrixType::DGT:
-       return dgTMatrix(inames, jnames);
+       return dTMatrix(inames, jnames, symmetric);
      case MatrixType::DGC:
-       return dg_Matrix(inames, jnames, true);
+       return dMatrix(inames, jnames, true, symmetric);
      case MatrixType::DGR:
-       return dg_Matrix(inames, jnames, false);
+       return dMatrix(inames, jnames, false, symmetric);
      default:
        Rf_error("Invalid Matrix type");
     }
   };
 
+  // col/row-wise multiplication
+  void apply_weight(const NumericVector& weights, const MatrixDimType across) {
+    if (across == MatrixDimType::COL || across == MatrixDimType::BOTH) {
+      if (ncol > static_cast<int>(weights.size()))
+        Rf_error("Insufficient weights size (%d); ncol = %d", weights.size(), ncol);
+    }
+    if (across == MatrixDimType::ROW || across == MatrixDimType::BOTH) {
+      if (nrow > static_cast<int>(weights.size()))
+        Rf_error("Insufficient weights size (%d); nrow = %d", weights.size(), nrow);
+    }
+    
+    if (across == MatrixDimType::ROW)
+      for (auto& v : vals) {
+        int rix = first32(v.first);
+        v.second *= weights[rix];
+      }
+    else if (across == MatrixDimType::COL)
+      for (auto& v : vals) {
+        int cix = second32(v.first);
+        v.second *= weights[cix];
+      }
+    else
+      for (auto& v : vals) {
+        int rix = first32(v.first);
+        int cix = second32(v.first);
+        v.second *= (weights[cix] * weights[rix]);
+      }
+  }
+
+  
  private:
 
   
@@ -76,7 +113,9 @@ class TripletMatrix {
   
   // EXPORT FUNCTIONS
   
-  S4 dgTMatrix(Nullable<const CharacterVector&> rownames, Nullable<const CharacterVector&> colnames) {
+  S4 dTMatrix(Nullable<const CharacterVector&> rownames,
+              Nullable<const CharacterVector&> colnames,
+              bool symmetric) {
 
     int nrow = std::max(this->nrow, LENGTH(rownames.get()));
     int ncol = std::max(this->ncol, LENGTH(colnames.get()));
@@ -93,7 +132,10 @@ class TripletMatrix {
       i++;
     }
 
-    S4 out("dgTMatrix");
+    string s4class = string("d") + (symmetric ? "s" : "g") + "TMatrix";
+    S4 out(s4class);
+    if (symmetric)
+      out.slot("uplo") = "U";
     out.slot("i") = I;
     out.slot("j") = J;
     out.slot("x") = X;
@@ -103,7 +145,8 @@ class TripletMatrix {
     return out;
   }
 
-  S4 dg_Matrix (Nullable<const CharacterVector&> rownames, Nullable<const CharacterVector&> colnames, bool C = true) {
+  S4 dMatrix (Nullable<const CharacterVector&> rownames, Nullable<const CharacterVector&> colnames,
+              bool C, bool symmetric) {
 
     // see the doc entry CsparseMatrix for internals of dgCMatrix
     
@@ -142,7 +185,10 @@ class TripletMatrix {
       copy(xvec.begin(), xvec.end(), X.begin() + pbeg);
     }
 
-    S4 out(C ? "dgCMatrix" : "dgRMatrix");
+    string s4class = string("d") + (symmetric ? "s" : "g") + (C ? "C" : "R") + "Matrix";
+    S4 out(s4class);
+    if (symmetric)
+      out.slot("uplo") = "U";
     out.slot(C ? "i" : "j") = I;
     out.slot("p") = P;
     out.slot("x") = X;

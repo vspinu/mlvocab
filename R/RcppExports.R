@@ -19,6 +19,10 @@ C_embed_vocab <- function(vocabdf, embeddings, by_row, unknown_buckets, min_to_a
     .Call(`_mlvocab_C_embed_vocab`, vocabdf, embeddings, by_row, unknown_buckets, min_to_average)
 }
 
+C_rehash_vocab <- function(pruned_vocabdf, vocabdf, unknown_buckets) {
+    .Call(`_mlvocab_C_rehash_vocab`, pruned_vocabdf, vocabdf, unknown_buckets)
+}
+
 C_corpus2ixseq <- function(corpus, vocabdf, keep_unknown, unknown_buckets, reverse) {
     .Call(`_mlvocab_C_corpus2ixseq`, corpus, vocabdf, keep_unknown, unknown_buckets, reverse)
 }
@@ -27,15 +31,27 @@ C_corpus2ixmat <- function(corpus, vocabdf, maxlen, pad_right, trunc_right, keep
     .Call(`_mlvocab_C_corpus2ixmat`, corpus, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, unknown_buckets, reverse)
 }
 
-C_dtm <- function(corpus, vocabdf, unknown_buckets, output) {
-    .Call(`_mlvocab_C_dtm`, corpus, vocabdf, unknown_buckets, output)
+C_dtm <- function(corpus, vocabdf, term_weights, unknown_buckets, output, ngram_min, ngram_max) {
+    .Call(`_mlvocab_C_dtm`, corpus, vocabdf, term_weights, unknown_buckets, output, ngram_min, ngram_max)
 }
 
-C_tdm <- function(corpus, vocabdf, unknown_buckets, output) {
-    .Call(`_mlvocab_C_tdm`, corpus, vocabdf, unknown_buckets, output)
+C_tdm <- function(corpus, vocabdf, term_weights, unknown_buckets, output, ngram_min, ngram_max) {
+    .Call(`_mlvocab_C_tdm`, corpus, vocabdf, term_weights, unknown_buckets, output, ngram_min, ngram_max)
+}
+
+C_tcm <- function(corpus, vocabdf, term_weights, unknown_buckets, output, window_size, window_weights, ngram_min, ngram_max, context) {
+    .Call(`_mlvocab_C_tcm`, corpus, vocabdf, term_weights, unknown_buckets, output, window_size, window_weights, ngram_min, ngram_max, context)
 }
 
 C_is_ascii <- function(vec) {
     .Call(`_mlvocab_C_is_ascii`, vec)
+}
+
+C_wordgram <- function(vec, ngram_min, ngram_max, sep) {
+    .Call(`_mlvocab_C_wordgram`, vec, ngram_min, ngram_max, sep)
+}
+
+C_ngram_weights <- function(weights, ngram_min, ngram_max) {
+    .Call(`_mlvocab_C_ngram_weights`, weights, ngram_min, ngram_max)
 }
 

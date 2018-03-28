@@ -2,31 +2,40 @@
 
 ##' Convert text to integer indexes
 ##'
+##' @param corpus text corpus
+##' @param vocab data frame produced by [vocab()] or [update_vocab()]
+##' @param keep_unknown logical. If `TRUE`, preserve unknowns in the output
+##'   sequences.
+##' @param unknown_buckets integer. How many buckets to hash unknowns into.
+##' @return [tixseq()] returns a list of integer vectors, [tixmat()] returns an
+##'   integer matrix, one row per sequence.
 ##' @rdname term_index
-##' @param corpus 
-##' @param vocab 
-##' @param keep_unknown 
-##' @param unknown_buckets 
 ##' @export
-text2ixseq <- function(corpus, vocab, keep_unknown = unknown_buckets > 0, unknown_buckets = 0,
-                         reverse = FALSE) {
-    structure(C_corpus2ixseq(corpus, vocab,  keep_unknown, unknown_buckets, reverse),
-              names = names(corpus))
+tixseq <- function(corpus, vocab,
+                   keep_unknown = unknown_buckets > 0,
+                   unknown_buckets = attr(vocab, "unknown_buckets"),
+                   reverse = FALSE) {
+  structure(C_corpus2ixseq(corpus, vocab,  keep_unknown, unknown_buckets, reverse),
+            names = names(corpus))
 }
 
+##' @param maxlen integer. Maximum length of each sequence.
+##' @param pad_right logical. Should 0-padding of shorter than `maxlen`
+##'   sequences happen on the right? Default `TRUE`.
+##' @param trunc_right logical. Should truncation of longer than `maxlen`
+##'   sequences happen on the right? Default `TRUE`.
+##' @param reverse logical. Should each sequence be reversed in the final
+##'   output? Reversion happens after `pad_right` and `trunc_right` have been
+##'   applied to the original text sequence. Default `FALSE`.
 ##' @rdname term_index
-##' @param corpus 
-##' @param vocab 
-##' @param maxlen 
-##' @param pad_right 
-##' @param trunc_right 
-##' @param keep_unknown 
 ##' @export
-text2ixmat <- function(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
-                       keep_unknown = unknown_buckets > 0,  unknown_buckets = 0, reverse = FALSE) {
-    out <- C_corpus2ixmat(corpus, vocab, maxlen, pad_right, trunc_right,
-                          keep_unknown, unknown_buckets, reverse)
-    if (!is.null(names(corpus)))
-        rownames(out) <- names(corpus)
-    out
+tixmat <- function(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
+                   keep_unknown = unknown_buckets > 0,
+                   unknown_buckets = attr(vocab, "unknown_buckets"),
+                   reverse = FALSE) {
+  out <- C_corpus2ixmat(corpus, vocab, maxlen, pad_right, trunc_right,
+                        keep_unknown, unknown_buckets, reverse)
+  if (!is.null(names(corpus)))
+    rownames(out) <- names(corpus)
+  out
 }

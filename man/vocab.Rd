@@ -7,7 +7,7 @@
 \alias{embed_vocab}
 \title{Manipulate vocabularies}
 \usage{
-vocab(corpus, ngram = c(1, 1), chargram = FALSE)
+vocab(corpus, ngram = c(1, 1), ngram_sep = "_")
 
 update_vocab(vocab, corpus)
 
@@ -22,10 +22,7 @@ embed_vocab(vocab, embeddings, unknown_buckets = 0, max_in_bucket = 30)
 
 \item{ngram}{a vector of the form \code{c(min_ngram, max_ngram)}.}
 
-\item{chargram}{currently unused}
-
-\item{vocab}{\code{data.frame} obtained from a call to \code{\link[=vocab]{vocab()}} or
-\code{\link[text2vec:create_vocab]{text2vec::create_vocab()}} from \code{text2vec} package.}
+\item{vocab}{\code{data.frame} obtained from a call to \code{\link[=vocab]{vocab()}}.}
 
 \item{max_terms}{max number of terms to preserve}
 
@@ -54,8 +51,6 @@ result in \code{0} embeddings being hashed into a bucket producing \code{[0 0 ..
 \description{
 \code{\link[=vocab]{vocab()}} creates a vocabulry from a text corpus. \code{\link[=update_vocab]{update_vocab()}} updates
 an existing vocabulary. \code{\link[=prune_vocab]{prune_vocab()}} prunes vocabulary.
-
-\code{prune_vocab} is an adaptation of \code{\link[text2vec:prune_vocabulary]{text2vec::prune_vocabulary()}}.
 
 Similarly, when a term from the vocabulary is not present in the embedding
 matrix (aka missing) \code{min_to_average} embeddings are averaged to produce the

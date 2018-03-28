@@ -16,6 +16,13 @@ NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings,
 }
 
 // [[Rcpp::export]]
+DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& vocabdf, const int unknown_buckets) {
+  Vocab* v = new Vocab(pruned_vocabdf);
+  v->rebucket_unknowns(vocabdf, unknown_buckets);
+  return v->df();
+}
+
+// [[Rcpp::export]]
 List C_corpus2ixseq(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf,
                     bool keep_unknown, int unknown_buckets, bool reverse) {
   Vocab* v = new Vocab(vocabdf);
@@ -31,33 +38,71 @@ IntegerMatrix C_corpus2ixmat(const ListOf<const CharacterVector>& corpus, const 
 }
 
 // [[Rcpp::export]]
-S4 C_dtm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
-         int unknown_buckets, std::string output) {
+SEXP C_dtm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
+           const Nullable<NumericVector>& term_weights, const int unknown_buckets,
+           const std::string output,
+           const int ngram_min, const int ngram_max) {
   Vocab* v = new Vocab(vocabdf);
   if (output == "triplet") {
-    return v->term_matrix<MatrixType::DGT>(corpus, unknown_buckets, true);
+    return v->term_matrix<MatrixType::DGT>(corpus, unknown_buckets, true, ngram_min, ngram_max, term_weights);
   } else if (output == "column") {
-    return v->term_matrix<MatrixType::DGC>(corpus, unknown_buckets, true);
+    return v->term_matrix<MatrixType::DGC>(corpus, unknown_buckets, true, ngram_min, ngram_max, term_weights);
   } else if (output == "row") {
-    return v->term_matrix<MatrixType::DGR>(corpus, unknown_buckets, true);
+    return v->term_matrix<MatrixType::DGR>(corpus, unknown_buckets, true, ngram_min, ngram_max, term_weights);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());
   }
 }
 
 // [[Rcpp::export]]
-S4 C_tdm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
-         int unknown_buckets, std::string output) {
+SEXP C_tdm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
+           const Nullable<NumericVector>& term_weights, const int unknown_buckets,
+           std::string output,
+           const int ngram_min, const int ngram_max) {
   Vocab* v = new Vocab(vocabdf);
   if (output == "triplet") {
-    return v->term_matrix<MatrixType::DGT>(corpus, unknown_buckets, false);
+    return v->term_matrix<MatrixType::DGT>(corpus, unknown_buckets, false, ngram_min, ngram_max, term_weights);
   } else if (output == "column") {
-    return v->term_matrix<MatrixType::DGC>(corpus, unknown_buckets, false);
+    return v->term_matrix<MatrixType::DGC>(corpus, unknown_buckets, false, ngram_min, ngram_max, term_weights);
   } else if (output == "row") {
-    return v->term_matrix<MatrixType::DGR>(corpus, unknown_buckets, false);
+    return v->term_matrix<MatrixType::DGR>(corpus, unknown_buckets, false, ngram_min, ngram_max, term_weights);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());
   }
+}
+
+// [[Rcpp::export]]
+SEXP C_tcm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
+         const Nullable<NumericVector>& term_weights, const int unknown_buckets,
+         const std::string& output,
+         const size_t window_size, const std::vector<double>& window_weights,
+         int ngram_min, int ngram_max, const std::string& context) {
+  
+  Vocab* v = new Vocab(vocabdf);
+
+  ContextType context_type;
+  if (context == "symmetric") {
+    context_type = ContextType::SYMMETRIC;
+  } else if (context == "right") {
+    context_type = ContextType::RIGHT;
+  } else if (context == "left") {
+    context_type = ContextType::LEFT;
+  } else {
+    Rf_error("Invalid `context` (%s)", context.c_str());
+  }
+  
+  if (output == "triplet") {
+    return v->term_cooccurrence_matrix<MatrixType::DGT>(
+      corpus, unknown_buckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
+  } else if (output == "column") {
+    return v->term_cooccurrence_matrix<MatrixType::DGC>(
+      corpus, unknown_buckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
+  } else if (output == "row") {
+    return v->term_cooccurrence_matrix<MatrixType::DGR>(
+      corpus, unknown_buckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
+  } else {
+    Rf_error("Invalid `output_type` (%s)", output.c_str());
+  }  
 }
 
 // [[Rcpp::export]]
@@ -68,4 +113,14 @@ LogicalVector C_is_ascii(const CharacterVector& vec) {
     out[i] = is_ascii(vec[i].begin());
   }
   return out;
+}
+
+// [[Rcpp::export]]
+CharacterVector C_wordgram(const CharacterVector& vec, int ngram_min, int ngram_max, std::string sep) {
+  return wrap(wordgrams(as<vector<string>>(vec), ngram_min, ngram_max, sep));
+}
+
+// [[Rcpp::export]]
+NumericVector C_ngram_weights(const NumericVector& weights, int ngram_min, int ngram_max) {
+  return wrap(ngram_weights(as<vector<double>>(weights), ngram_min, ngram_max));
 }
