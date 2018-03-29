@@ -179,13 +179,27 @@ mlvocab <- function(x = identity, corpus_var, ngram = c(1, 1),
 print.mlvocab_vocab <- function(x, ...) {
   cat("Number of docs: ", attr(x, "document_count", TRUE), "\n",
       "Ngrams: ", paste(attr(x, "ngram", TRUE), collapse = " "), "\n",
+      "Buckets: ", attr(x, "unknown_buckets"), "\n", 
       "Vocabulary:\n", sep = "")
   newx <- x
   oldClass(newx) <- "data.frame"
-  if (nrow(newx) > 20) {
+  unknown_buckets <- attr(x, "unknown_buckets")
+  if (nrow(newx) > 30) {
+    divider <- data.frame(term = "...", term_count = "...", doc_count = "...", row.names = "")
+    tail_size <- if (unknown_buckets > 20) 6 else unknown_buckets + 6
     newx <- rbind(format.data.frame(head(newx)),
-                  data.frame(term = "...", term_count = "...", doc_count = "...", row.names = ""),
-                  format.data.frame(tail(newx)))
+                  if (unknown_buckets > 20) {
+                    ustart <- nrow(x) - unknown_buckets
+                    urange <- (ustart - 5):(ustart + 6)
+                    divider2 <- data.frame(term = "...", term_count = "...", doc_count = "...", row.names = " ")
+                    rbind(divider,
+                          format.data.frame(newx[urange, ]),
+                          divider2)
+                  } else {
+                    divider
+                  },
+                  format.data.frame(tail(newx, n = tail_size)))
+    rownames(newx) <- sub("^  .*$", "", rownames(newx))
   }
   print(newx)
   invisible(x)
