@@ -5,6 +5,7 @@
 DataFrame C_vocab(const ListOf<const CharacterVector>& corpus, const DataFrame& oldvocab) {
   Vocab* vocab = new Vocab(oldvocab);
   vocab->insert_corpus(corpus);
+  vocab->reinsert_unknown_buckets(oldvocab);
   return vocab->df();
 }
  

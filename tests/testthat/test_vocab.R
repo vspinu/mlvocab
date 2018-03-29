@@ -85,6 +85,15 @@ test_that("vocab_prune adds buckets correctly", {
 
 })
 
+test_that("vocab_update and vocab_prune reposition unknown buckets at the end", {
+
+  v <- vocab(corpus, c(1, 2))
+  v <- vocab_prune(v, max_terms = 10, unknown_buckets = 3)
+  v <- vb[sample(nrow(vb), nrow(vb)), ]
+  vocab_update(v, corpus)
+  
+})
+
 test_that("vocab_prune works incrementally", {
 
   v <- vocab(corpus, c(1, 2))

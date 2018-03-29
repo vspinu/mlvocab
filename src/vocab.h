@@ -46,6 +46,7 @@ class Vocab {
   string ngram_sep;
   int ndocs;
   int unknown_buckets;
+  vector<size_t> unknown_buckets_ixs;
   int nuniqterms;
   /* bool chargram; */
 
@@ -53,8 +54,9 @@ class Vocab {
   vector<VocabEntry> vocab;
 
  public:
-  Vocab();
+
   Vocab(const DataFrame& df) {
+    
     const IntegerVector& ngram = df.attr("ngram");
     ngram_min = ngram[0];
     ngram_max = ngram[1];
@@ -71,14 +73,35 @@ class Vocab {
     const IntegerVector& term_count = df["term_count"];
     const IntegerVector& doc_count = df["doc_count"];
 
-    size_t N = df.nrow() - unknown_buckets;
+    size_t N = df.nrow();
 
-    // core terms
     for (size_t i = 0; i < N; i++) {
-      insert_entry(as<string>(terms[i]), term_count[i], doc_count[i]);
+      const char* termc = terms[i];
+      if (is_bkt_name(termc)) {
+        unknown_buckets_ixs.push_back(i);
+      } else {
+        // core terms
+        insert_entry(string(termc), term_count[i], doc_count[i]);
+      }
     }
 
   };
+
+  void reinsert_unknown_buckets(const DataFrame& df) {
+    // re-insert all unknown buckets at the end
+    if (unknown_buckets_ixs.size() > 0) {
+      const CharacterVector& terms = df["term"];
+      const IntegerVector& term_count = df["term_count"];
+      const IntegerVector& doc_count = df["doc_count"];
+ 
+      for (size_t bkt = 1; bkt <= unknown_buckets; bkt++) {
+        insert_entry(bkt_name(bkt), 0, 0);
+      }
+      for (const size_t i : unknown_buckets_ixs) {
+        insert_entry(as<string>(terms[i]), term_count[i], doc_count[i]);
+      }
+    }
+  }
  
   void rebucket_unknowns(const DataFrame& df, size_t unknown_buckets) {
     const IntegerVector& rubuckets = df.attr("unknown_buckets");
@@ -92,25 +115,27 @@ class Vocab {
       const CharacterVector& terms = df["term"];
       const IntegerVector& term_count = df["term_count"];
       const IntegerVector& doc_count = df["doc_count"];
-      size_t Nall = df.nrow();
-      size_t N = Nall - ubuckets;
+      size_t N = df.nrow();
 
-      // 1) initialize  buckets first to keep nice order
       for (size_t bkt = 1; bkt <= unknown_buckets; bkt++) {
         insert_entry(bkt_name(bkt), 0, 0);
       }
-      // 2) insert all old unknown counts
-      for (size_t i = N; i < Nall; i++) {
-        insert_entry(as<string>(terms[i]), term_count[i], doc_count[i]);
-      }
-      // 3) rehash all "new" unknowns
+      
+      // 2) rehash all "new" unknowns
       shm_string_iter vit;
       for (size_t i = 0; i < N; i++) {
-        string term = as<string>(terms[i]);
-        vit = vocabix.find(term);
-        if (vit == vocabix.end()) {
-          uint_fast32_t bkt = murmur3hash(term) % unknown_buckets + 1;
-          insert_entry(bkt_name(bkt), term_count[i], doc_count[i]);
+        const char* termc = terms[i];
+        string term(termc);
+        if (is_bkt_name(termc)) {
+          // insert unknown counts
+          insert_entry(term, term_count[i], doc_count[i]);
+        } else {
+          // rehash new unknowns
+          vit = vocabix.find(term);
+          if (vit == vocabix.end()) {
+            uint_fast32_t bkt = murmur3hash(term) % unknown_buckets + 1;
+            insert_entry(bkt_name(bkt), term_count[i], doc_count[i]);
+          }
         }
       }
 
@@ -520,6 +545,10 @@ class Vocab {
 
   inline string bkt_name(uint_fast32_t bkt) {
     return "__" + to_string(bkt);
+  }
+
+  inline bool is_bkt_name(const char* termc) {
+    return termc[0] == '_' && termc[1] == '_';
   }
 
   void check_ngram_limits(const int ngram_min, const int ngram_max) {

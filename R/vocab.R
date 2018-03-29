@@ -25,6 +25,10 @@ vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_") {
 vocab_update <- function(vocab, corpus) {
   if (!inherits(vocab, "mlvocab_vocab"))
     stop("'vocab' must be of class 'mlvocab_vocab'")
+  pruned <- attr(vocab, "pruned")
+  if (isTRUE(attr(vocab, "pruned"))) {
+    stop("Cannot update pruned vocabulary")
+  }
   ## if (isTRUE(attr(vocab, "chargram", F)))
   ##     attr(vocab, "chargram") <- FALSE
   C_vocab(corpus, vocab)
@@ -40,7 +44,7 @@ vocab_update <- function(vocab, corpus) {
 ##' @param doc_count_max,doc_proportion_max keep terms appearing in at _most_
 ##'   this many docs
 ##' @param unknown_buckets How many unknown buckets to create along the
-##'   remaining terms of the pruned `vocab`. All prunned terms will be hashed
+##'   remaining terms of the pruned `vocab`. All pruned terms will be hashed
 ##'   into this many buckets and the corresponding statistics (`term_count` and
 ##'   `doc_count`) updated.
 ##' @rdname vocab
@@ -64,10 +68,8 @@ vocab_prune <- function(vocab,
   if (ubkts_old > 0 && ubkts_old != unknown_buckets)
     stop("Cannot rehash current unknown buckets with a different value of `unknown_buckets`")
 
-  vocab_size <- nrow(vocab) - ubkts_old
   document_count <- attr(vocab, "document_count", TRUE)
-
-  ind <- rep.int(c(TRUE, FALSE), c(vocab_size, ubkts_old))
+  ind <- !grepl("^__", vocab$term)
 
   if (term_count_min > 1L)
     ind <- ind & (vocab[["term_count"]] >= term_count_min)
@@ -102,13 +104,14 @@ vocab_prune <- function(vocab,
   for (a in setdiff(names(attributes(pruned)), "row.names")) {
     attr(pruned, a) <- attr(vocab, a, TRUE)
   }
+
   attr(pruned, "unknown_buckets") <- 0L
 
   if  (unknown_buckets > 0) {
-    C_rehash_vocab(pruned, vocab, unknown_buckets)
-  } else {
-    pruned
+    pruned <- C_rehash_vocab(pruned, vocab, unknown_buckets)
   }
+
+  attr(pruned, "pruned") <- TRUE
 }
 
 ##' @description [vocab_embed()] subsets a (commonly large) pre-trained
