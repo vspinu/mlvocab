@@ -7,8 +7,8 @@
 
 ##' Manipulate vocabularies
 ##'
-##' [vocab()] creates a vocabulry from a text corpus. [update_vocab()] updates
-##' an existing vocabulary. [prune_vocab()] prunes vocabulary.  
+##' [vocab()] creates a vocabulry from a text corpus; [vocab_update()] and
+##' [vocab_prune()], respectively,  update and prune an existing vocabulary.
 ##' @param corpus list of character vectors
 ##' @param ngram a vector of the form `c(min_ngram, max_ngram)`.
 ##' @export
@@ -22,7 +22,7 @@ vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_") {
 ##' @param vocab `data.frame` obtained from a call to [vocab()].
 ##' @rdname vocab
 ##' @export
-update_vocab <- function(vocab, corpus) {
+vocab_update <- function(vocab, corpus) {
   if (!inherits(vocab, "mlvocab_vocab"))
     stop("'vocab' must be of class 'mlvocab_vocab'")
   ## if (isTRUE(attr(vocab, "chargram", F)))
@@ -42,10 +42,10 @@ update_vocab <- function(vocab, corpus) {
 ##' @param unknown_buckets How many unknown buckets to create along the
 ##'   remaining terms of the pruned `vocab`. All prunned terms will be hashed
 ##'   into this many buckets and the corresponding statistics (`term_count` and
-##'   `doc_count`) added to the vocabulary.
+##'   `doc_count`) updated.
 ##' @rdname vocab
 ##' @export
-prune_vocab <- function(vocab,
+vocab_prune <- function(vocab,
                         max_terms = Inf, 
                         term_count_min = 1L,
                         term_count_max = Inf,
@@ -55,7 +55,7 @@ prune_vocab <- function(vocab,
                         doc_count_max = Inf,
                         unknown_buckets = attr(vocab, "unknown_buckets")) {
 
-  ## adapted from [text2vec::prune_vocabulary()]
+  ## adapted from [text2vec::vocab_pruneulary()]
   
   if (!inherits(vocab, "mlvocab_vocab"))
     stop("'vocab' must be an object of class `mlvocab_vocab`")
@@ -111,14 +111,19 @@ prune_vocab <- function(vocab,
   }
 }
 
-##' [embed_vocab()] is commonly used in conjunction with sequence generators
-##' ([tixmat()] and [tixseq()]). When a terms in a corpus is not present
-##' in a vocabulary (aka unknown), it is hashed into one of the
-##' `unknown_buckets` (hashing trick). Embeddings hashed into a bucket are
-##' averaged to produce the embedding for that bucket.
+##' @description [vocab_embed()] subsets a (commonly large) pre-trained
+##'   word-vector matrix into a smaller, one vector per term, embedding
+##'   matrix.
+##'
+##' [vocab_embed()] is commonly used in conjunction with sequence generators
+##' ([tixmat()] and [tixseq()]). When a term in a corpus is not present in a
+##' vocabulary (aka unknown), it is hashed into one of the `unknown_buckets`
+##' buckets. Embeddings which are hashed into same bucket are averaged to
+##' produce the embedding for that bucket. Maximum number of embeddings to
+##' average per bucket is controled with `max_in_bucket` parameter.
 ##'
 ##' Similarly, when a term from the vocabulary is not present in the embedding
-##' matrix (aka missing) `min_to_average` embeddings are averaged to produce the
+##' matrix (aka missing) `max_in_bucket` embeddings are averaged to produce the
 ##' missing embedding. Different buckets are used for "missing" and "unknown"
 ##' embeddings because `unknown_buckets` can be 0.
 ##' 
@@ -133,7 +138,7 @@ prune_vocab <- function(vocab,
 ##'   embeddings for some buckets.
 ##' @rdname vocab
 ##' @export
-embed_vocab <- function(vocab, embeddings,
+vocab_embed <- function(vocab, embeddings,
                         unknown_buckets = attr(vocab, "unknown_buckets"),
                         max_in_bucket = 30) {
   if (is.null(colnames(embeddings)) && is.null(rownames(embeddings)))
@@ -149,8 +154,6 @@ embed_vocab <- function(vocab, embeddings,
 
 ### OTHER STUFF
 
-##' @keywords internal
-##' @export
 mlvocab <- function(x = identity, corpus_var, ngram = c(1, 1), 
                     vocab_name = corpus_var, ...) {
   if (is.function(x))
@@ -166,7 +169,7 @@ mlvocab <- function(x = identity, corpus_var, ngram = c(1, 1),
                         if (is.null(old_vocab))
                           vocab(corpus = corpus, ngram = ngram)
                         else
-                          update_vocab(old_vocab, corpus)
+                          vocab_update(old_vocab, corpus)
                       }), 
                     x))
 }

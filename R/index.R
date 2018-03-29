@@ -3,7 +3,7 @@
 ##' Convert text to integer indexes
 ##'
 ##' @param corpus text corpus
-##' @param vocab data frame produced by [vocab()] or [update_vocab()]
+##' @param vocab data frame produced by [vocab()] or [vocab_update()]
 ##' @param keep_unknown logical. If `TRUE`, preserve unknowns in the output
 ##'   sequences.
 ##' @param unknown_buckets integer. How many buckets to hash unknowns into.

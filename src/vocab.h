@@ -75,7 +75,6 @@ class Vocab {
 
     // core terms
     for (size_t i = 0; i < N; i++) {
-      Rprintf("i:%d\n", i);
       insert_entry(as<string>(terms[i]), term_count[i], doc_count[i]);
     }
 

@@ -4,9 +4,36 @@
 \name{mlvocab-package}
 \alias{mlvocab}
 \alias{mlvocab-package}
-\title{Vocabulary utilities with support for \code{magistral}.}
+\title{Vocabulary preprocessing utilities for nlp pipelines.}
 \description{
-Vocabulary utilities with support for \code{magistral}.
+The following consistent abstraction is provided by the \code{mlvocab}
+package. First, the vocabulary object should be built from the entire corpus
+with the help of \code{\link[=vocab]{vocab()}}, \code{\link[=vocab_update]{vocab_update()}} and \code{\link[=vocab_prune]{vocab_prune()}}
+functions. Then, the vocabulary is passed alongside the corpus to a variety
+of corpus pre-processing functions.
+}
+\details{
+Most of the \code{mlvocab} functions accept \code{unknown_buckets} argument for
+partial or full hashing of the corpus.
+
+Current functionality includes:
+
+\itemize{
+
+\item{term index sequences}{\code{\link[=tixseq]{tixseq()}} and \code{\link[=ttixmat]{ttixmat()}} produce integer
+sequences suitable for direct consumption by various sequence models.}
+
+\item{term matrices}{\code{\link[=dtm]{dtm()}}, \code{\link[=tdm]{tdm()}} and \code{\link[=tcm]{tcm()}} create document-term,
+term-document and term-co-occurrence matrices respectively.}
+
+\item{vocabulary embedding}{given pre-trained word-vectors \code{\link[=embed_vocab]{embed_vocab()}}
+creates smaller embedding matrices treating missing and unknown vocabulary
+terms with grace.}
+
+\item{tfidf weighting}{\code{\link[=tfidf]{tfidf()}} copters various versions of term frequency,
+inverse document frequency weighting of \code{dtm} and \code{tdm} matrices.}
+
+}
 }
 \seealso{
 Useful links:
@@ -17,7 +44,6 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Vitalie Spinu \email{spinuvit@gmail.com}
-
+Vitalie Spinu (\email{spinuvit@gmail.com})
 }
 \keyword{internal}

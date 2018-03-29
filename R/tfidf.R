@@ -2,7 +2,7 @@
 ##' Tfidf re-weighting of [dtm()] and [tdm()] matrices.
 ##'
 ##' @param mat output of [dtm()] or [tdm()] function
-##' @param vocab output of [vocab()] or [update_vocab()]
+##' @param vocab output of [vocab()] or [vocab_update()]
 ##' @param norm normalization to apply for each document. Either "l1", "l2" or
 ##'   "none"
 ##' @param sublinear_tf when `TRUE` use `1 + log(tf)` instead of the raw `tf`
@@ -17,7 +17,7 @@ tfidf <- function(mat, vocab, norm = c("l1", "l2", "none"), sublinear_tf = FALSE
   if (identical(names, vocab$term)) {
     doc_count <- vocab$doc_count
   } else {
-    ixs <- match(names, v$term)
+    ixs <- match(names, vocab$term)
     if (any(is.na(ixs)))
       stop("Some `mat` terms are not in the vocabulary")
     doc_count <- vocab$doc_count[ixs]
@@ -35,6 +35,7 @@ tfidf <- function(mat, vocab, norm = c("l1", "l2", "none"), sublinear_tf = FALSE
 }
 
 normalize <- function(mat, norm, byrow) {
+  
   stopifnot(inherits(mat, "sparseMatrix"))
   if (norm == "none")
     return(m)

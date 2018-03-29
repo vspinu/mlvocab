@@ -6,32 +6,37 @@
 \title{Convert text to integer indexes}
 \usage{
 tixseq(corpus, vocab, keep_unknown = unknown_buckets > 0,
-  unknown_buckets = 0, reverse = FALSE)
+  unknown_buckets = attr(vocab, "unknown_buckets"), reverse = FALSE)
 
-tixmat(corpus, vocab, maxlen = 100, pad_right = TRUE,
-  trunc_right = TRUE, keep_unknown = unknown_buckets > 0,
-  unknown_buckets = 0, reverse = FALSE)
+tixmat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
+  keep_unknown = unknown_buckets > 0, unknown_buckets = attr(vocab,
+  "unknown_buckets"), reverse = FALSE)
 }
 \arguments{
-\item{corpus}{}
+\item{corpus}{text corpus}
 
-\item{vocab}{}
+\item{vocab}{data frame produced by \code{\link[=vocab]{vocab()}} or \code{\link[=vocab_update]{vocab_update()}}}
 
-\item{keep_unknown}{}
+\item{keep_unknown}{logical. If \code{TRUE}, preserve unknowns in the output
+sequences.}
 
-\item{unknown_buckets}{}
+\item{unknown_buckets}{integer. How many buckets to hash unknowns into.}
 
-\item{maxlen}{}
+\item{reverse}{logical. Should each sequence be reversed in the final
+output? Reversion happens after \code{pad_right} and \code{trunc_right} have been
+applied to the original text sequence. Default \code{FALSE}.}
 
-\item{pad_right}{}
+\item{maxlen}{integer. Maximum length of each sequence.}
 
-\item{trunc_right}{}
+\item{pad_right}{logical. Should 0-padding of shorter than \code{maxlen}
+sequences happen on the right? Default \code{TRUE}.}
 
-\item{corpus}{}
-
-\item{vocab}{}
-
-\item{keep_unknown}{}
+\item{trunc_right}{logical. Should truncation of longer than \code{maxlen}
+sequences happen on the right? Default \code{TRUE}.}
+}
+\value{
+\code{\link[=tixseq]{tixseq()}} returns a list of integer vectors, \code{\link[=tixmat]{tixmat()}} returns an
+integer matrix, one row per sequence.
 }
 \description{
 Convert text to integer indexes
