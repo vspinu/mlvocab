@@ -7,11 +7,11 @@
 ##' @param keep_unknown logical. If `TRUE`, preserve unknowns in the output
 ##'   sequences.
 ##' @param unknown_buckets integer. How many buckets to hash unknowns into.
-##' @return [tixseq()] returns a list of integer vectors, [tixmat()] returns an
+##' @return [tiseq()] returns a list of integer vectors, [timat()] returns an
 ##'   integer matrix, one row per sequence.
 ##' @rdname term_index
 ##' @export
-tixseq <- function(corpus, vocab,
+tiseq <- function(corpus, vocab,
                    keep_unknown = unknown_buckets > 0,
                    unknown_buckets = attr(vocab, "unknown_buckets"),
                    reverse = FALSE) {
@@ -29,7 +29,7 @@ tixseq <- function(corpus, vocab,
 ##'   applied to the original text sequence. Default `FALSE`.
 ##' @rdname term_index
 ##' @export
-tixmat <- function(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
+timat <- function(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
                    keep_unknown = unknown_buckets > 0,
                    unknown_buckets = attr(vocab, "unknown_buckets"),
                    reverse = FALSE) {

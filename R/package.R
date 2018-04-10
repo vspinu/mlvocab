@@ -1,10 +1,10 @@
-##' Vocabulary centric preprocessing utilities for NLP pipelines.
+##' `mlvocab` package
 ##'
-##' The following consistent abstraction is provided by the `mlvocab`
-##' package. First, the vocabulary object should be built from the entire corpus
-##' with the help of [vocab()], [vocab_update()] and [vocab_prune()]
-##' functions. Then, the vocabulary is passed alongside the corpus to a variety
-##' of corpus pre-processing functions.
+##' The following two-step abstraction is provided by the `mlvocab`
+##' package. First, the vocabulary object is built from the entire corpus with
+##' the help of [vocab()], [vocab_update()] and [vocab_prune()]
+##' functions. Second, the vocabulary is passed alongside the corpus to a
+##' variety of corpus pre-processing functions.
 ##'
 ##' Most of the `mlvocab` functions accept `unknown_buckets` argument for
 ##' partial or full hashing of the corpus.
@@ -13,7 +13,7 @@
 ##' 
 ##' \itemize{
 ##'
-##' \item{term index sequences}{[tixseq()] and [tixmat()] produce integer
+##' \item{term index sequences}{[tiseq()] and [timat()] produce integer
 ##'   sequences suitable for direct consumption by various sequence models.}
 ##'
 ##' \item{term matrices}{[dtm()], [tdm()] and [tcm()] create document-term,
@@ -23,8 +23,9 @@
 ##' creates smaller embedding matrices treating missing and unknown vocabulary
 ##' terms with grace.}
 ##'
-##' \item{tfidf weighting}{[tfidf()] copters various versions of term frequency,
-##' inverse document frequency weighting of `dtm` and `tdm` matrices.}
+##' \item{tfidf weighting}{[tfidf()] computes various versions of term
+##' frequency, inverse document frequency weighting of `dtm` and `tdm`
+##' matrices.}
 ##' 
 ##' }
 ##'

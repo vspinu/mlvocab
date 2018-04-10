@@ -68,7 +68,7 @@ word-vector matrix into a smaller, one vector per term, embedding
 matrix.
 
 \code{\link[=vocab_embed]{vocab_embed()}} is commonly used in conjunction with sequence generators
-(\code{\link[=tixmat]{tixmat()}} and \code{\link[=tixseq]{tixseq()}}). When a term in a corpus is not present in a
+(\code{\link[=timat]{timat()}} and \code{\link[=tiseq]{tiseq()}}). When a term in a corpus is not present in a
 vocabulary (aka unknown), it is hashed into one of the \code{unknown_buckets}
 buckets. Embeddings which are hashed into same bucket are averaged to
 produce the embedding for that bucket. Maximum number of embeddings to

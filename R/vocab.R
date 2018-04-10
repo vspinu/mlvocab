@@ -127,7 +127,7 @@ vocab_prune <- function(vocab,
 ##'   matrix.
 ##'
 ##' [vocab_embed()] is commonly used in conjunction with sequence generators
-##' ([tixmat()] and [tixseq()]). When a term in a corpus is not present in a
+##' ([timat()] and [tiseq()]). When a term in a corpus is not present in a
 ##' vocabulary (aka unknown), it is hashed into one of the `unknown_buckets`
 ##' buckets. Embeddings which are hashed into same bucket are averaged to
 ##' produce the embedding for that bucket. Maximum number of embeddings to
