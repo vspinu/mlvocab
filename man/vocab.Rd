@@ -79,3 +79,34 @@ matrix (aka missing) \code{max_in_bucket} embeddings are averaged to produce the
 missing embedding. Different buckets are used for "missing" and "unknown"
 embeddings because \code{unknown_buckets} can be 0.
 }
+\examples{
+corpus <-
+   list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+        b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
+              "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
+
+vocab(corpus)
+vocab(corpus, ngram = 3)
+vocab(corpus, ngram = c(2, 3))
+
+v <- vocab(corpus)
+
+extra_corpus <- list(extras = c("apples", "oranges"))
+v <- vocab_update(v, extra_corpus)
+v
+
+vocab_prune(v, max_terms = 7)
+vocab_prune(v, term_count_min = 2)
+vocab_prune(v, max_terms = 7, unknown_buckets = 2)
+
+v2 <- vocab_prune(v, max_terms = 7, unknown_buckets = 2)
+enames <- c("the", "quick", "brown", "fox", "jumps")
+emat <- matrix(rnorm(50), nrow = 5,
+               dimnames = list(enames, NULL))
+
+vocab_embed(v2, emat)
+vocab_embed(v2, t(emat)) # automatic detection of the orientation
+
+vembs <- vocab_embed(v2, emat)
+all(vembs[enames, ] == emat[enames, ])
+}

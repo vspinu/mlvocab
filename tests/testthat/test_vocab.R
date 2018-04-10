@@ -1,9 +1,7 @@
 context("vocab")
-corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the",
-                     "lazy", "dog"), 
-               b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
-                     "dog", "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
-                     "dog"))
+corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+               b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
+                     "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 
 test_that("vocab is computed correctly", {
 
