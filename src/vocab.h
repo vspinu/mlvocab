@@ -77,31 +77,13 @@ class Vocab {
 
     for (size_t i = 0; i < N; i++) {
       const char* termc = terms[i];
-      if (is_bkt_name(termc)) {
-        unknown_buckets_ixs.push_back(i);
-      } else {
-        // core terms
+      if (!is_bkt_name(termc)) {
+        // core terms only 
         insert_entry(string(termc), term_count[i], doc_count[i]);
       }
     }
 
   };
-
-  void reinsert_unknown_buckets(const DataFrame& df) {
-    // re-insert all unknown buckets at the end
-    if (unknown_buckets_ixs.size() > 0) {
-      const CharacterVector& terms = df["term"];
-      const IntegerVector& term_count = df["term_count"];
-      const IntegerVector& doc_count = df["doc_count"];
- 
-      for (size_t bkt = 1; bkt <= unknown_buckets; bkt++) {
-        insert_entry(bkt_name(bkt), 0, 0);
-      }
-      for (const size_t i : unknown_buckets_ixs) {
-        insert_entry(as<string>(terms[i]), term_count[i], doc_count[i]);
-      }
-    }
-  }
  
   void rebucket_unknowns(const DataFrame& df, size_t unknown_buckets) {
     const IntegerVector& rubuckets = df.attr("unknown_buckets");

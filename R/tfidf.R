@@ -38,7 +38,7 @@ normalize <- function(mat, norm, byrow) {
   
   stopifnot(inherits(mat, "sparseMatrix"))
   if (norm == "none")
-    return(m)
+    return(mat)
 
   tfnorm <-
     switch(norm,

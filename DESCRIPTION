@@ -1,13 +1,16 @@
 Package: mlvocab
-Title: String processing for magistral.
-Version: 0.0.0.9000
+Title: Corpus and Vocabulary Preprocessing Utilities for Natural Language Pipelines
+Version: 0.0.1
 Authors@R: person("Vitalie", "Spinu", email = "spinuvit@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Utilities for preprocessing of text corpora into data structures
+  suitable for input into natural language models: integer sequences or
+  matrices, vocabulary embedding matrices, term-doc, doc-term, term
+  co-occurrence matrices etc. All functions allow for full or partial hashing of
+  the vocabulary terms.
 Depends: R (>= 3.4.0)
-License: GPL3
+License: GPL-3
 Encoding: UTF-8
 Imports:
-  magistral,
   Rcpp (>= 0.12),
   Matrix,
   digest (>= 0.6.8),
@@ -16,9 +19,11 @@ LinkingTo:
   Rcpp,
   digest (>= 0.6.8),
   sparsepp (>= 0.2.0)
+Suggests:
+  testthat,
+  knitr
 LazyData: true
 SystemRequirements: C++11
-VignetteBuilder: knitr
 BugReports: https://github.com/vspinu/mlvocab/issues
 URL: https://github.com/vspinu/mlvocab/
 RoxygenNote: 6.0.1

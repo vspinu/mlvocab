@@ -42,7 +42,7 @@ tdm <- function(corpus, vocab = NULL,
 ##' first element of `window_weights` is the proximity to the context word
 ##' itself (i.e. distance `0`). For example:
 ##'
-##'   - default weights for the context window ["a" "b" "c" "d" "e"]
+##'   - default weights for the context window `["a" "b" "c" "d" "e"]`
 ##'         a    b    c    d    e 
 ##'      1.00 0.50 0.33 0.25 0.20
 ##'

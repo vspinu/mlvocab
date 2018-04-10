@@ -1,4 +1,4 @@
-##' Vocabulary preprocessing utilities for nlp pipelines.
+##' Vocabulary centric preprocessing utilities for NLP pipelines.
 ##'
 ##' The following consistent abstraction is provided by the `mlvocab`
 ##' package. First, the vocabulary object should be built from the entire corpus
@@ -13,13 +13,13 @@
 ##' 
 ##' \itemize{
 ##'
-##' \item{term index sequences}{[tixseq()] and [ttixmat()] produce integer
+##' \item{term index sequences}{[tixseq()] and [tixmat()] produce integer
 ##'   sequences suitable for direct consumption by various sequence models.}
 ##'
 ##' \item{term matrices}{[dtm()], [tdm()] and [tcm()] create document-term,
 ##' term-document and term-co-occurrence matrices respectively.}
 ##'
-##' \item{vocabulary embedding}{given pre-trained word-vectors [embed_vocab()]
+##' \item{vocabulary embedding}{given pre-trained word-vectors [vocab_embed()]
 ##' creates smaller embedding matrices treating missing and unknown vocabulary
 ##' terms with grace.}
 ##'
@@ -32,6 +32,7 @@
 ##' @importFrom digest digest
 ##' @importFrom Rcpp sourceCpp
 ##' @importFrom Matrix Diagonal t rowSums colSums
+##' @importFrom utils head tail
 ##' @useDynLib mlvocab, .registration=TRUE
 ##' @keywords internal
 "_PACKAGE"

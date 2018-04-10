@@ -60,7 +60,7 @@ These functions compute or update various term-counts of a corpus with flexible 
 specification.
 
 \itemize{
-\item default weights for the context window \link{"a" "b" "c" "d" "e"}
+\item default weights for the context window \code{["a" "b" "c" "d" "e"]}
 a    b    c    d    e
 1.00 0.50 0.33 0.25 0.20
 }

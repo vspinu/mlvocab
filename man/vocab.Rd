@@ -22,7 +22,10 @@ vocab_embed(vocab, embeddings, unknown_buckets = attr(vocab,
 \arguments{
 \item{corpus}{list of character vectors}
 
-\item{ngram}{a vector of the form \code{c(min_ngram, max_ngram)}.}
+\item{ngram}{a vector of length 2 of the form \code{c(min_ngram, max_ngram)} or a
+singleton \code{max_ngram} which is equivalent to \code{c(1L, max_ngram)}.}
+
+\item{ngram_sep}{separator to link terms within ngrams.}
 
 \item{vocab}{\code{data.frame} obtained from a call to \code{\link[=vocab]{vocab()}}.}
 
@@ -41,7 +44,7 @@ this many docs}
 this many docs}
 
 \item{unknown_buckets}{How many unknown buckets to create along the
-remaining terms of the pruned \code{vocab}. All prunned terms will be hashed
+remaining terms of the pruned \code{vocab}. All pruned terms will be hashed
 into this many buckets and the corresponding statistics (\code{term_count} and
 \code{doc_count}) updated.}
 

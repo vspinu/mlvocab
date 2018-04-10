@@ -5,16 +5,23 @@
                             ngram_sep = "_",
                             ngram = c(1L, 1L))
 
+.normalize_ngram <- function(ngram) {
+  if (length(ngram) == 1L) c(1L, as.integer(ngram))
+  else ngram
+}
+
 ##' Manipulate vocabularies
 ##'
 ##' [vocab()] creates a vocabulry from a text corpus; [vocab_update()] and
 ##' [vocab_prune()], respectively,  update and prune an existing vocabulary.
 ##' @param corpus list of character vectors
-##' @param ngram a vector of the form `c(min_ngram, max_ngram)`.
+##' @param ngram a vector of length 2 of the form `c(min_ngram, max_ngram)` or a
+##'   singleton `max_ngram` which is equivalent to `c(1L, max_ngram)`.
+##' @param ngram_sep separator to link terms within ngrams.
 ##' @export
 vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_") {
   old_vocab <- structure(`_empty_vocab`,
-                         ngram = as.integer(ngram),
+                         ngram = .normalize_ngram(ngram),
                          ngram_sep = ngram_sep)
   C_vocab(corpus, old_vocab)
 }
@@ -112,6 +119,7 @@ vocab_prune <- function(vocab,
   }
 
   attr(pruned, "pruned") <- TRUE
+  pruned
 }
 
 ##' @description [vocab_embed()] subsets a (commonly large) pre-trained
@@ -157,25 +165,25 @@ vocab_embed <- function(vocab, embeddings,
 
 ### OTHER STUFF
 
-mlvocab <- function(x = identity, corpus_var, ngram = c(1, 1), 
-                    vocab_name = corpus_var, ...) {
-  if (is.function(x))
-    return(mlfunction("mlvocab"))
-  mlcontinue(switch(x$op,
-                    describe = assoc(x, c("describe", "mlvocab"),
-                                     ll(doc = "Compute vocabulary from `vocab_corpus`.", 
-                                        handles = c("run", "describe"))), 
-                    run =
-                      assoc(x, c("vocab", vocab_name), {
-                        old_vocab <- x[["vocab"]][[vocab_name]]
-                        corpus <- x[["data"]][[corpus_var]]
-                        if (is.null(old_vocab))
-                          vocab(corpus = corpus, ngram = ngram)
-                        else
-                          vocab_update(old_vocab, corpus)
-                      }), 
-                    x))
-}
+## mlvocab <- function(x = identity, corpus_var, ngram = c(1, 1), 
+##                     vocab_name = corpus_var, ...) {
+##   if (is.function(x))
+##     return(mlfunction("mlvocab"))
+##   mlcontinue(switch(x$op,
+##                     describe = assoc(x, c("describe", "mlvocab"),
+##                                      ll(doc = "Compute vocabulary from `vocab_corpus`.", 
+##                                         handles = c("run", "describe"))), 
+##                     run =
+##                       assoc(x, c("vocab", vocab_name), {
+##                         old_vocab <- x[["vocab"]][[vocab_name]]
+##                         corpus <- x[["data"]][[corpus_var]]
+##                         if (is.null(old_vocab))
+##                           vocab(corpus = corpus, ngram = ngram)
+##                         else
+##                           vocab_update(old_vocab, corpus)
+##                       }), 
+##                     x))
+## }
 
 #' @export
 #' @method print mlvocab_vocab
@@ -183,7 +191,8 @@ print.mlvocab_vocab <- function(x, ...) {
   cat("Number of docs: ", attr(x, "document_count", TRUE), "\n",
       "Ngrams: ", paste(attr(x, "ngram", TRUE), collapse = " "), "\n",
       "Buckets: ", attr(x, "unknown_buckets"), "\n", 
-      "Vocabulary:\n", sep = "")
+      if (isTRUE(attr(x, "pruned", TRUE))) "Pruned vocabulary:" else "Vocabulary", "\n",
+      sep = "")
   newx <- x
   oldClass(newx) <- "data.frame"
   unknown_buckets <- attr(x, "unknown_buckets")
@@ -208,6 +217,13 @@ print.mlvocab_vocab <- function(x, ...) {
   invisible(x)
 }
 
+#' Methods for `dplyr` predicates
+#'
+#' Needed to circumvent dropping attributes by dplyr/tibble functions.
+#'
+#' @param .data vocab data.frame
+#' @param ... other parameters
+#' @rdname dplyr_methods
 #' @keywords internal
 #' @export
 arrange.mlvocab_vocab <- function(.data, ...) {

@@ -4,7 +4,7 @@
 \name{mlvocab-package}
 \alias{mlvocab}
 \alias{mlvocab-package}
-\title{Vocabulary preprocessing utilities for nlp pipelines.}
+\title{Vocabulary centric preprocessing utilities for NLP pipelines.}
 \description{
 The following consistent abstraction is provided by the \code{mlvocab}
 package. First, the vocabulary object should be built from the entire corpus
@@ -20,13 +20,13 @@ Current functionality includes:
 
 \itemize{
 
-\item{term index sequences}{\code{\link[=tixseq]{tixseq()}} and \code{\link[=ttixmat]{ttixmat()}} produce integer
+\item{term index sequences}{\code{\link[=tixseq]{tixseq()}} and \code{\link[=tixmat]{tixmat()}} produce integer
 sequences suitable for direct consumption by various sequence models.}
 
 \item{term matrices}{\code{\link[=dtm]{dtm()}}, \code{\link[=tdm]{tdm()}} and \code{\link[=tcm]{tcm()}} create document-term,
 term-document and term-co-occurrence matrices respectively.}
 
-\item{vocabulary embedding}{given pre-trained word-vectors \code{\link[=embed_vocab]{embed_vocab()}}
+\item{vocabulary embedding}{given pre-trained word-vectors \code{\link[=vocab_embed]{vocab_embed()}}
 creates smaller embedding matrices treating missing and unknown vocabulary
 terms with grace.}
 
