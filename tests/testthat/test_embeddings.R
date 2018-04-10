@@ -9,8 +9,6 @@ corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the",
 
 test_that("average embedding works", {
 
-    library(mlvocab)
-    library(testthat)
     embs <- matrix(rep(seq_along(letters), each = 10), nrow = 10, dimnames = list(NULL, letters))
     N <- 8
     vocab <- vocab(letters[1:N])
