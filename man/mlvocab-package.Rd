@@ -4,13 +4,13 @@
 \name{mlvocab-package}
 \alias{mlvocab}
 \alias{mlvocab-package}
-\title{Vocabulary centric preprocessing utilities for NLP pipelines.}
+\title{\code{mlvocab} package}
 \description{
-The following consistent abstraction is provided by the \code{mlvocab}
-package. First, the vocabulary object should be built from the entire corpus
-with the help of \code{\link[=vocab]{vocab()}}, \code{\link[=vocab_update]{vocab_update()}} and \code{\link[=vocab_prune]{vocab_prune()}}
-functions. Then, the vocabulary is passed alongside the corpus to a variety
-of corpus pre-processing functions.
+The following two-step abstraction is provided by the \code{mlvocab}
+package. First, the vocabulary object is built from the entire corpus with
+the help of \code{\link[=vocab]{vocab()}}, \code{\link[=vocab_update]{vocab_update()}} and \code{\link[=vocab_prune]{vocab_prune()}}
+functions. Second, the vocabulary is passed alongside the corpus to a
+variety of corpus pre-processing functions.
 }
 \details{
 Most of the \code{mlvocab} functions accept \code{unknown_buckets} argument for
@@ -30,8 +30,9 @@ term-document and term-co-occurrence matrices respectively.}
 creates smaller embedding matrices treating missing and unknown vocabulary
 terms with grace.}
 
-\item{tfidf weighting}{\code{\link[=tfidf]{tfidf()}} copters various versions of term frequency,
-inverse document frequency weighting of \code{dtm} and \code{tdm} matrices.}
+\item{tfidf weighting}{\code{\link[=tfidf]{tfidf()}} computes various versions of term
+frequency, inverse document frequency weighting of \code{dtm} and \code{tdm}
+matrices.}
 
 }
 }
