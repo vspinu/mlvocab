@@ -13,7 +13,7 @@
 ##' @param output one of "triplet", "column", "row", "df" or an unambiguous
 ##'   abbreviation thereof. First three options return the corresponding sparse
 ##'   matrices from Matrix package, "df" results in a triplet `data.frame`.
-##' @rdname term_matrices
+##' @name term_matrices
 ##' @export
 dtm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
@@ -23,7 +23,7 @@ dtm <- function(corpus, vocab = NULL,
      ngram_min = ngram[[1]], ngram_max = ngram[[2]])
 }
 
-##' @rdname term_matrices
+##' @name term_matrices
 ##' @export
 tdm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
@@ -74,7 +74,7 @@ tdm <- function(corpus, vocab = NULL,
 ##' @param ngram an integer vector of the form `[ngram_min,
 ##'   ngram_max]`. Defaults to the `ngram` settings used during the creation of
 ##'   `vocab`. Explicitly providing this parameter should rarely be needed.
-##' @rdname term_matrices
+##' @name term_matrices
 ##' @export
 tcm <- function(corpus, vocab = NULL,
                 window_size = 5,

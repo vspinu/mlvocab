@@ -1,10 +1,8 @@
 context("index")
 
-corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the",
-                     "lazy", "dog"), 
-               b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
-                     "dog", "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
-                     "dog"))
+corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+               b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
+                     "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 vocab <- vocab(corpus)
 
 test_that("text2seq works",  {

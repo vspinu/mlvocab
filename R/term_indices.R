@@ -1,6 +1,6 @@
 
 
-##' Convert text to integer indexes
+##' Convert text to integer indices
 ##'
 ##' @param corpus text corpus
 ##' @param vocab data frame produced by [vocab()] or [vocab_update()]
@@ -9,7 +9,24 @@
 ##' @param nbuckets integer. How many buckets to hash unknowns into.
 ##' @return [tiseq()] returns a list of integer vectors, [timat()] returns an
 ##'   integer matrix, one row per sequence.
-##' @rdname term_index
+##' @name term_indices
+##' @examples
+##' corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+##'                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
+##'                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
+##' v <- vocab(corpus["b"]) # "The" is unknown
+##' v
+##' tiseq(corpus, v)
+##' tiseq(corpus, v, keep_unknown = T)
+##' tiseq(corpus, v, nbuckets = 1)
+##' tiseq(corpus, v, nbuckets = 3)
+##'
+##' timat(corpus, v, maxlen = 12)
+##' timat(corpus, v, maxlen = 12, keep_unknown = T)
+##' timat(corpus, v, maxlen = 12, nbuckets = 1)
+##' timat(corpus, v, maxlen = 12, nbuckets = 1, reverse = T)
+##' timat(corpus, v, maxlen = 12, pad_right = F, nbuckets = 1)
+##' timat(corpus, v, maxlen = 12, trunc_right = F, nbuckets = 1)
 ##' @export
 tiseq <- function(corpus, vocab,
                    keep_unknown = nbuckets > 0,
@@ -27,7 +44,7 @@ tiseq <- function(corpus, vocab,
 ##' @param reverse logical. Should each sequence be reversed in the final
 ##'   output? Reversion happens after `pad_right` and `trunc_right` have been
 ##'   applied to the original text sequence. Default `FALSE`.
-##' @rdname term_index
+##' @name term_indices
 ##' @export
 timat <- function(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
                    keep_unknown = nbuckets > 0,

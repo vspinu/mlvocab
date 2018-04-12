@@ -3,7 +3,6 @@
 S3method(print,mlvocab_vocab)
 export(arrange.mlvocab_vocab)
 export(dtm)
-export(murmur3hash)
 export(tcm)
 export(tdm)
 export(tfidf)

@@ -10,7 +10,7 @@
   else ngram
 }
 
-##' Manipulate vocabularies
+##' Build and manipulate vocabularies
 ##'
 ##' [vocab()] creates a vocabulry from a text corpus; [vocab_update()] and
 ##' [vocab_prune()], respectively,  update and prune an existing vocabulary.
@@ -57,7 +57,7 @@ vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_") {
 }
 
 ##' @param vocab `data.frame` obtained from a call to [vocab()].
-##' @rdname vocab
+##' @name vocab
 ##' @export
 vocab_update <- function(vocab, corpus) {
   if (!inherits(vocab, "mlvocab_vocab"))
@@ -84,7 +84,7 @@ vocab_update <- function(vocab, corpus) {
 ##'   remaining terms of the pruned `vocab`. All pruned terms will be hashed
 ##'   into this many buckets and the corresponding statistics (`term_count` and
 ##'   `doc_count`) updated.
-##' @rdname vocab
+##' @name vocab
 ##' @export
 vocab_prune <- function(vocab,
                         max_terms = Inf, 
@@ -177,7 +177,7 @@ vocab_prune <- function(vocab,
 ##'   reached due to the finiteness of the `embeddings` vocabulary, or even
 ##'   result in `0` embeddings being hashed into a bucket producing `[0 0 ...]`
 ##'   embeddings for some buckets.
-##' @rdname vocab
+##' @name vocab
 ##' @export
 vocab_embed <- function(vocab, embeddings,
                         nbuckets = attr(vocab, "nbuckets"),
@@ -253,7 +253,7 @@ print.mlvocab_vocab <- function(x, ...) {
 #'
 #' @param .data vocab data.frame
 #' @param ... other parameters
-#' @rdname dplyr_methods
+#' @name dplyr_methods
 #' @keywords internal
 #' @export
 arrange.mlvocab_vocab <- function(.data, ...) {

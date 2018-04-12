@@ -1,5 +1,5 @@
 
-##' Tfidf re-weighting of [dtm()] and [tdm()] matrices.
+##' Tfidf re-weighting of `dtm` and `tdm` matrices
 ##'
 ##' @param mat output of [dtm()] or [tdm()] function
 ##' @param vocab output of [vocab()] or [vocab_update()]
@@ -8,6 +8,15 @@
 ##' @param sublinear_tf when `TRUE` use `1 + log(tf)` instead of the raw `tf`
 ##' @param extra_df_count add this number to the document count; as if all terms
 ##'   in the vocabulary have been seen at least in this many documents.
+##' @examples
+##' corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+##'                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
+##'                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
+##' v <- vocab(corpus, c(1, 2), " ")
+##' dtm <- dtm(corpus, v)
+##' tfidf(dtm, v)
+##' tdm <- tdm(corpus, v)
+##' tfidf(tdm, v)
 ##' @export
 tfidf <- function(mat, vocab, norm = c("l1", "l2", "none"), sublinear_tf = FALSE, extra_df_count = 1) {
   if (is.null(dtm <- attr(mat, "mlvocab_dtm", FALSE)))

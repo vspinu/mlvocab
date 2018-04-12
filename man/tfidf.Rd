@@ -2,7 +2,7 @@
 % Please edit documentation in R/tfidf.R
 \name{tfidf}
 \alias{tfidf}
-\title{Tfidf re-weighting of \code{\link[=dtm]{dtm()}} and \code{\link[=tdm]{tdm()}} matrices.}
+\title{Tfidf re-weighting of \code{dtm} and \code{tdm} matrices}
 \usage{
 tfidf(mat, vocab, norm = c("l1", "l2", "none"), sublinear_tf = FALSE,
   extra_df_count = 1)
@@ -21,5 +21,15 @@ tfidf(mat, vocab, norm = c("l1", "l2", "none"), sublinear_tf = FALSE,
 in the vocabulary have been seen at least in this many documents.}
 }
 \description{
-Tfidf re-weighting of \code{\link[=dtm]{dtm()}} and \code{\link[=tdm]{tdm()}} matrices.
+Tfidf re-weighting of \code{dtm} and \code{tdm} matrices
+}
+\examples{
+corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+               b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
+                     "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
+v <- vocab(corpus, c(1, 2), " ")
+dtm <- dtm(corpus, v)
+tfidf(dtm, v)
+tdm <- tdm(corpus, v)
+tfidf(tdm, v)
 }

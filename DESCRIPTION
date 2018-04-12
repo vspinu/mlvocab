@@ -1,12 +1,11 @@
 Package: mlvocab
-Title: Corpus and Vocabulary Preprocessing Utilities for Natural Language Pipelines
+Title: Vocabulary and Corpus Preprocessing for Natural Language Pipelines
 Version: 0.0.1
 Authors@R: person("Vitalie", "Spinu", email = "spinuvit@gmail.com", role = c("aut", "cre"))
 Description: Utilities for preprocessing of text corpora into data structures
-  suitable for input into natural language models: integer sequences or
-  matrices, vocabulary embedding matrices, term-doc, doc-term, term
-  co-occurrence matrices etc. All functions allow for full or partial hashing of
-  the vocabulary terms.
+  suitable for natural language models: integer sequences or matrices,
+  vocabulary embedding matrices, term-doc, doc-term, term co-occurrence matrices
+  etc. All functions allow for full or partial hashing of the vocabulary terms.
 Depends: R (>= 3.4.0)
 License: GPL-3
 Encoding: UTF-8

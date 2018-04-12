@@ -2,10 +2,13 @@
 % Please edit documentation in R/vocab.R
 \name{vocab}
 \alias{vocab}
+\alias{vocab}
 \alias{vocab_update}
+\alias{vocab}
 \alias{vocab_prune}
+\alias{vocab}
 \alias{vocab_embed}
-\title{Manipulate vocabularies}
+\title{Build and manipulate vocabularies}
 \usage{
 vocab(corpus, ngram = c(1, 1), ngram_sep = "_")
 
@@ -16,8 +19,8 @@ vocab_prune(vocab, max_terms = Inf, term_count_min = 1L,
   doc_count_min = 1L, doc_count_max = Inf, nbuckets = attr(vocab,
   "nbuckets"))
 
-vocab_embed(vocab, embeddings, nbuckets = attr(vocab,
-  "nbuckets"), max_in_bucket = 30)
+vocab_embed(vocab, embeddings, nbuckets = attr(vocab, "nbuckets"),
+  max_in_bucket = 30)
 }
 \arguments{
 \item{corpus}{list of character vectors}

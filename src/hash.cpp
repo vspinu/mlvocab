@@ -15,12 +15,6 @@ uint32_t murmur3hash(const std::string& str) {
   return static_cast<uint32_t>(PMurHash32(MURMURHASH3_HASH_SEED, str.c_str(), str.size()));
 }
  
-//' Murmur3 hash.
-//'
-//' Relies on murmur3 implementation in `digest` package.
-//'
-//' @param x a character vector
-//' @export
 //[[Rcpp::export]]
 SEXP murmur3hash(SEXP x) {
   // use raw R api here for sanity
