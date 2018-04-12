@@ -29,51 +29,51 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_embed_vocab
-NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row, int unknown_buckets, int min_to_average);
-RcppExport SEXP _mlvocab_C_embed_vocab(SEXP vocabdfSEXP, SEXP embeddingsSEXP, SEXP by_rowSEXP, SEXP unknown_bucketsSEXP, SEXP min_to_averageSEXP) {
+NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row, int nbuckets, int min_to_average);
+RcppExport SEXP _mlvocab_C_embed_vocab(SEXP vocabdfSEXP, SEXP embeddingsSEXP, SEXP by_rowSEXP, SEXP nbucketsSEXP, SEXP min_to_averageSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type embeddings(embeddingsSEXP);
     Rcpp::traits::input_parameter< bool >::type by_row(by_rowSEXP);
-    Rcpp::traits::input_parameter< int >::type unknown_buckets(unknown_bucketsSEXP);
+    Rcpp::traits::input_parameter< int >::type nbuckets(nbucketsSEXP);
     Rcpp::traits::input_parameter< int >::type min_to_average(min_to_averageSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_embed_vocab(vocabdf, embeddings, by_row, unknown_buckets, min_to_average));
+    rcpp_result_gen = Rcpp::wrap(C_embed_vocab(vocabdf, embeddings, by_row, nbuckets, min_to_average));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_rehash_vocab
-DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& vocabdf, const int unknown_buckets);
-RcppExport SEXP _mlvocab_C_rehash_vocab(SEXP pruned_vocabdfSEXP, SEXP vocabdfSEXP, SEXP unknown_bucketsSEXP) {
+DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& vocabdf, const int nbuckets);
+RcppExport SEXP _mlvocab_C_rehash_vocab(SEXP pruned_vocabdfSEXP, SEXP vocabdfSEXP, SEXP nbucketsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const DataFrame& >::type pruned_vocabdf(pruned_vocabdfSEXP);
     Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
-    Rcpp::traits::input_parameter< const int >::type unknown_buckets(unknown_bucketsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_rehash_vocab(pruned_vocabdf, vocabdf, unknown_buckets));
+    Rcpp::traits::input_parameter< const int >::type nbuckets(nbucketsSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_rehash_vocab(pruned_vocabdf, vocabdf, nbuckets));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_corpus2ixseq
-List C_corpus2ixseq(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf, bool keep_unknown, int unknown_buckets, bool reverse);
-RcppExport SEXP _mlvocab_C_corpus2ixseq(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP keep_unknownSEXP, SEXP unknown_bucketsSEXP, SEXP reverseSEXP) {
+List C_corpus2ixseq(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf, bool keep_unknown, int nbuckets, bool reverse);
+RcppExport SEXP _mlvocab_C_corpus2ixseq(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP keep_unknownSEXP, SEXP nbucketsSEXP, SEXP reverseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const ListOf<const CharacterVector>& >::type corpus(corpusSEXP);
     Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
     Rcpp::traits::input_parameter< bool >::type keep_unknown(keep_unknownSEXP);
-    Rcpp::traits::input_parameter< int >::type unknown_buckets(unknown_bucketsSEXP);
+    Rcpp::traits::input_parameter< int >::type nbuckets(nbucketsSEXP);
     Rcpp::traits::input_parameter< bool >::type reverse(reverseSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_corpus2ixseq(corpus, vocabdf, keep_unknown, unknown_buckets, reverse));
+    rcpp_result_gen = Rcpp::wrap(C_corpus2ixseq(corpus, vocabdf, keep_unknown, nbuckets, reverse));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_corpus2ixmat
-IntegerMatrix C_corpus2ixmat(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf, int maxlen, bool pad_right, bool trunc_right, bool keep_unknown, int unknown_buckets, bool reverse);
-RcppExport SEXP _mlvocab_C_corpus2ixmat(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP maxlenSEXP, SEXP pad_rightSEXP, SEXP trunc_rightSEXP, SEXP keep_unknownSEXP, SEXP unknown_bucketsSEXP, SEXP reverseSEXP) {
+IntegerMatrix C_corpus2ixmat(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf, int maxlen, bool pad_right, bool trunc_right, bool keep_unknown, int nbuckets, bool reverse);
+RcppExport SEXP _mlvocab_C_corpus2ixmat(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP maxlenSEXP, SEXP pad_rightSEXP, SEXP trunc_rightSEXP, SEXP keep_unknownSEXP, SEXP nbucketsSEXP, SEXP reverseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -83,63 +83,63 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type pad_right(pad_rightSEXP);
     Rcpp::traits::input_parameter< bool >::type trunc_right(trunc_rightSEXP);
     Rcpp::traits::input_parameter< bool >::type keep_unknown(keep_unknownSEXP);
-    Rcpp::traits::input_parameter< int >::type unknown_buckets(unknown_bucketsSEXP);
+    Rcpp::traits::input_parameter< int >::type nbuckets(nbucketsSEXP);
     Rcpp::traits::input_parameter< bool >::type reverse(reverseSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_corpus2ixmat(corpus, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, unknown_buckets, reverse));
+    rcpp_result_gen = Rcpp::wrap(C_corpus2ixmat(corpus, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_dtm
-SEXP C_dtm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf, const Nullable<NumericVector>& term_weights, const int unknown_buckets, const std::string output, const int ngram_min, const int ngram_max);
-RcppExport SEXP _mlvocab_C_dtm(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP term_weightsSEXP, SEXP unknown_bucketsSEXP, SEXP outputSEXP, SEXP ngram_minSEXP, SEXP ngram_maxSEXP) {
+SEXP C_dtm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf, const Nullable<NumericVector>& term_weights, const int nbuckets, const std::string output, const int ngram_min, const int ngram_max);
+RcppExport SEXP _mlvocab_C_dtm(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP term_weightsSEXP, SEXP nbucketsSEXP, SEXP outputSEXP, SEXP ngram_minSEXP, SEXP ngram_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const ListOf<CharacterVector>& >::type corpus(corpusSEXP);
     Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
     Rcpp::traits::input_parameter< const Nullable<NumericVector>& >::type term_weights(term_weightsSEXP);
-    Rcpp::traits::input_parameter< const int >::type unknown_buckets(unknown_bucketsSEXP);
+    Rcpp::traits::input_parameter< const int >::type nbuckets(nbucketsSEXP);
     Rcpp::traits::input_parameter< const std::string >::type output(outputSEXP);
     Rcpp::traits::input_parameter< const int >::type ngram_min(ngram_minSEXP);
     Rcpp::traits::input_parameter< const int >::type ngram_max(ngram_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_dtm(corpus, vocabdf, term_weights, unknown_buckets, output, ngram_min, ngram_max));
+    rcpp_result_gen = Rcpp::wrap(C_dtm(corpus, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_tdm
-SEXP C_tdm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf, const Nullable<NumericVector>& term_weights, const int unknown_buckets, std::string output, const int ngram_min, const int ngram_max);
-RcppExport SEXP _mlvocab_C_tdm(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP term_weightsSEXP, SEXP unknown_bucketsSEXP, SEXP outputSEXP, SEXP ngram_minSEXP, SEXP ngram_maxSEXP) {
+SEXP C_tdm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf, const Nullable<NumericVector>& term_weights, const int nbuckets, std::string output, const int ngram_min, const int ngram_max);
+RcppExport SEXP _mlvocab_C_tdm(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP term_weightsSEXP, SEXP nbucketsSEXP, SEXP outputSEXP, SEXP ngram_minSEXP, SEXP ngram_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const ListOf<CharacterVector>& >::type corpus(corpusSEXP);
     Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
     Rcpp::traits::input_parameter< const Nullable<NumericVector>& >::type term_weights(term_weightsSEXP);
-    Rcpp::traits::input_parameter< const int >::type unknown_buckets(unknown_bucketsSEXP);
+    Rcpp::traits::input_parameter< const int >::type nbuckets(nbucketsSEXP);
     Rcpp::traits::input_parameter< std::string >::type output(outputSEXP);
     Rcpp::traits::input_parameter< const int >::type ngram_min(ngram_minSEXP);
     Rcpp::traits::input_parameter< const int >::type ngram_max(ngram_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_tdm(corpus, vocabdf, term_weights, unknown_buckets, output, ngram_min, ngram_max));
+    rcpp_result_gen = Rcpp::wrap(C_tdm(corpus, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_tcm
-SEXP C_tcm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf, const Nullable<NumericVector>& term_weights, const int unknown_buckets, const std::string& output, const size_t window_size, const std::vector<double>& window_weights, int ngram_min, int ngram_max, const std::string& context);
-RcppExport SEXP _mlvocab_C_tcm(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP term_weightsSEXP, SEXP unknown_bucketsSEXP, SEXP outputSEXP, SEXP window_sizeSEXP, SEXP window_weightsSEXP, SEXP ngram_minSEXP, SEXP ngram_maxSEXP, SEXP contextSEXP) {
+SEXP C_tcm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf, const Nullable<NumericVector>& term_weights, const int nbuckets, const std::string& output, const size_t window_size, const std::vector<double>& window_weights, int ngram_min, int ngram_max, const std::string& context);
+RcppExport SEXP _mlvocab_C_tcm(SEXP corpusSEXP, SEXP vocabdfSEXP, SEXP term_weightsSEXP, SEXP nbucketsSEXP, SEXP outputSEXP, SEXP window_sizeSEXP, SEXP window_weightsSEXP, SEXP ngram_minSEXP, SEXP ngram_maxSEXP, SEXP contextSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const ListOf<CharacterVector>& >::type corpus(corpusSEXP);
     Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
     Rcpp::traits::input_parameter< const Nullable<NumericVector>& >::type term_weights(term_weightsSEXP);
-    Rcpp::traits::input_parameter< const int >::type unknown_buckets(unknown_bucketsSEXP);
+    Rcpp::traits::input_parameter< const int >::type nbuckets(nbucketsSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type output(outputSEXP);
     Rcpp::traits::input_parameter< const size_t >::type window_size(window_sizeSEXP);
     Rcpp::traits::input_parameter< const std::vector<double>& >::type window_weights(window_weightsSEXP);
     Rcpp::traits::input_parameter< int >::type ngram_min(ngram_minSEXP);
     Rcpp::traits::input_parameter< int >::type ngram_max(ngram_maxSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type context(contextSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_tcm(corpus, vocabdf, term_weights, unknown_buckets, output, window_size, window_weights, ngram_min, ngram_max, context));
+    rcpp_result_gen = Rcpp::wrap(C_tcm(corpus, vocabdf, term_weights, nbuckets, output, window_size, window_weights, ngram_min, ngram_max, context));
     return rcpp_result_gen;
 END_RCPP
 }

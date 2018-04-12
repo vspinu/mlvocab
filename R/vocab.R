@@ -1,7 +1,7 @@
 
 `_empty_vocab` <- structure(data.frame(term = character(), term_count = integer(), doc_count = integer(), stringsAsFactors = F),
                             document_count = 0L,
-                            unknown_buckets = 0L, 
+                            nbuckets = 0L, 
                             ngram_sep = "_",
                             ngram = c(1L, 1L))
 
@@ -36,9 +36,9 @@
 ##'
 ##' vocab_prune(v, max_terms = 7)
 ##' vocab_prune(v, term_count_min = 2)
-##' vocab_prune(v, max_terms = 7, unknown_buckets = 2)
+##' vocab_prune(v, max_terms = 7, nbuckets = 2)
 ##'
-##' v2 <- vocab_prune(v, max_terms = 7, unknown_buckets = 2)
+##' v2 <- vocab_prune(v, max_terms = 7, nbuckets = 2)
 ##' enames <- c("the", "quick", "brown", "fox", "jumps")
 ##' emat <- matrix(rnorm(50), nrow = 5,
 ##'                dimnames = list(enames, NULL))
@@ -80,7 +80,7 @@ vocab_update <- function(vocab, corpus) {
 ##'   this many docs
 ##' @param doc_count_max,doc_proportion_max keep terms appearing in at _most_
 ##'   this many docs
-##' @param unknown_buckets How many unknown buckets to create along the
+##' @param nbuckets How many unknown buckets to create along the
 ##'   remaining terms of the pruned `vocab`. All pruned terms will be hashed
 ##'   into this many buckets and the corresponding statistics (`term_count` and
 ##'   `doc_count`) updated.
@@ -94,16 +94,16 @@ vocab_prune <- function(vocab,
                         doc_proportion_max = 1.0,
                         doc_count_min = 1L,
                         doc_count_max = Inf,
-                        unknown_buckets = attr(vocab, "unknown_buckets")) {
+                        nbuckets = attr(vocab, "nbuckets")) {
 
   ## adapted from [text2vec::vocab_pruneulary()]
   
   if (!inherits(vocab, "mlvocab_vocab"))
     stop("'vocab' must be an object of class `mlvocab_vocab`")
 
-  ubkts_old <- attr(vocab, "unknown_buckets")
-  if (ubkts_old > 0 && ubkts_old != unknown_buckets)
-    stop("Cannot rehash current unknown buckets with a different value of `unknown_buckets`")
+  ubkts_old <- attr(vocab, "nbuckets")
+  if (ubkts_old > 0 && ubkts_old != nbuckets)
+    stop("Cannot rehash current unknown buckets with a different value of `nbuckets`")
 
   document_count <- attr(vocab, "document_count", TRUE)
   ind <- !grepl("^__", vocab$term)
@@ -142,10 +142,10 @@ vocab_prune <- function(vocab,
     attr(pruned, a) <- attr(vocab, a, TRUE)
   }
 
-  attr(pruned, "unknown_buckets") <- 0L
+  attr(pruned, "nbuckets") <- 0L
 
-  if  (unknown_buckets > 0) {
-    pruned <- C_rehash_vocab(pruned, vocab, unknown_buckets)
+  if  (nbuckets > 0) {
+    pruned <- C_rehash_vocab(pruned, vocab, nbuckets)
   }
 
   attr(pruned, "pruned") <- TRUE
@@ -158,7 +158,7 @@ vocab_prune <- function(vocab,
 ##'
 ##' [vocab_embed()] is commonly used in conjunction with sequence generators
 ##' ([timat()] and [tiseq()]). When a term in a corpus is not present in a
-##' vocabulary (aka unknown), it is hashed into one of the `unknown_buckets`
+##' vocabulary (aka unknown), it is hashed into one of the `nbuckets`
 ##' buckets. Embeddings which are hashed into same bucket are averaged to
 ##' produce the embedding for that bucket. Maximum number of embeddings to
 ##' average per bucket is controled with `max_in_bucket` parameter.
@@ -166,21 +166,21 @@ vocab_prune <- function(vocab,
 ##' Similarly, when a term from the vocabulary is not present in the embedding
 ##' matrix (aka missing) `max_in_bucket` embeddings are averaged to produce the
 ##' missing embedding. Different buckets are used for "missing" and "unknown"
-##' embeddings because `unknown_buckets` can be 0.
+##' embeddings because `nbuckets` can be 0.
 ##' 
 ##' @param embeddings embeddings matrix. The terms dimension must be named. If
 ##'   both [colnames()] and [rownames()] are non-null, dimension with more
 ##'   elements is considered term-dimension.
 ##' @param max_in_bucket At most this many embedding vectors will be averaged
 ##'   into each unknown or missing bucket (see details). Lower number results in
-##'   faster processing. For large `unknown_buckets` this number might not be
+##'   faster processing. For large `nbuckets` this number might not be
 ##'   reached due to the finiteness of the `embeddings` vocabulary, or even
 ##'   result in `0` embeddings being hashed into a bucket producing `[0 0 ...]`
 ##'   embeddings for some buckets.
 ##' @rdname vocab
 ##' @export
 vocab_embed <- function(vocab, embeddings,
-                        unknown_buckets = attr(vocab, "unknown_buckets"),
+                        nbuckets = attr(vocab, "nbuckets"),
                         max_in_bucket = 30) {
   if (is.null(colnames(embeddings)) && is.null(rownames(embeddings)))
     stop("Terms dimension of `embeddings` must be named")
@@ -188,7 +188,7 @@ vocab_embed <- function(vocab, embeddings,
     if (!is.null(rownames(embeddings)))
       is.null(colnames(embeddings)) || nrow(embeddings) > ncol(embeddings)
   else FALSE
-  out <- C_embed_vocab(vocab, embeddings, by_row, unknown_buckets, max_in_bucket)
+  out <- C_embed_vocab(vocab, embeddings, by_row, nbuckets, max_in_bucket)
   out
 }
 
@@ -220,18 +220,18 @@ vocab_embed <- function(vocab, embeddings,
 print.mlvocab_vocab <- function(x, ...) {
   cat("Number of docs: ", attr(x, "document_count", TRUE), "\n",
       "Ngrams: ", paste(attr(x, "ngram", TRUE), collapse = " "), "\n",
-      "Buckets: ", attr(x, "unknown_buckets"), "\n", 
+      "Buckets: ", attr(x, "nbuckets"), "\n", 
       if (isTRUE(attr(x, "pruned", TRUE))) "Pruned vocabulary:" else "Vocabulary", "\n",
       sep = "")
   newx <- x
   oldClass(newx) <- "data.frame"
-  unknown_buckets <- attr(x, "unknown_buckets")
+  nbuckets <- attr(x, "nbuckets")
   if (nrow(newx) > 30) {
     divider <- data.frame(term = "...", term_count = "...", doc_count = "...", row.names = "")
-    tail_size <- if (unknown_buckets > 20) 6 else unknown_buckets + 6
+    tail_size <- if (nbuckets > 20) 6 else nbuckets + 6
     newx <- rbind(format.data.frame(head(newx)),
-                  if (unknown_buckets > 20) {
-                    ustart <- nrow(x) - unknown_buckets
+                  if (nbuckets > 20) {
+                    ustart <- nrow(x) - nbuckets
                     urange <- (ustart - 5):(ustart + 6)
                     divider2 <- data.frame(term = "...", term_count = "...", doc_count = "...", row.names = " ")
                     rbind(divider,

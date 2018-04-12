@@ -5,7 +5,7 @@
 The following two-step abstraction is provided by the package:
 
   1. The vocabulary object is first built from the entire corpus with the help of `vocab()`, `vocab_update()` and `vocab_prune()` functions. 
-  2. Then, the vocabulary is passed alongside the corpus to a variety of corpus pre-processing functions. Most of the `mlvocab` functions accept `unknown_buckets` argument for partial or full hashing of the corpus.
+  2. Then, the vocabulary is passed alongside the corpus to a variety of corpus pre-processing functions. Most of the `mlvocab` functions accept `nbuckets` argument for partial or full hashing of the corpus.
 
 Current functionality includes:
 

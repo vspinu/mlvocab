@@ -58,10 +58,10 @@ test_that("text2seq with bucketing works",  {
     tcorpus <- c(corpus, list(c = c("dog", "eats", "apples", "and", "oranges")))
 
     nterms <- length(unique(unlist(corpus)))
-    ixs <- tiseq(tcorpus, vocab, unknown_buckets = 2)
+    ixs <- tiseq(tcorpus, vocab, nbuckets = 2)
     expect_equal(sort(unique(unlist(ixs))), 1:(nterms + 2))
 
-    ixs <- tiseq(tcorpus, vocab, unknown_buckets = 100)
+    ixs <- tiseq(tcorpus, vocab, nbuckets = 100)
     expect_equal(length(unique(unlist(ixs))), nterms + 4)
 })
 
@@ -96,7 +96,7 @@ test_that("encodding doesn't matter", {
     expect_equal(mat[1, ], mat[2, ])
     expect_equal(mat[1, ], mat[3, ])
 
-    mat <- timat(list(txt, txt1, txt2), v2, unknown_buckets = 10)
+    mat <- timat(list(txt, txt1, txt2), v2, nbuckets = 10)
     expect_equal(mat[1, ], mat[2, ])
     expect_equal(mat[1, ], mat[3, ])
 

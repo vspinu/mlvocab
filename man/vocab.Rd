@@ -13,11 +13,11 @@ vocab_update(vocab, corpus)
 
 vocab_prune(vocab, max_terms = Inf, term_count_min = 1L,
   term_count_max = Inf, doc_proportion_min = 0, doc_proportion_max = 1,
-  doc_count_min = 1L, doc_count_max = Inf, unknown_buckets = attr(vocab,
-  "unknown_buckets"))
+  doc_count_min = 1L, doc_count_max = Inf, nbuckets = attr(vocab,
+  "nbuckets"))
 
-vocab_embed(vocab, embeddings, unknown_buckets = attr(vocab,
-  "unknown_buckets"), max_in_bucket = 30)
+vocab_embed(vocab, embeddings, nbuckets = attr(vocab,
+  "nbuckets"), max_in_bucket = 30)
 }
 \arguments{
 \item{corpus}{list of character vectors}
@@ -43,7 +43,7 @@ this many docs}
 \item{doc_count_max, doc_proportion_max}{keep terms appearing in at \emph{most}
 this many docs}
 
-\item{unknown_buckets}{How many unknown buckets to create along the
+\item{nbuckets}{How many unknown buckets to create along the
 remaining terms of the pruned \code{vocab}. All pruned terms will be hashed
 into this many buckets and the corresponding statistics (\code{term_count} and
 \code{doc_count}) updated.}
@@ -54,7 +54,7 @@ elements is considered term-dimension.}
 
 \item{max_in_bucket}{At most this many embedding vectors will be averaged
 into each unknown or missing bucket (see details). Lower number results in
-faster processing. For large \code{unknown_buckets} this number might not be
+faster processing. For large \code{nbuckets} this number might not be
 reached due to the finiteness of the \code{embeddings} vocabulary, or even
 result in \code{0} embeddings being hashed into a bucket producing \code{[0 0 ...]}
 embeddings for some buckets.}
@@ -69,7 +69,7 @@ matrix.
 
 \code{\link[=vocab_embed]{vocab_embed()}} is commonly used in conjunction with sequence generators
 (\code{\link[=timat]{timat()}} and \code{\link[=tiseq]{tiseq()}}). When a term in a corpus is not present in a
-vocabulary (aka unknown), it is hashed into one of the \code{unknown_buckets}
+vocabulary (aka unknown), it is hashed into one of the \code{nbuckets}
 buckets. Embeddings which are hashed into same bucket are averaged to
 produce the embedding for that bucket. Maximum number of embeddings to
 average per bucket is controled with \code{max_in_bucket} parameter.
@@ -77,7 +77,7 @@ average per bucket is controled with \code{max_in_bucket} parameter.
 Similarly, when a term from the vocabulary is not present in the embedding
 matrix (aka missing) \code{max_in_bucket} embeddings are averaged to produce the
 missing embedding. Different buckets are used for "missing" and "unknown"
-embeddings because \code{unknown_buckets} can be 0.
+embeddings because \code{nbuckets} can be 0.
 }
 \examples{
 corpus <-
@@ -97,9 +97,9 @@ v
 
 vocab_prune(v, max_terms = 7)
 vocab_prune(v, term_count_min = 2)
-vocab_prune(v, max_terms = 7, unknown_buckets = 2)
+vocab_prune(v, max_terms = 7, nbuckets = 2)
 
-v2 <- vocab_prune(v, max_terms = 7, unknown_buckets = 2)
+v2 <- vocab_prune(v, max_terms = 7, nbuckets = 2)
 enames <- c("the", "quick", "brown", "fox", "jumps")
 emat <- matrix(rnorm(50), nrow = 5,
                dimnames = list(enames, NULL))

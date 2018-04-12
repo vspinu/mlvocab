@@ -6,16 +6,16 @@
 ##' @param vocab data frame produced by [vocab()] or [vocab_update()]
 ##' @param keep_unknown logical. If `TRUE`, preserve unknowns in the output
 ##'   sequences.
-##' @param unknown_buckets integer. How many buckets to hash unknowns into.
+##' @param nbuckets integer. How many buckets to hash unknowns into.
 ##' @return [tiseq()] returns a list of integer vectors, [timat()] returns an
 ##'   integer matrix, one row per sequence.
 ##' @rdname term_index
 ##' @export
 tiseq <- function(corpus, vocab,
-                   keep_unknown = unknown_buckets > 0,
-                   unknown_buckets = attr(vocab, "unknown_buckets"),
+                   keep_unknown = nbuckets > 0,
+                   nbuckets = attr(vocab, "nbuckets"),
                    reverse = FALSE) {
-  structure(C_corpus2ixseq(corpus, vocab,  keep_unknown, unknown_buckets, reverse),
+  structure(C_corpus2ixseq(corpus, vocab,  keep_unknown, nbuckets, reverse),
             names = names(corpus))
 }
 
@@ -30,11 +30,11 @@ tiseq <- function(corpus, vocab,
 ##' @rdname term_index
 ##' @export
 timat <- function(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
-                   keep_unknown = unknown_buckets > 0,
-                   unknown_buckets = attr(vocab, "unknown_buckets"),
+                   keep_unknown = nbuckets > 0,
+                   nbuckets = attr(vocab, "nbuckets"),
                    reverse = FALSE) {
   out <- C_corpus2ixmat(corpus, vocab, maxlen, pad_right, trunc_right,
-                        keep_unknown, unknown_buckets, reverse)
+                        keep_unknown, nbuckets, reverse)
   if (!is.null(names(corpus)))
     rownames(out) <- names(corpus)
   out

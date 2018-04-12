@@ -10,45 +10,45 @@ DataFrame C_vocab(const ListOf<const CharacterVector>& corpus, const DataFrame& 
  
 // [[Rcpp::export]]
 NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row,
-                            int unknown_buckets, int min_to_average) {
+                            int nbuckets, int min_to_average) {
   Vocab* v = new Vocab(vocabdf);
-  return(v->embed_vocab(embeddings, by_row, unknown_buckets, min_to_average));
+  return(v->embed_vocab(embeddings, by_row, nbuckets, min_to_average));
 }
 
 // [[Rcpp::export]]
-DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& vocabdf, const int unknown_buckets) {
+DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& vocabdf, const int nbuckets) {
   Vocab* v = new Vocab(pruned_vocabdf);
-  v->rebucket_unknowns(vocabdf, unknown_buckets);
+  v->rebucket_unknowns(vocabdf, nbuckets);
   return v->df();
 }
 
 // [[Rcpp::export]]
 List C_corpus2ixseq(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf,
-                    bool keep_unknown, int unknown_buckets, bool reverse) {
+                    bool keep_unknown, int nbuckets, bool reverse) {
   Vocab* v = new Vocab(vocabdf);
-  return(v->corpus2ixseq(corpus, keep_unknown, unknown_buckets, reverse));
+  return(v->corpus2ixseq(corpus, keep_unknown, nbuckets, reverse));
 }
 
 // [[Rcpp::export]]
 IntegerMatrix C_corpus2ixmat(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf,
                              int maxlen, bool pad_right, bool trunc_right,
-                             bool keep_unknown, int unknown_buckets, bool reverse) {
+                             bool keep_unknown, int nbuckets, bool reverse) {
   Vocab* v = new Vocab(vocabdf);
-  return(v->corpus2ixmat(corpus, maxlen, pad_right, trunc_right, keep_unknown, unknown_buckets, reverse));
+  return(v->corpus2ixmat(corpus, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse));
 }
 
 // [[Rcpp::export]]
 SEXP C_dtm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
-           const Nullable<NumericVector>& term_weights, const int unknown_buckets,
+           const Nullable<NumericVector>& term_weights, const int nbuckets,
            const std::string output,
            const int ngram_min, const int ngram_max) {
   Vocab* v = new Vocab(vocabdf);
   if (output == "triplet") {
-    return v->term_matrix<MatrixType::DGT>(corpus, unknown_buckets, true, ngram_min, ngram_max, term_weights);
+    return v->term_matrix<MatrixType::DGT>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
   } else if (output == "column") {
-    return v->term_matrix<MatrixType::DGC>(corpus, unknown_buckets, true, ngram_min, ngram_max, term_weights);
+    return v->term_matrix<MatrixType::DGC>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
   } else if (output == "row") {
-    return v->term_matrix<MatrixType::DGR>(corpus, unknown_buckets, true, ngram_min, ngram_max, term_weights);
+    return v->term_matrix<MatrixType::DGR>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());
   }
@@ -56,16 +56,16 @@ SEXP C_dtm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
 
 // [[Rcpp::export]]
 SEXP C_tdm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
-           const Nullable<NumericVector>& term_weights, const int unknown_buckets,
+           const Nullable<NumericVector>& term_weights, const int nbuckets,
            std::string output,
            const int ngram_min, const int ngram_max) {
   Vocab* v = new Vocab(vocabdf);
   if (output == "triplet") {
-    return v->term_matrix<MatrixType::DGT>(corpus, unknown_buckets, false, ngram_min, ngram_max, term_weights);
+    return v->term_matrix<MatrixType::DGT>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
   } else if (output == "column") {
-    return v->term_matrix<MatrixType::DGC>(corpus, unknown_buckets, false, ngram_min, ngram_max, term_weights);
+    return v->term_matrix<MatrixType::DGC>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
   } else if (output == "row") {
-    return v->term_matrix<MatrixType::DGR>(corpus, unknown_buckets, false, ngram_min, ngram_max, term_weights);
+    return v->term_matrix<MatrixType::DGR>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());
   }
@@ -73,7 +73,7 @@ SEXP C_tdm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
 
 // [[Rcpp::export]]
 SEXP C_tcm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
-         const Nullable<NumericVector>& term_weights, const int unknown_buckets,
+         const Nullable<NumericVector>& term_weights, const int nbuckets,
          const std::string& output,
          const size_t window_size, const std::vector<double>& window_weights,
          int ngram_min, int ngram_max, const std::string& context) {
@@ -93,13 +93,13 @@ SEXP C_tcm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
   
   if (output == "triplet") {
     return v->term_cooccurrence_matrix<MatrixType::DGT>(
-      corpus, unknown_buckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
+      corpus, nbuckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
   } else if (output == "column") {
     return v->term_cooccurrence_matrix<MatrixType::DGC>(
-      corpus, unknown_buckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
+      corpus, nbuckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
   } else if (output == "row") {
     return v->term_cooccurrence_matrix<MatrixType::DGR>(
-      corpus, unknown_buckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
+      corpus, nbuckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());
   }  

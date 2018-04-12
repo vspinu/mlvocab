@@ -13,7 +13,7 @@ functions. Second, the vocabulary is passed alongside the corpus to a
 variety of corpus pre-processing functions.
 }
 \details{
-Most of the \code{mlvocab} functions accept \code{unknown_buckets} argument for
+Most of the \code{mlvocab} functions accept \code{nbuckets} argument for
 partial or full hashing of the corpus.
 
 Current functionality includes:

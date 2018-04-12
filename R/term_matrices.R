@@ -6,10 +6,10 @@
 ##' 
 ##' @param corpus a list of character vectors
 ##' @param vocab a `data.frame` produced by an early call to [vocab()]. When
-##'   `vocab` is `NULL` and `unknown_buckets` is `NULL` or `0`, the vocabulary
-##'   is first computed from corpus. When `unknown_buckets` > `0` and `vocab` is
+##'   `vocab` is `NULL` and `nbuckets` is `NULL` or `0`, the vocabulary
+##'   is first computed from corpus. When `nbuckets` > `0` and `vocab` is
 ##'   `NULL` the result matrix will consist of buckets only.
-##' @param unknown_buckets number of unknown buckets
+##' @param nbuckets number of unknown buckets
 ##' @param output one of "triplet", "column", "row", "df" or an unambiguous
 ##'   abbreviation thereof. First three options return the corresponding sparse
 ##'   matrices from Matrix package, "df" results in a triplet `data.frame`.
@@ -17,9 +17,9 @@
 ##' @export
 dtm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
-                unknown_buckets = attr(vocab, "unknown_buckets"),
+                nbuckets = attr(vocab, "nbuckets"),
                 output = c("triplet", "column", "row", "df")) {
-  tm(C_dtm, corpus, vocab, unknown_buckets, output,
+  tm(C_dtm, corpus, vocab, nbuckets, output,
      ngram_min = ngram[[1]], ngram_max = ngram[[2]])
 }
 
@@ -27,9 +27,9 @@ dtm <- function(corpus, vocab = NULL,
 ##' @export
 tdm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
-                unknown_buckets = attr(vocab, "unknown_buckets"),
+                nbuckets = attr(vocab, "nbuckets"),
                 output = c("triplet", "column", "row", "df")) {
-  tm(C_tdm, corpus, vocab, unknown_buckets, output,
+  tm(C_tdm, corpus, vocab, nbuckets, output,
      ngram_min = ngram[[1]], ngram_max = ngram[[2]])
 }
 
@@ -81,7 +81,7 @@ tcm <- function(corpus, vocab = NULL,
                 window_weights = 1/seq.int(window_size), 
                 context = c("symmetric", "right", "left"),
                 ngram = attr(vocab, "ngram"),
-                unknown_buckets = attr(vocab, "unknown_buckets"),
+                nbuckets = attr(vocab, "nbuckets"),
                 output = c("triplet", "column", "row", "df")) {
   if (is.character(window_weights))
     match.fun(window_weights)
@@ -95,26 +95,26 @@ tcm <- function(corpus, vocab = NULL,
   ## term_weights <- retrive_weights(term_weights, vocab)
   ## if (!is.null(term_weights))
   ##   term_weights <- sqrt(term_weights)
-  tm(C_tcm, corpus, vocab, unknown_buckets, output,
+  tm(C_tcm, corpus, vocab, nbuckets, output,
      window_size = window_size, window_weights = window_weights,
      ngram_min = ngram[[1]], ngram_max = ngram[[2]], context = context)
 }
 
-tm <- function(cfun, corpus, vocab, unknown_buckets, output, ...) {
+tm <- function(cfun, corpus, vocab, nbuckets, output, ...) {
   
   output <- match.arg(output, c("triplet", "column", "row", "df"))
   if (is.null(vocab)) {
-    if (is.null(unknown_buckets) || unknown_buckets == 0) {
+    if (is.null(nbuckets) || nbuckets == 0) {
       vocab <- vocab(corpus)
     } else {
       vocab <- `_empty_vocab`
     }
   }
 
-  if (is.null(unknown_buckets))
-    unknown_buckets <- 0L
+  if (is.null(nbuckets))
+    nbuckets <- 0L
 
-  do.call(cfun, list(corpus, vocab, NULL, unknown_buckets, output, ...))
+  do.call(cfun, list(corpus, vocab, NULL, nbuckets, output, ...))
 }
 
 ngram_weights <- function(weights = 1/seq_len(5), ngram_min = 1, ngram_max = 3) {

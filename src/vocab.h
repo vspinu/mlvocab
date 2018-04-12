@@ -45,8 +45,7 @@ class Vocab {
   int ngram_max;
   string ngram_sep;
   int ndocs;
-  int unknown_buckets;
-  vector<size_t> unknown_buckets_ixs;
+  int nbuckets;
   int nuniqterms;
   /* bool chargram; */
 
@@ -62,8 +61,8 @@ class Vocab {
     ngram_max = ngram[1];
     const IntegerVector& ndocs = df.attr("document_count");
     this->ndocs = ndocs[0];
-    const IntegerVector& ubuckets = df.attr("unknown_buckets");
-    this->unknown_buckets = ubuckets[0];
+    const IntegerVector& ubuckets = df.attr("nbuckets");
+    this->nbuckets = ubuckets[0];
     /* const LogicalVector& chargram = df.attr("chargram"); */
     /* this->chargram = chargram[0]; */
     const CharacterVector& ngram_sep = df.attr("ngram_sep");
@@ -85,21 +84,21 @@ class Vocab {
 
   };
  
-  void rebucket_unknowns(const DataFrame& df, size_t unknown_buckets) {
-    const IntegerVector& rubuckets = df.attr("unknown_buckets");
+  void rebucket_unknowns(const DataFrame& df, size_t nbuckets) {
+    const IntegerVector& rubuckets = df.attr("nbuckets");
     size_t ubuckets = rubuckets[0];
 
-    if (ubuckets > 0 && ubuckets != unknown_buckets)
+    if (ubuckets > 0 && ubuckets != nbuckets)
       Rf_error("Trying to rehash a vocab with a different number of buckets");
     
-    if (unknown_buckets > 0) {
+    if (nbuckets > 0) {
 
       const CharacterVector& terms = df["term"];
       const IntegerVector& term_count = df["term_count"];
       const IntegerVector& doc_count = df["doc_count"];
       size_t N = df.nrow();
 
-      for (size_t bkt = 1; bkt <= unknown_buckets; bkt++) {
+      for (size_t bkt = 1; bkt <= nbuckets; bkt++) {
         insert_entry(bkt_name(bkt), 0, 0);
       }
       
@@ -115,13 +114,13 @@ class Vocab {
           // rehash new unknowns
           vit = vocabix.find(term);
           if (vit == vocabix.end()) {
-            uint_fast32_t bkt = murmur3hash(term) % unknown_buckets + 1;
+            uint_fast32_t bkt = murmur3hash(term) % nbuckets + 1;
             insert_entry(bkt_name(bkt), term_count[i], doc_count[i]);
           }
         }
       }
 
-      this->unknown_buckets = unknown_buckets;
+      this->nbuckets = nbuckets;
     }
   }
 
@@ -147,7 +146,7 @@ class Vocab {
                                       _["stringsAsFactors"] = false);
     out.attr("ngram") = IntegerVector::create(ngram_min, ngram_max);
     out.attr("document_count") = IntegerVector::create(ndocs);
-    out.attr("unknown_buckets") = IntegerVector::create(unknown_buckets);
+    out.attr("nbuckets") = IntegerVector::create(nbuckets);
     out.attr("ngram_sep") = CharacterVector::create(ngram_sep);
     out.attr("class") = CharacterVector::create("mlvocab_vocab", "data.frame");
     
@@ -204,9 +203,9 @@ class Vocab {
   /// EMBEDDING
   
   NumericMatrix embed_vocab(NumericMatrix& embeddings, bool by_row, 
-                            int unknown_buckets, int max_per_bucket) {
+                            int nbuckets, int max_per_bucket) {
     // embedding as columns for efficiency
-    size_t nembs = vocabix.size() + unknown_buckets;
+    size_t nembs = vocabix.size() + nbuckets;
     size_t esize = by_row ? embeddings.ncol() : embeddings.nrow();
     size_t nallembs = by_row ? embeddings.nrow() : embeddings.ncol();
 
@@ -258,15 +257,15 @@ class Vocab {
     }
 
     // fill unknown buckets with average embeddings
-    if (unknown_buckets > 0) {
+    if (nbuckets > 0) {
       fill_mean_embeddings(out, vocabix.size(), embeddings, by_row, max_per_bucket);
     }
 
     if (by_row) {
       out = transpose(out);
-      rownames(out) = vocab_names(unknown_buckets);
+      rownames(out) = vocab_names(nbuckets);
     } else {
-      colnames(out) = vocab_names(unknown_buckets);
+      colnames(out) = vocab_names(nbuckets);
     }
     return out;
   }
@@ -275,7 +274,7 @@ class Vocab {
   /// IX SEQUENCE GENERATORS
   
   ListOf<IntegerVector> corpus2ixseq(const ListOf<const CharacterVector>& corpus,
-                                     bool keep_unknown, int unknown_buckets, bool doreverse) {
+                                     bool keep_unknown, int nbuckets, bool doreverse) {
     size_t CN = corpus.size();
     vector<vector<int>> out;
     out.reserve(CN);
@@ -285,7 +284,7 @@ class Vocab {
       vector<int> v;
       v.reserve(ND);
       for (auto el : doc) {
-        push_ix_maybe(v, as<string>(el), keep_unknown, unknown_buckets);
+        push_ix_maybe(v, as<string>(el), keep_unknown, nbuckets);
       }
       if (doreverse)
         reverse(v.begin(), v.end());
@@ -296,7 +295,7 @@ class Vocab {
   
   IntegerMatrix corpus2ixmat(const ListOf<const CharacterVector>& corpus,
                              size_t maxlen, bool pad_right, bool trunc_right,
-                             bool keep_unknown, int unknown_buckets, bool doreverse) {
+                             bool keep_unknown, int nbuckets, bool doreverse) {
     
     size_t CN = corpus.size();
     IntegerMatrix out(CN, maxlen);
@@ -310,11 +309,11 @@ class Vocab {
 
       if (trunc_right) {
         for (auto it = doc.begin(); it != doc.end() && v.size() < maxlen; ++it) {
-          push_ix_maybe(v, as<string>(*it), keep_unknown, unknown_buckets);
+          push_ix_maybe(v, as<string>(*it), keep_unknown, nbuckets);
         }
       } else {
         for (auto it = doc.end(); it-- != doc.begin() && v.size() < maxlen;) {
-          push_ix_maybe(v, as<string>(*it), keep_unknown, unknown_buckets);
+          push_ix_maybe(v, as<string>(*it), keep_unknown, nbuckets);
         }
       }
 
@@ -342,7 +341,7 @@ class Vocab {
   /// DTM/TCM
 
   template <MatrixType mattype>
-  SEXP term_matrix(const ListOf<CharacterVector>& corpus, int unknown_buckets, bool dtm,
+  SEXP term_matrix(const ListOf<CharacterVector>& corpus, int nbuckets, bool dtm,
                    const int ngram_min, const int ngram_max,
                    const Nullable<NumericVector>& term_weights) {
 
@@ -361,8 +360,8 @@ class Vocab {
         // Matrix classes are 0-based indexed
         if (vit == vocabix.end()) {
           Rprintf("not found: %s\n", term.c_str());
-          if (unknown_buckets > 0) {
-            tm->add(doc_dim, murmur3hash(term) % unknown_buckets + vocab.size(), 1.0, dtm);
+          if (nbuckets > 0) {
+            tm->add(doc_dim, murmur3hash(term) % nbuckets + vocab.size(), 1.0, dtm);
           } 
         } else {
           tm->add(doc_dim, vit->second, 1.0, dtm);
@@ -374,20 +373,20 @@ class Vocab {
     if (dtm) {
       if (term_weights.isNotNull())
         tm->apply_weight(term_weights.get(), MatrixDimType::COL);
-      SEXP out = tm->get(mattype, corpus.attr("names"), vocab_names(unknown_buckets));
+      SEXP out = tm->get(mattype, corpus.attr("names"), vocab_names(nbuckets));
       Rf_setAttrib(out, Rf_mkString("mlvocab_dtm"), Rf_ScalarLogical(1));
       return out;
     } else {
       if (term_weights.isNotNull())
         tm->apply_weight(term_weights.get(), MatrixDimType::ROW);
-      SEXP out = tm->get(mattype, vocab_names(unknown_buckets), corpus.attr("names"));
+      SEXP out = tm->get(mattype, vocab_names(nbuckets), corpus.attr("names"));
       Rf_setAttrib(out, Rf_mkString("mlvocab_dtm"), Rf_ScalarLogical(0));
       return out;
     }
   }
 
   template <MatrixType mattype>
-  SEXP term_cooccurrence_matrix(const ListOf<CharacterVector>& corpus, const int unknown_buckets,
+  SEXP term_cooccurrence_matrix(const ListOf<CharacterVector>& corpus, const int nbuckets,
                                 const size_t window_size, const vector<double>& window_weights,
                                 const int ngram_min, const int ngram_max,
                                 const ContextType context,
@@ -412,8 +411,8 @@ class Vocab {
         term = doc[i];
         vit = vocabix.find(term);
         if (vit == vocabix.end()) {
-          if (unknown_buckets > 0)
-            iix = murmur3hash(term) % unknown_buckets + vocab.size();
+          if (nbuckets > 0)
+            iix = murmur3hash(term) % nbuckets + vocab.size();
           else
             continue;
         } else {
@@ -425,8 +424,8 @@ class Vocab {
           term = doc[i + w];
           vit = vocabix.find(term);
           if (vit == vocabix.end()) {
-            if (unknown_buckets > 0)
-              jix = murmur3hash(term) % unknown_buckets + vocab.size();
+            if (nbuckets > 0)
+              jix = murmur3hash(term) % nbuckets + vocab.size();
             else
               continue;
           } else {
@@ -452,21 +451,21 @@ class Vocab {
     if (term_weights.isNotNull()) {
       tm->apply_weight(term_weights.get(), MatrixDimType::BOTH);
     }
-    const CharacterVector& names = vocab_names(unknown_buckets);
+    const CharacterVector& names = vocab_names(nbuckets);
     return tm->get(mattype, names, names, context == ContextType::SYMMETRIC);
     
   }
 
  private: // utils
   
-  void push_ix_maybe(vector<int>& v, const string& term, bool keep_unknown, int unknown_buckets) {
+  void push_ix_maybe(vector<int>& v, const string& term, bool keep_unknown, int nbuckets) {
     shm_string_iter vit = vocabix.find(term);
     // this one is used for ixs for which 0 is special; thus +1
     int uoffset = static_cast<int>(vocab.size()) + 1;
     if (vit == vocabix.end()) {
       if (keep_unknown) {
-        if (unknown_buckets > 0) {
-          v.push_back((unknown_buckets == 1 ? 0 : murmur3hash(term) % unknown_buckets) + uoffset);
+        if (nbuckets > 0) {
+          v.push_back((nbuckets == 1 ? 0 : murmur3hash(term) % nbuckets) + uoffset);
         } else {
           v.push_back(0);
         }

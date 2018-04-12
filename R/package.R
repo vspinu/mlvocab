@@ -6,7 +6,7 @@
 ##' functions. Second, the vocabulary is passed alongside the corpus to a
 ##' variety of corpus pre-processing functions.
 ##'
-##' Most of the `mlvocab` functions accept `unknown_buckets` argument for
+##' Most of the `mlvocab` functions accept `nbuckets` argument for
 ##' partial or full hashing of the corpus.
 ##' 
 ##' Current functionality includes:

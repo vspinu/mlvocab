@@ -12,7 +12,7 @@ test_that("vocab is computed correctly", {
          doc_count = c(1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L)), 
     ngram = c(1L, 1),
     document_count = 2L,
-    unknown_buckets = 0L, 
+    nbuckets = 0L, 
     ngram_sep = "_",
     row.names = c(1L, 2L, 3L, 4L, 5L, 6L, 8L, 9L, 7L),
     class = c("mlvocab_vocab", "data.frame"))
@@ -29,7 +29,7 @@ test_that("vocab is computed correctly", {
          doc_count = c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L)), 
     ngram = c(2L, 3L), 
     document_count = 2L,
-    unknown_buckets = 0L, 
+    nbuckets = 0L, 
     ngram_sep = " ",
     row.names = c(1L, 2L, 18L, 19L, 20L, 16L, 17L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L), 
     class = c("mlvocab_vocab", "data.frame"))
@@ -61,22 +61,22 @@ test_that("vocab_prune works as expected", {
 test_that("vocab_prune adds buckets correctly", {
 
   v <- vocab(corpus)
-  vb <- vocab_prune(v, max_terms = 2, unknown_buckets = 0)
-  expect_equal(attr(vb, "unknown_buckets"), 0)
+  vb <- vocab_prune(v, max_terms = 2, nbuckets = 0)
+  expect_equal(attr(vb, "nbuckets"), 0)
   expect_true(all(colSums(v[, 2:3]) >  colSums(vb[, 2:3])))
   expect_equal(nrow(vb), 2)
   expect_true("the" %in% vb$term)
 
   v <- vocab(corpus)
-  vb <- vocab_prune(v, max_terms = 2, unknown_buckets = 3)
-  expect_equal(attr(vb, "unknown_buckets"), 3)
+  vb <- vocab_prune(v, max_terms = 2, nbuckets = 3)
+  expect_equal(attr(vb, "nbuckets"), 3)
   expect_equal(colSums(v[, 2:3]), colSums(vb[, 2:3]))
   expect_equal(nrow(vb), 5)
   expect_true("the" %in% vb$term)
 
   v <- vocab(corpus, c(1, 2))
-  vb <- vocab_prune(v, max_terms = 10, unknown_buckets = 3)
-  expect_equal(attr(vb, "unknown_buckets"), 3)
+  vb <- vocab_prune(v, max_terms = 10, nbuckets = 3)
+  expect_equal(attr(vb, "nbuckets"), 3)
   expect_equal(colSums(v[, 2:3]), colSums(vb[, 2:3]))
   expect_equal(nrow(vb), 13)
   expect_true("the" %in% vb$term)
@@ -85,13 +85,13 @@ test_that("vocab_prune adds buckets correctly", {
 
 test_that("vocab_update fails on pruned vocabularies", {
   v <- vocab(corpus, c(1, 2))
-  v <- vocab_prune(v, max_terms = 10, unknown_buckets = 3)
+  v <- vocab_prune(v, max_terms = 10, nbuckets = 3)
   expect_error(vocab_update(v, corpus))
 })
 
 test_that("vocab_prune puts unknown buckets at the end", {
   v <- vocab(corpus, c(1, 2))
-  v10 <- vocab_prune(v, max_terms = 10, unknown_buckets = 3)
+  v10 <- vocab_prune(v, max_terms = 10, nbuckets = 3)
   v2a <- vocab_prune(v10[sample(nrow(v10), nrow(v10)), ], max_terms = 1)
   v2b <- vocab_prune(v10, max_terms = 1)
   expect_equal(v2a, v2b)
@@ -100,20 +100,20 @@ test_that("vocab_prune puts unknown buckets at the end", {
 test_that("vocab_prune works incrementally", {
 
   v <- vocab(corpus, c(1, 2))
-  vb2 <- vocab_prune(v, max_terms = 2, unknown_buckets = 3)
-  vb10 <- vocab_prune(v, max_terms = 10, unknown_buckets = 3)
+  vb2 <- vocab_prune(v, max_terms = 2, nbuckets = 3)
+  vb10 <- vocab_prune(v, max_terms = 10, nbuckets = 3)
 
-  expect_error(vocab_prune(vb10, max_terms = 3, unknown_buckets = 2))
+  expect_error(vocab_prune(vb10, max_terms = 3, nbuckets = 2))
 
-  vb10_2 <- vocab_prune(vb10, max_terms = 2, unknown_buckets = 3)
+  vb10_2 <- vocab_prune(vb10, max_terms = 2, nbuckets = 3)
   expect_equal(vb2, vb10_2)
 
   tvb <- vocab_prune(vb10, doc_count_min = 3)
   expect_equal(nrow(tvb), 3)
   expect_equal(colSums(tvb[, 2:3]), colSums(v[, 2:3]))
 
-  tvb10 <- vocab_prune(v, max_terms = 10, unknown_buckets = 0)
-  tvb2 <- vocab_prune(tvb10, max_terms = 2, unknown_buckets = 3)
+  tvb10 <- vocab_prune(v, max_terms = 10, nbuckets = 0)
+  tvb2 <- vocab_prune(tvb10, max_terms = 2, nbuckets = 3)
   expect_equal(nrow(tvb2), 5)
   expect_equal(colSums(tvb10[, 2:3]), colSums(tvb2[, 2:3]))
 

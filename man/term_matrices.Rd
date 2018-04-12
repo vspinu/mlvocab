@@ -7,30 +7,30 @@
 \title{Term-document and term-cooccurrence matrices}
 \usage{
 dtm(corpus, vocab = NULL, ngram = attr(vocab, "ngram"),
-  unknown_buckets = attr(vocab, "unknown_buckets"), output = c("triplet",
+  nbuckets = attr(vocab, "nbuckets"), output = c("triplet",
   "column", "row", "df"))
 
 tdm(corpus, vocab = NULL, ngram = attr(vocab, "ngram"),
-  unknown_buckets = attr(vocab, "unknown_buckets"), output = c("triplet",
+  nbuckets = attr(vocab, "nbuckets"), output = c("triplet",
   "column", "row", "df"))
 
 tcm(corpus, vocab = NULL, window_size = 5,
   window_weights = 1/seq.int(window_size), context = c("symmetric", "right",
-  "left"), ngram = attr(vocab, "ngram"), unknown_buckets = attr(vocab,
-  "unknown_buckets"), output = c("triplet", "column", "row", "df"))
+  "left"), ngram = attr(vocab, "ngram"), nbuckets = attr(vocab,
+  "nbuckets"), output = c("triplet", "column", "row", "df"))
 }
 \arguments{
 \item{corpus}{a list of character vectors}
 
 \item{vocab}{a \code{data.frame} produced by an early call to \code{\link[=vocab]{vocab()}}. When
-\code{vocab} is \code{NULL} and \code{unknown_buckets} is \code{NULL} or \code{0}, the vocabulary
-is first computed from corpus. When \code{unknown_buckets} > \code{0} and \code{vocab} is
+\code{vocab} is \code{NULL} and \code{nbuckets} is \code{NULL} or \code{0}, the vocabulary
+is first computed from corpus. When \code{nbuckets} > \code{0} and \code{vocab} is
 \code{NULL} the result matrix will consist of buckets only.}
 
 \item{ngram}{an integer vector of the form \code{[ngram_min, ngram_max]}. Defaults to the \code{ngram} settings used during the creation of
 \code{vocab}. Explicitly providing this parameter should rarely be needed.}
 
-\item{unknown_buckets}{number of unknown buckets}
+\item{nbuckets}{number of unknown buckets}
 
 \item{output}{one of "triplet", "column", "row", "df" or an unambiguous
 abbreviation thereof. First three options return the corresponding sparse

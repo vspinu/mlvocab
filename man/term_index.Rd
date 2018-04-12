@@ -5,12 +5,12 @@
 \alias{timat}
 \title{Convert text to integer indexes}
 \usage{
-tiseq(corpus, vocab, keep_unknown = unknown_buckets > 0,
-  unknown_buckets = attr(vocab, "unknown_buckets"), reverse = FALSE)
+tiseq(corpus, vocab, keep_unknown = nbuckets > 0,
+  nbuckets = attr(vocab, "nbuckets"), reverse = FALSE)
 
 timat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
-  keep_unknown = unknown_buckets > 0, unknown_buckets = attr(vocab,
-  "unknown_buckets"), reverse = FALSE)
+  keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
+  "nbuckets"), reverse = FALSE)
 }
 \arguments{
 \item{corpus}{text corpus}
@@ -20,7 +20,7 @@ timat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
 \item{keep_unknown}{logical. If \code{TRUE}, preserve unknowns in the output
 sequences.}
 
-\item{unknown_buckets}{integer. How many buckets to hash unknowns into.}
+\item{nbuckets}{integer. How many buckets to hash unknowns into.}
 
 \item{reverse}{logical. Should each sequence be reversed in the final
 output? Reversion happens after \code{pad_right} and \code{trunc_right} have been
