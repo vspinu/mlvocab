@@ -7,12 +7,12 @@
 
 const MH_UINT32 MURMURHASH3_HASH_SEED = 3120602769LL;
 
-uint_fast32_t murmur3hash(const char* ptr) {
-  return static_cast<uint_fast32_t>(PMurHash32(MURMURHASH3_HASH_SEED, ptr, std::strlen(ptr)));
+uint32_t murmur3hash(const char* ptr) {
+  return static_cast<uint32_t>(PMurHash32(MURMURHASH3_HASH_SEED, ptr, std::strlen(ptr)));
 }
 
-uint_fast32_t murmur3hash(const std::string& str) {
-  return static_cast<uint_fast32_t>(PMurHash32(MURMURHASH3_HASH_SEED, str.c_str(), str.size()));
+uint32_t murmur3hash(const std::string& str) {
+  return static_cast<uint32_t>(PMurHash32(MURMURHASH3_HASH_SEED, str.c_str(), str.size()));
 }
  
 //' Murmur3 hash.

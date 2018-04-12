@@ -406,7 +406,7 @@ class Vocab {
       
       const vector<string> doc = wordgrams(as<vector<string>>(corpus[d]), ngram_min, ngram_max, ngram_sep);
       size_t dsize = doc.size();
-      uint_fast32_t iix, jix;
+      uint32_t iix, jix;
       for (size_t i = 0; i < dsize; i++) {
         // (i)-term outer loop
         term = doc[i];
@@ -510,7 +510,7 @@ class Vocab {
     }
   }
 
-  CharacterVector vocab_names(uint_fast32_t nbuckets) {
+  CharacterVector vocab_names(uint32_t nbuckets) {
     CharacterVector out(vocab.size() + nbuckets);
     size_t i = 0;
     for (const VocabEntry& ve : vocab) {
@@ -518,14 +518,14 @@ class Vocab {
       i++;
     }
     string tmpname = "";
-    for (uint_fast32_t bkt = 1; bkt <= nbuckets; bkt++) {
+    for (uint32_t bkt = 1; bkt <= nbuckets; bkt++) {
       out[i] = bkt_name(bkt);
       i++;
     }
     return out;
   }
 
-  inline string bkt_name(uint_fast32_t bkt) {
+  inline string bkt_name(uint32_t bkt) {
     return "__" + to_string(bkt);
   }
 

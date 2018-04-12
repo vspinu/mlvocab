@@ -50,8 +50,8 @@ inline void exit(int status) throw() {}
 
 #include <sparsepp/spp.h>
 using spp::sparse_hash_map;
-typedef sparse_hash_map<string, uint_fast32_t>::iterator shm_string_iter;
-typedef sparse_hash_map<const char*, uint_fast32_t>::iterator shm_char_iter;
+typedef sparse_hash_map<string, uint32_t>::iterator shm_string_iter;
+typedef sparse_hash_map<const char*, uint32_t>::iterator shm_char_iter;
 
 
 /// GENERIC MATRIX TYPES

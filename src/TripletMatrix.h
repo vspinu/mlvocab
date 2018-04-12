@@ -18,7 +18,7 @@ class TripletMatrix {
   TripletMatrix():
     nrow(0), ncol(0) {};
 
-  TripletMatrix(uint32_t nrow, uint32_t ncol):
+  TripletMatrix(int nrow, int ncol):
     nrow(nrow), ncol(ncol) {};
 
   inline void add(uint32_t i, uint32_t j, double d) {
@@ -97,7 +97,7 @@ class TripletMatrix {
   
   // LOW/HIGH bits of the hash key
   
-  inline uint_fast64_t to64(uint_fast32_t i, uint_fast32_t j) {
+  inline uint_fast64_t to64(uint32_t i, uint32_t j) {
     return(static_cast<uint_fast64_t>(i) << 32 | j);
   }
 
@@ -117,8 +117,8 @@ class TripletMatrix {
               Nullable<const CharacterVector&> colnames,
               bool symmetric) {
 
-    int nrow = std::max(this->nrow, LENGTH(rownames.get()));
-    int ncol = std::max(this->ncol, LENGTH(colnames.get()));
+    int nrow = std::max(this->nrow, rownames.isNull() ? 0 : LENGTH(rownames.get()));
+    int ncol = std::max(this->ncol, colnames.isNull() ? 0 : LENGTH(colnames.get()));
     
     size_t nnz = size();
     IntegerVector I(nnz), J(nnz);
@@ -150,8 +150,8 @@ class TripletMatrix {
 
     // see the doc entry CsparseMatrix for internals of dgCMatrix
     
-    int nrow = std::max(this->nrow, LENGTH(rownames.get()));
-    int ncol = std::max(this->ncol, LENGTH(colnames.get()));
+    int nrow = std::max(this->nrow, rownames.isNull() ? 0 : LENGTH(rownames.get()));
+    int ncol = std::max(this->ncol, colnames.isNull() ? 0 : LENGTH(colnames.get()));
 
     int jsize = C ? ncol : nrow;
 

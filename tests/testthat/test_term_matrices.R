@@ -7,7 +7,8 @@ corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "la
 v <- vocab(corpus)
 mat <- structure(c(1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 4, 1, 2, 1, 2),
                  .Dim = c(2L, 9L),
-                 .Dimnames = list(c("a", "b"), c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog")))
+                 .Dimnames = list(c("a", "b"),
+                                  c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog")))
 library(Matrix)
 
 test_that("Basic tcm works", {
@@ -184,6 +185,7 @@ test_that("tdm works", {
 test_that("tdm works with NULL names", {
 
   names(corpus) <- NULL
+  mat <- t(mat)
   colnames(mat) <- NULL
 
   tdm <- tdm(corpus, v, output = "triplet")
