@@ -17,16 +17,16 @@
 ##' v <- vocab(corpus["b"]) # "The" is unknown
 ##' v
 ##' tiseq(corpus, v)
-##' tiseq(corpus, v, keep_unknown = T)
+##' tiseq(corpus, v, keep_unknown = TRUE)
 ##' tiseq(corpus, v, nbuckets = 1)
 ##' tiseq(corpus, v, nbuckets = 3)
 ##'
 ##' timat(corpus, v, maxlen = 12)
-##' timat(corpus, v, maxlen = 12, keep_unknown = T)
+##' timat(corpus, v, maxlen = 12, keep_unknown = TRUE)
 ##' timat(corpus, v, maxlen = 12, nbuckets = 1)
-##' timat(corpus, v, maxlen = 12, nbuckets = 1, reverse = T)
-##' timat(corpus, v, maxlen = 12, pad_right = F, nbuckets = 1)
-##' timat(corpus, v, maxlen = 12, trunc_right = F, nbuckets = 1)
+##' timat(corpus, v, maxlen = 12, nbuckets = 1, reverse = TRUE)
+##' timat(corpus, v, maxlen = 12, pad_right = FALSE, nbuckets = 1)
+##' timat(corpus, v, maxlen = 12, trunc_right = FALSE, nbuckets = 1)
 ##' @export
 tiseq <- function(corpus, vocab,
                    keep_unknown = nbuckets > 0,
