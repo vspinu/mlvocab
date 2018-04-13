@@ -35,5 +35,4 @@
 ##' @importFrom Matrix Diagonal t rowSums colSums
 ##' @importFrom utils head tail
 ##' @useDynLib mlvocab, .registration=TRUE
-##' @keywords internal
 "_PACKAGE"

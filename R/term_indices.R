@@ -1,5 +1,4 @@
 
-
 ##' Convert text to integer indices
 ##'
 ##' @param corpus text corpus
