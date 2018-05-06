@@ -30,6 +30,7 @@
 ##' }
 ##'
 ##' @author Vitalie Spinu (\email{spinuvit@gmail.com})
+##' @import sparsepp
 ##' @importFrom digest digest
 ##' @importFrom Rcpp sourceCpp
 ##' @importFrom Matrix Diagonal t rowSums colSums

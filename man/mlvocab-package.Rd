@@ -47,4 +47,3 @@ Useful links:
 \author{
 Vitalie Spinu (\email{spinuvit@gmail.com})
 }
-\keyword{internal}
