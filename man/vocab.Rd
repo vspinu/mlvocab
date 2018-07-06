@@ -10,7 +10,7 @@
 \alias{vocab_embed}
 \title{Build and manipulate vocabularies}
 \usage{
-vocab(corpus, ngram = c(1, 1), ngram_sep = "_")
+vocab(corpus, ngram = c(1, 1), ngram_sep = "_", separators = " \\t\\n\\r")
 
 vocab_update(vocab, corpus)
 
@@ -23,12 +23,18 @@ vocab_embed(vocab, embeddings, nbuckets = attr(vocab, "nbuckets"),
   max_in_bucket = 30)
 }
 \arguments{
-\item{corpus}{list of character vectors}
+\item{corpus}{list of character vectors or a character vector. When a
+character vector each element is tokenized with \code{separators} with a fast
+internal tokenizer.}
 
 \item{ngram}{a vector of length 2 of the form \code{c(min_ngram, max_ngram)} or a
 singleton \code{max_ngram} which is equivalent to \code{c(1L, max_ngram)}.}
 
 \item{ngram_sep}{separator to link terms within ngrams.}
+
+\item{separators}{characters used to tokenize \code{corpus} when \code{corpus} is a
+character vector, ignored otherwise. Only ASCII separators are currently
+supported. Defaults to a set of white-space characters.}
 
 \item{vocab}{\code{data.frame} obtained from a call to \code{\link[=vocab]{vocab()}}.}
 
@@ -64,7 +70,7 @@ embeddings for some buckets.}
 }
 \description{
 \code{\link[=vocab]{vocab()}} creates a vocabulry from a text corpus; \code{\link[=vocab_update]{vocab_update()}} and
-\code{\link[=vocab_prune]{vocab_prune()}}, respectively,  update and prune an existing vocabulary.
+\code{\link[=vocab_prune]{vocab_prune()}} update and prune an existing vocabulary respectively.
 
 \code{\link[=vocab_embed]{vocab_embed()}} subsets a (commonly large) pre-trained
 word-vector matrix into a smaller, one vector per term, embedding

@@ -2,6 +2,7 @@ context("vocab")
 corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
+scorpus <- sapply(corpus, paste, collapse = " ")
 
 test_that("vocab is computed correctly", {
 
@@ -14,6 +15,7 @@ test_that("vocab is computed correctly", {
     document_count = 2L,
     nbuckets = 0L, 
     ngram_sep = "_",
+    separators = " \t\n\r", 
     row.names = c(1L, 2L, 3L, 4L, 5L, 6L, 8L, 9L, 7L),
     class = c("mlvocab_vocab", "data.frame"))
   expect_equal(v, vt)
@@ -31,6 +33,7 @@ test_that("vocab is computed correctly", {
     document_count = 2L,
     nbuckets = 0L, 
     ngram_sep = " ",
+    separators = " \t\n\r", 
     row.names = c(1L, 2L, 18L, 19L, 20L, 16L, 17L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L), 
     class = c("mlvocab_vocab", "data.frame"))
   expect_equal(v, vt)
@@ -39,22 +42,26 @@ test_that("vocab is computed correctly", {
 
 test_that("vocab adds new terms to the end", {
   v <- vocab(corpus)
+  sv <- vocab(scorpus)
   extras <- list(extras = c("apples", "oranges"))
   v2 <- vocab(c(corpus, extras))
   expect_equal(v2$term[-c(1:nrow(v))], extras$extras)
   expect_equal(v2, vocab_update(v, extras))
+  sv2 <- vocab(c(scorpus, paste(extras[[1]], collapse = "   ")))
+  expect_equal(v2, sv2)
 })
 
 test_that("vocab_prune works as expected", {
-
   v <- vocab(corpus)
+  sv <- vocab(scorpus)
+  expect_equal(vocab_prune(v, max_terms = 8)$term,
+               vocab_prune(sv, max_terms = 8)$term)
   expect_equal(vocab_prune(v, max_terms = 8)$term,
                c("quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
   expect_equal(vocab_prune(v, term_count_min = 2)$term,
                c("quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
   expect_equal(vocab_prune(v, term_count_max = 3)$term,
                c("The", "quick", "brown", "fox", "jumps", "over", "lazy", "dog"))
-
 })
 
 
@@ -67,14 +74,14 @@ test_that("vocab_prune adds buckets correctly", {
   expect_equal(nrow(vb), 2)
   expect_true("the" %in% vb$term)
 
-  v <- vocab(corpus)
+  v <- vocab(scorpus)
   vb <- vocab_prune(v, max_terms = 2, nbuckets = 3)
   expect_equal(attr(vb, "nbuckets"), 3)
   expect_equal(colSums(v[, 2:3]), colSums(vb[, 2:3]))
   expect_equal(nrow(vb), 5)
   expect_true("the" %in% vb$term)
 
-  v <- vocab(corpus, c(1, 2))
+  v <- vocab(scorpus, c(1, 2))
   vb <- vocab_prune(v, max_terms = 10, nbuckets = 3)
   expect_equal(attr(vb, "nbuckets"), 3)
   expect_equal(colSums(v[, 2:3]), colSums(vb[, 2:3]))
@@ -100,8 +107,9 @@ test_that("vocab_prune puts unknown buckets at the end", {
 test_that("vocab_prune works incrementally", {
 
   v <- vocab(corpus, c(1, 2))
+  sv <- vocab(corpus, c(1, 2))
   vb2 <- vocab_prune(v, max_terms = 2, nbuckets = 3)
-  vb10 <- vocab_prune(v, max_terms = 10, nbuckets = 3)
+  vb10 <- vocab_prune(sv, max_terms = 10, nbuckets = 3)
 
   expect_error(vocab_prune(vb10, max_terms = 3, nbuckets = 2))
 

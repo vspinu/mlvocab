@@ -34,7 +34,6 @@ inline bool is_ascii(const char *str) {
   return TRUE;
 }
 
- 
 
 /// SPARSE HASH MAP
 

@@ -13,11 +13,16 @@
 ##' Build and manipulate vocabularies
 ##'
 ##' [vocab()] creates a vocabulry from a text corpus; [vocab_update()] and
-##' [vocab_prune()], respectively,  update and prune an existing vocabulary.
-##' @param corpus list of character vectors
+##' [vocab_prune()] update and prune an existing vocabulary respectively.
+##' @param corpus list of character vectors or a character vector. When a
+##'   character vector each element is tokenized with `separators` with a fast
+##'   internal tokenizer.
 ##' @param ngram a vector of length 2 of the form `c(min_ngram, max_ngram)` or a
 ##'   singleton `max_ngram` which is equivalent to `c(1L, max_ngram)`.
 ##' @param ngram_sep separator to link terms within ngrams.
+##' @param separators characters used to tokenize `corpus` when `corpus` is a
+##'   character vector, ignored otherwise. Only ASCII separators are currently
+##'   supported. Defaults to a set of white-space characters.
 ##' @examples
 ##' corpus <-
 ##'    list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
@@ -49,10 +54,11 @@
 ##' vembs <- vocab_embed(v2, emat)
 ##' all(vembs[enames, ] == emat[enames, ])
 ##' @export
-vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_") {
+vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", separators = " \t\n\r") {
   old_vocab <- structure(`_empty_vocab`,
                          ngram = .normalize_ngram(ngram),
-                         ngram_sep = ngram_sep)
+                         ngram_sep = ngram_sep,
+                         separators = separators)
   C_vocab(corpus, old_vocab)
 }
 

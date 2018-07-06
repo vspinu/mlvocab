@@ -60,3 +60,5 @@ normalize <- function(mat, norm, byrow) {
   if (byrow) Diagonal(x = tfnorm) %*% mat
   else  mat %*% Diagonal(x = tfnorm)
 }
+
+

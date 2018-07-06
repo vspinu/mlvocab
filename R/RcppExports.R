@@ -5,8 +5,8 @@ murmur3hash <- function(x) {
     .Call(`_mlvocab_murmur3hash`, x)
 }
 
-C_vocab <- function(corpus, oldvocab) {
-    .Call(`_mlvocab_C_vocab`, corpus, oldvocab)
+C_vocab <- function(corpus0, oldvocab) {
+    .Call(`_mlvocab_C_vocab`, corpus0, oldvocab)
 }
 
 C_embed_vocab <- function(vocabdf, embeddings, by_row, nbuckets, min_to_average) {
@@ -17,24 +17,24 @@ C_rehash_vocab <- function(pruned_vocabdf, vocabdf, nbuckets) {
     .Call(`_mlvocab_C_rehash_vocab`, pruned_vocabdf, vocabdf, nbuckets)
 }
 
-C_corpus2ixseq <- function(corpus, vocabdf, keep_unknown, nbuckets, reverse) {
-    .Call(`_mlvocab_C_corpus2ixseq`, corpus, vocabdf, keep_unknown, nbuckets, reverse)
+C_corpus2ixseq <- function(corpus0, vocabdf, keep_unknown, nbuckets, reverse) {
+    .Call(`_mlvocab_C_corpus2ixseq`, corpus0, vocabdf, keep_unknown, nbuckets, reverse)
 }
 
-C_corpus2ixmat <- function(corpus, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse) {
-    .Call(`_mlvocab_C_corpus2ixmat`, corpus, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse)
+C_corpus2ixmat <- function(corpus0, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse) {
+    .Call(`_mlvocab_C_corpus2ixmat`, corpus0, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse)
 }
 
-C_dtm <- function(corpus, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max) {
-    .Call(`_mlvocab_C_dtm`, corpus, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max)
+C_dtm <- function(corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max) {
+    .Call(`_mlvocab_C_dtm`, corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max)
 }
 
-C_tdm <- function(corpus, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max) {
-    .Call(`_mlvocab_C_tdm`, corpus, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max)
+C_tdm <- function(corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max) {
+    .Call(`_mlvocab_C_tdm`, corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max)
 }
 
-C_tcm <- function(corpus, vocabdf, term_weights, nbuckets, output, window_size, window_weights, ngram_min, ngram_max, context) {
-    .Call(`_mlvocab_C_tcm`, corpus, vocabdf, term_weights, nbuckets, output, window_size, window_weights, ngram_min, ngram_max, context)
+C_tcm <- function(corpus0, vocabdf, term_weights, nbuckets, output, window_size, window_weights, ngram_min, ngram_max, context) {
+    .Call(`_mlvocab_C_tcm`, corpus0, vocabdf, term_weights, nbuckets, output, window_size, window_weights, ngram_min, ngram_max, context)
 }
 
 C_is_ascii <- function(vec) {
@@ -47,5 +47,9 @@ C_wordgram <- function(vec, ngram_min, ngram_max, sep) {
 
 C_ngram_weights <- function(weights, ngram_min, ngram_max) {
     .Call(`_mlvocab_C_ngram_weights`, weights, ngram_min, ngram_max)
+}
+
+C_tokenize <- function(input, seps) {
+    .Call(`_mlvocab_C_tokenize`, input, seps)
 }
 

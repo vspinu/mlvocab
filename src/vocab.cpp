@@ -2,8 +2,9 @@
 #include "vocab.h"
  
 // [[Rcpp::export]]
-DataFrame C_vocab(const ListOf<const CharacterVector>& corpus, const DataFrame& oldvocab) {
+DataFrame C_vocab(SEXP corpus0, const DataFrame& oldvocab) {
   Vocab* vocab = new Vocab(oldvocab);
+  Corpus corpus(corpus0, vocab->separators());
   vocab->insert_corpus(corpus);
   return vocab->df();
 }
@@ -23,26 +24,29 @@ DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& vocab
 }
 
 // [[Rcpp::export]]
-List C_corpus2ixseq(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf,
+List C_corpus2ixseq(SEXP corpus0, const DataFrame& vocabdf,
                     bool keep_unknown, int nbuckets, bool reverse) {
   Vocab* v = new Vocab(vocabdf);
+  Corpus corpus(corpus0, v->separators());
   return(v->corpus2ixseq(corpus, keep_unknown, nbuckets, reverse));
 }
 
 // [[Rcpp::export]]
-IntegerMatrix C_corpus2ixmat(const ListOf<const CharacterVector>& corpus, const DataFrame& vocabdf,
+IntegerMatrix C_corpus2ixmat(SEXP corpus0, const DataFrame& vocabdf,
                              int maxlen, bool pad_right, bool trunc_right,
                              bool keep_unknown, int nbuckets, bool reverse) {
   Vocab* v = new Vocab(vocabdf);
+  const Corpus corpus(corpus0, v->separators());
   return(v->corpus2ixmat(corpus, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse));
 }
 
 // [[Rcpp::export]]
-SEXP C_dtm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
+SEXP C_dtm(SEXP corpus0, const DataFrame& vocabdf,
            const Nullable<NumericVector>& term_weights, const int nbuckets,
            const std::string output,
            const int ngram_min, const int ngram_max) {
   Vocab* v = new Vocab(vocabdf);
+  Corpus corpus(corpus0, v->separators());
   if (output == "triplet") {
     return v->term_matrix<MatrixType::DGT>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
   } else if (output == "column") {
@@ -55,11 +59,12 @@ SEXP C_dtm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
 }
 
 // [[Rcpp::export]]
-SEXP C_tdm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
+SEXP C_tdm(SEXP corpus0, const DataFrame& vocabdf,
            const Nullable<NumericVector>& term_weights, const int nbuckets,
            std::string output,
            const int ngram_min, const int ngram_max) {
   Vocab* v = new Vocab(vocabdf);
+  Corpus corpus(corpus0, v->separators());
   if (output == "triplet") {
     return v->term_matrix<MatrixType::DGT>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
   } else if (output == "column") {
@@ -72,13 +77,14 @@ SEXP C_tdm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
 }
 
 // [[Rcpp::export]]
-SEXP C_tcm(const ListOf<CharacterVector>& corpus, const DataFrame& vocabdf,
+SEXP C_tcm(SEXP corpus0, const DataFrame& vocabdf,
          const Nullable<NumericVector>& term_weights, const int nbuckets,
          const std::string& output,
          const size_t window_size, const std::vector<double>& window_weights,
          int ngram_min, int ngram_max, const std::string& context) {
   
   Vocab* v = new Vocab(vocabdf);
+  Corpus corpus(corpus0, v->separators());
 
   ContextType context_type;
   if (context == "symmetric") {
@@ -123,4 +129,17 @@ CharacterVector C_wordgram(const CharacterVector& vec, int ngram_min, int ngram_
 // [[Rcpp::export]]
 NumericVector C_ngram_weights(const NumericVector& weights, int ngram_min, int ngram_max) {
   return wrap(ngram_weights(as<vector<double>>(weights), ngram_min, ngram_max));
+}
+
+
+// [[Rcpp::export]]
+SEXP C_tokenize(const CharacterVector& input, const std::string& seps) {
+  R_len_t len = input.size();
+  SEXP out = PROTECT(Rf_allocVector(VECSXP, len));
+  const char* cseps = seps.c_str();
+  for (R_len_t i = 0; i < len; i++) {
+    SET_VECTOR_ELT(out, i, wrap(tokenize_ascii(input[i], cseps)));
+  }
+  UNPROTECT(1);
+  return out;
 }
