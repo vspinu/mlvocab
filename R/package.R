@@ -13,7 +13,7 @@
 ##' 
 ##' \itemize{
 ##'
-##' \item{term index sequences}{[tiseq()] and [timat()] produce integer
+##' \item{term index sequences}{[tix_seq()] and [tix_mat()] produce integer
 ##'   sequences suitable for direct consumption by various sequence models.}
 ##'
 ##' \item{term matrices}{[dtm()], [tdm()] and [tcm()] create document-term,

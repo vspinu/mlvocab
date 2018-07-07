@@ -6,8 +6,8 @@
 ##' @param keep_unknown logical. If `TRUE`, preserve unknowns in the output
 ##'   sequences.
 ##' @param nbuckets integer. How many buckets to hash unknowns into.
-##' @return [tiseq()] returns a list of integer vectors, [tidf()] produces a
-##'   flat index data.frame with two columns, [timat()] returns an integer
+##' @return [tix_seq()] returns a list of integer vectors, [tix_df()] produces a
+##'   flat index data.frame with two columns, [tix_mat()] returns an integer
 ##'   matrix, one row per sequence.
 ##' @name term_indices
 ##' @examples
@@ -16,19 +16,19 @@
 ##'                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 ##' v <- vocab(corpus["b"]) # "The" is unknown
 ##' v
-##' tiseq(corpus, v)
-##' tiseq(corpus, v, keep_unknown = TRUE)
-##' tiseq(corpus, v, nbuckets = 1)
-##' tiseq(corpus, v, nbuckets = 3)
+##' tix_seq(corpus, v)
+##' tix_seq(corpus, v, keep_unknown = TRUE)
+##' tix_seq(corpus, v, nbuckets = 1)
+##' tix_seq(corpus, v, nbuckets = 3)
 ##'
-##' timat(corpus, v, maxlen = 12)
-##' timat(corpus, v, maxlen = 12, keep_unknown = TRUE)
-##' timat(corpus, v, maxlen = 12, nbuckets = 1)
-##' timat(corpus, v, maxlen = 12, nbuckets = 1, reverse = TRUE)
-##' timat(corpus, v, maxlen = 12, pad_right = FALSE, nbuckets = 1)
-##' timat(corpus, v, maxlen = 12, trunc_right = FALSE, nbuckets = 1)
+##' tix_mat(corpus, v, maxlen = 12)
+##' tix_mat(corpus, v, maxlen = 12, keep_unknown = TRUE)
+##' tix_mat(corpus, v, maxlen = 12, nbuckets = 1)
+##' tix_mat(corpus, v, maxlen = 12, nbuckets = 1, reverse = TRUE)
+##' tix_mat(corpus, v, maxlen = 12, pad_right = FALSE, nbuckets = 1)
+##' tix_mat(corpus, v, maxlen = 12, trunc_right = FALSE, nbuckets = 1)
 ##' @export
-tiseq <- function(corpus, vocab,
+tix_seq <- function(corpus, vocab,
                    keep_unknown = nbuckets > 0,
                    nbuckets = attr(vocab, "nbuckets"),
                   reverse = FALSE) {
@@ -37,7 +37,7 @@ tiseq <- function(corpus, vocab,
 
 ##' @name term_indices
 ##' @export
-tidf <- function(corpus, vocab,
+tix_df <- function(corpus, vocab,
                  keep_unknown = nbuckets > 0,
                  nbuckets = attr(vocab, "nbuckets"),
                  reverse = FALSE) {
@@ -54,7 +54,7 @@ tidf <- function(corpus, vocab,
 ##'   applied to the original text sequence. Default `FALSE`.
 ##' @name term_indices
 ##' @export
-timat <- function(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
+tix_mat <- function(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
                    keep_unknown = nbuckets > 0,
                    nbuckets = attr(vocab, "nbuckets"),
                    reverse = FALSE) {

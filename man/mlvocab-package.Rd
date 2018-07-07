@@ -20,7 +20,7 @@ Current functionality includes:
 
 \itemize{
 
-\item{term index sequences}{\code{\link[=tiseq]{tiseq()}} and \code{\link[=timat]{timat()}} produce integer
+\item{term index sequences}{\code{\link[=tix_seq]{tix_seq()}} and \code{\link[=tix_mat]{tix_mat()}} produce integer
 sequences suitable for direct consumption by various sequence models.}
 
 \item{term matrices}{\code{\link[=dtm]{dtm()}}, \code{\link[=tdm]{tdm()}} and \code{\link[=tcm]{tcm()}} create document-term,

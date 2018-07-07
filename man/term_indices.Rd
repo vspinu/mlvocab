@@ -2,20 +2,20 @@
 % Please edit documentation in R/term_indices.R
 \name{term_indices}
 \alias{term_indices}
-\alias{tiseq}
+\alias{tix_seq}
 \alias{term_indices}
-\alias{tidf}
+\alias{tix_df}
 \alias{term_indices}
-\alias{timat}
+\alias{tix_mat}
 \title{Term Indices: Convert text to integer indices}
 \usage{
-tiseq(corpus, vocab, keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
+tix_seq(corpus, vocab, keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
   "nbuckets"), reverse = FALSE)
 
-tidf(corpus, vocab, keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
+tix_df(corpus, vocab, keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
   "nbuckets"), reverse = FALSE)
 
-timat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
+tix_mat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
   keep_unknown = nbuckets > 0, nbuckets = attr(vocab, "nbuckets"),
   reverse = FALSE)
 }
@@ -42,8 +42,8 @@ sequences happen on the right? Default \code{TRUE}.}
 sequences happen on the right? Default \code{TRUE}.}
 }
 \value{
-\code{\link[=tiseq]{tiseq()}} returns a list of integer vectors, \code{\link[=tidf]{tidf()}} produces a
-flat index data.frame with two columns, \code{\link[=timat]{timat()}} returns an integer
+\code{\link[=tix_seq]{tix_seq()}} returns a list of integer vectors, \code{\link[=tix_df]{tix_df()}} produces a
+flat index data.frame with two columns, \code{\link[=tix_mat]{tix_mat()}} returns an integer
 matrix, one row per sequence.
 }
 \description{
@@ -55,15 +55,15 @@ corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "la
                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 v <- vocab(corpus["b"]) # "The" is unknown
 v
-tiseq(corpus, v)
-tiseq(corpus, v, keep_unknown = TRUE)
-tiseq(corpus, v, nbuckets = 1)
-tiseq(corpus, v, nbuckets = 3)
+tix_seq(corpus, v)
+tix_seq(corpus, v, keep_unknown = TRUE)
+tix_seq(corpus, v, nbuckets = 1)
+tix_seq(corpus, v, nbuckets = 3)
 
-timat(corpus, v, maxlen = 12)
-timat(corpus, v, maxlen = 12, keep_unknown = TRUE)
-timat(corpus, v, maxlen = 12, nbuckets = 1)
-timat(corpus, v, maxlen = 12, nbuckets = 1, reverse = TRUE)
-timat(corpus, v, maxlen = 12, pad_right = FALSE, nbuckets = 1)
-timat(corpus, v, maxlen = 12, trunc_right = FALSE, nbuckets = 1)
+tix_mat(corpus, v, maxlen = 12)
+tix_mat(corpus, v, maxlen = 12, keep_unknown = TRUE)
+tix_mat(corpus, v, maxlen = 12, nbuckets = 1)
+tix_mat(corpus, v, maxlen = 12, nbuckets = 1, reverse = TRUE)
+tix_mat(corpus, v, maxlen = 12, pad_right = FALSE, nbuckets = 1)
+tix_mat(corpus, v, maxlen = 12, trunc_right = FALSE, nbuckets = 1)
 }
