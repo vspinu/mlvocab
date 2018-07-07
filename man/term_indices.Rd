@@ -4,10 +4,15 @@
 \alias{term_indices}
 \alias{tiseq}
 \alias{term_indices}
+\alias{tidf}
+\alias{term_indices}
 \alias{timat}
-\title{Convert text to integer indices}
+\title{Term Indices: Convert text to integer indices}
 \usage{
 tiseq(corpus, vocab, keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
+  "nbuckets"), reverse = FALSE)
+
+tidf(corpus, vocab, keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
   "nbuckets"), reverse = FALSE)
 
 timat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
@@ -15,7 +20,7 @@ timat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
   reverse = FALSE)
 }
 \arguments{
-\item{corpus}{text corpus}
+\item{corpus}{text corpus; see \code{[vocab()]}.}
 
 \item{vocab}{data frame produced by \code{\link[=vocab]{vocab()}} or \code{\link[=vocab_update]{vocab_update()}}}
 
@@ -37,11 +42,12 @@ sequences happen on the right? Default \code{TRUE}.}
 sequences happen on the right? Default \code{TRUE}.}
 }
 \value{
-\code{\link[=tiseq]{tiseq()}} returns a list of integer vectors, \code{\link[=timat]{timat()}} returns an
-integer matrix, one row per sequence.
+\code{\link[=tiseq]{tiseq()}} returns a list of integer vectors, \code{\link[=tidf]{tidf()}} produces a
+flat index data.frame with two columns, \code{\link[=timat]{timat()}} returns an integer
+matrix, one row per sequence.
 }
 \description{
-Convert text to integer indices
+Term Indices: Convert text to integer indices
 }
 \examples{
 corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 

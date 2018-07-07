@@ -1,8 +1,12 @@
 context("vocab")
+
 corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 scorpus <- sapply(corpus, paste, collapse = " ")
+dcorpus <- data.frame(names = names(corpus))
+dcorpus$corpus <- corpus
+dscorpus <- data.frame(names = names(scorpus), corpus = unname(scorpus), stringsAsFactors = F)
 
 test_that("vocab is computed correctly", {
 
@@ -43,6 +47,11 @@ test_that("vocab is computed correctly", {
 test_that("vocab adds new terms to the end", {
   v <- vocab(corpus)
   sv <- vocab(scorpus)
+  dv <- vocab(dcorpus)
+  dsv <- vocab(dscorpus)
+  expect_equal(v, sv)
+  expect_equal(v, dv)
+  expect_equal(v, dsv)
   extras <- list(extras = c("apples", "oranges"))
   v2 <- vocab(c(corpus, extras))
   expect_equal(v2$term[-c(1:nrow(v))], extras$extras)
@@ -54,8 +63,14 @@ test_that("vocab adds new terms to the end", {
 test_that("vocab_prune works as expected", {
   v <- vocab(corpus)
   sv <- vocab(scorpus)
+  dv <- vocab(dcorpus)
+  dsv <- vocab(dscorpus)
   expect_equal(vocab_prune(v, max_terms = 8)$term,
                vocab_prune(sv, max_terms = 8)$term)
+  expect_equal(vocab_prune(v, max_terms = 8)$term,
+               vocab_prune(dv, max_terms = 8)$term)
+  expect_equal(vocab_prune(v, max_terms = 8)$term,
+               vocab_prune(dsv, max_terms = 8)$term)
   expect_equal(vocab_prune(v, max_terms = 8)$term,
                c("quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
   expect_equal(vocab_prune(v, term_count_min = 2)$term,

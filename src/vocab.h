@@ -295,14 +295,91 @@ class Vocab {
     return v;
   }
   
-  ListOf<IntegerVector> corpus2ixseq(const Corpus& corpus, bool keep_unknown, int nbuckets, bool doreverse) {
+  SEXP corpus2ixseq(const Corpus& corpus, bool keep_unknown, int nbuckets, bool doreverse) {
     size_t CN = corpus.size();
-    vector<vector<int>> out;
-    out.reserve(CN);
+    SEXP out = PROTECT(Rf_allocVector(VECSXP, CN));
     for (size_t i = 0; i < CN; i++) {
-      out.push_back(doc2ixseq(corpus[i], keep_unknown, nbuckets, doreverse));
+      vector<int> docix = doc2ixseq(corpus[i], keep_unknown, nbuckets, doreverse);
+      SEXP rdocix = Rf_allocVector(INTSXP, docix.size());
+      std::copy(docix.begin(), docix.end(), INTEGER(rdocix));
+      SET_VECTOR_ELT(out, i, rdocix);
     }
-    return wrap(out);
+    Rf_setAttrib(out, R_NamesSymbol, corpus.names());
+    UNPROTECT(1);
+    return out;
+  }
+
+  DataFrame corpus2ixdf(const Corpus& corpus, bool keep_unknown, int nbuckets, bool doreverse) {
+    R_xlen_t CN = corpus.size();
+    vector<int> ixes;
+    ixes.reserve(CN*3);
+    vector<int> reps(CN);
+    for (R_xlen_t i = 0; i < CN; i++) {
+      vector<int> ix = doc2ixseq(corpus[i], keep_unknown, nbuckets, doreverse);
+      ixes.insert(ixes.end(), ix.begin(), ix.end());
+      reps[i] = ix.size();
+    }
+    SEXP names = corpus.names();
+    bool no_names = names == R_NilValue;
+    SEXP id = PROTECT(Rf_allocVector(no_names ? INTSXP : TYPEOF(names), ixes.size()));
+    R_xlen_t oi = 0;
+    if (no_names) {
+      // use integer ids if no names
+      int* px = INTEGER(id);
+      for (R_xlen_t i = 0; i < CN; i++) {
+        int r = reps[i];
+        for (int rr = 0; rr < r; rr++) {
+          px[oi] = i+1;
+          oi++;
+        }
+      }
+    } else {
+      switch(TYPEOF(names)) {
+       case STRSXP:
+         for (R_xlen_t i = 0; i < CN; i++) {
+           int r = reps[i];
+           SEXP nm = STRING_ELT(names, i);
+           for (int rr = 0; rr < r; rr++) {
+             SET_STRING_ELT(id, oi, nm);
+             oi++;
+           }
+         };
+         break;
+       case INTSXP: {
+         int* idpx = INTEGER(id);
+         int* nmpx = INTEGER(names);
+         for (R_xlen_t i = 0; i < CN; i++) {
+           int r = reps[i];
+           int nm = nmpx[i];
+           for (int rr = 0; rr < r; rr++) {
+             idpx[oi] = nm;
+             oi++;
+           }
+         };
+         if (Rf_inherits(names, "factor")) {
+           Rf_setAttrib(id, R_LevelsSymbol, Rf_getAttrib(names, R_LevelsSymbol));
+           Rf_setAttrib(id, R_ClassSymbol, Rf_getAttrib(names, R_ClassSymbol));
+         }
+       }; break;
+       case REALSXP: {
+         double* idpx = REAL(id);
+         double* nmpx = REAL(names);
+         for (R_xlen_t i = 0; i < CN; i++) {
+           int r = reps[i];
+           double nm = nmpx[i];
+           for (int rr = 0; rr < r; rr++) {
+             idpx[oi] = nm;
+             oi++;
+           }
+         };
+       }; break;
+       default: Rf_error("Type '%s' is not supported for document indices", Rf_type2char(TYPEOF(names)));
+      }
+    }
+    UNPROTECT(1);
+    return DataFrame::create(_["doc"] = id,
+                             _["ix"] = wrap(ixes),
+                             _["stringsAsFactors"] = false);
   }
 
   IntegerMatrix corpus2ixmat(const Corpus& corpus,
@@ -345,7 +422,7 @@ class Vocab {
           copy_backward(v.rbegin(), v.rend(), row.end());
       }
     }
-    
+
     return out;
   }
 

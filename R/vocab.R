@@ -14,9 +14,11 @@
 ##'
 ##' [vocab()] creates a vocabulry from a text corpus; [vocab_update()] and
 ##' [vocab_prune()] update and prune an existing vocabulary respectively.
-##' @param corpus list of character vectors or a character vector. When a
-##'   character vector each element is tokenized with `separators` with a fast
-##'   internal tokenizer.
+##' @param corpus A collection of documents. It can be a list of character
+##'   vectors, a character vector or a data.frame with two columns - id and
+##'   documents. When a character vector each string is tokenized with
+##'   `separators` with a fast internal tokenizer. When a data.frame, second
+##'   column can be either a list of string or a character vector.
 ##' @param ngram a vector of length 2 of the form `c(min_ngram, max_ngram)` or a
 ##'   singleton `max_ngram` which is equivalent to `c(1L, max_ngram)`.
 ##' @param ngram_sep separator to link terms within ngrams.

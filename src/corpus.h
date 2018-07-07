@@ -62,6 +62,7 @@ inline vector<string> tokenize_ascii(const char* input, const char* seps) {
 class Corpus
 {
   SEXP data;
+  SEXP names_;
   bool is_list;
   R_xlen_t len;
   string seps;
@@ -73,10 +74,18 @@ class Corpus
   }
   
   Corpus(SEXP data, const string& seps) {
-    switch (TYPEOF(data)){
+    if (Rf_inherits(data, "data.frame")) {
+      if (Rf_xlength(data) < 2)
+        Rf_error("A data.frame `corpus` must have at least two columns");
+      names_ = VECTOR_ELT(data, 0);
+      data = VECTOR_ELT(data,1);
+    } else {
+      names_ = Rf_getAttrib(data, R_NamesSymbol);
+    }
+    switch (TYPEOF(data)) {
      case VECSXP: is_list = true; break;
      case STRSXP: is_list = false; break;
-     default: Rf_error("Corpus can be a list of strings or a character vector");
+     default: Rf_error("Corpus must be a list of strings, a character vector or a two column data.frame");
     }
     this->data = data;
     this->len = Rf_xlength(data);
@@ -88,7 +97,7 @@ class Corpus
   }
  
   SEXP names() const {
-    return Rf_getAttrib(data, R_NamesSymbol);
+    return names_;
   } 
 
   /* Nullable<const CharacterVector&> names() const { */

@@ -23,9 +23,11 @@ vocab_embed(vocab, embeddings, nbuckets = attr(vocab, "nbuckets"),
   max_in_bucket = 30)
 }
 \arguments{
-\item{corpus}{list of character vectors or a character vector. When a
-character vector each element is tokenized with \code{separators} with a fast
-internal tokenizer.}
+\item{corpus}{A collection of documents. It can be a list of character
+vectors, a character vector or a data.frame with two columns - id and
+documents. When a character vector each string is tokenized with
+\code{separators} with a fast internal tokenizer. When a data.frame, second
+column can be either a list of string or a character vector.}
 
 \item{ngram}{a vector of length 2 of the form \code{c(min_ngram, max_ngram)} or a
 singleton \code{max_ngram} which is equivalent to \code{c(1L, max_ngram)}.}

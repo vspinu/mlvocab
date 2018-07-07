@@ -4,7 +4,7 @@
 ##' These functions compute or update various term-counts of a corpus with flexible output
 ##' specification.
 ##' 
-##' @param corpus a list of character vectors
+##' @param corpus text corpus; see `[vocab()]`.
 ##' @param vocab a `data.frame` produced by an early call to [vocab()]. When
 ##'   `vocab` is `NULL` and `nbuckets` is `NULL` or `0`, the vocabulary
 ##'   is first computed from corpus. When `nbuckets` > `0` and `vocab` is
@@ -101,7 +101,6 @@ tcm <- function(corpus, vocab = NULL,
 }
 
 tm <- function(cfun, corpus, vocab, nbuckets, output, ...) {
-  
   output <- match.arg(output, c("triplet", "column", "row", "df"))
   if (is.null(vocab)) {
     if (is.null(nbuckets) || nbuckets == 0) {
@@ -110,10 +109,8 @@ tm <- function(cfun, corpus, vocab, nbuckets, output, ...) {
       vocab <- `_empty_vocab`
     }
   }
-
   if (is.null(nbuckets))
     nbuckets <- 0L
-
   do.call(cfun, list(corpus, vocab, NULL, nbuckets, output, ...))
 }
 

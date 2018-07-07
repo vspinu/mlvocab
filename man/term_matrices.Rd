@@ -23,7 +23,7 @@ tcm(corpus, vocab = NULL, window_size = 5,
   output = c("triplet", "column", "row", "df"))
 }
 \arguments{
-\item{corpus}{a list of character vectors}
+\item{corpus}{text corpus; see \code{[vocab()]}.}
 
 \item{vocab}{a \code{data.frame} produced by an early call to \code{\link[=vocab]{vocab()}}. When
 \code{vocab} is \code{NULL} and \code{nbuckets} is \code{NULL} or \code{0}, the vocabulary
