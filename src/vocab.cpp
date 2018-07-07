@@ -148,7 +148,8 @@ SEXP C_tokenize(const CharacterVector& input, const std::string& seps) {
   SEXP out = PROTECT(Rf_allocVector(VECSXP, len));
   const char* cseps = seps.c_str();
   for (R_len_t i = 0; i < len; i++) {
-    SET_VECTOR_ELT(out, i, wrap(tokenize_ascii(input[i], cseps)));
+    const char* doc = input[i];
+    SET_VECTOR_ELT(out, i, wrap(tokenize(doc, cseps, !is_ascii(doc))));
   }
   UNPROTECT(1);
   return out;

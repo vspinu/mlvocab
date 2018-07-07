@@ -69,8 +69,7 @@ class Vocab {
     /* this->chargram = chargram[0]; */
     const CharacterVector& ngram_sep = df.attr("ngram_sep");
     // FIXME: remove this nullable. It's always there.
-    const CharacterVector& seps = df.attr("separators");
-    this->seps = as<string>(seps[0]);
+    this->seps = translate_separators(df.attr("separators"));
     this->ngram_sep = as<string>(ngram_sep[0]);
 
     const CharacterVector& terms = df["term"];
@@ -141,8 +140,8 @@ class Vocab {
 
     size_t i = 0;
     for(const VocabEntry& ve : vocab) {
-      // output UTF8 which is not correct if input encoding is non-ascii or
-      // non-utf8. Consider saving encoding (and maybe strlen).
+      // Output UTF8 which is not correct if input encoding is non-ascii or
+      // non-utf8. But we explicitly support UTF-8 only.
       terms[i] = Rf_mkCharCE(ve.term.c_str(), CE_UTF8);
       term_counts[i] = ve.n;
       doc_counts[i] = ve.ndocs;

@@ -18,35 +18,81 @@
 #ifndef VOCAB_CORPUS_H
 #define VOCAB_CORPUS_H
 
+#include "Rinternals.h"
+#include <cstring>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+// utf-8 length computation (taken from R's util.c)
+// See also https://stackoverflow.com/a/28311607/453735
+// and https://github.com/wch/r-source/blob/trunk/src/main/valid_utf8.h#L67
+
+/* Number of additional bytes */
+static const unsigned char utf8_table4[] =
+  {
+   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+   2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+   3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5
+  };
+
+inline char utf8clen(char c) {
+  /* This allows through 8-bit chars 10xxxxxx, which are invalid */
+  if ((c & 0xc0) != 0xc0) return 1;
+  return 1 + utf8_table4[c & 0x3f];
+}
+
 
 /// TOKENIZER
 
-inline vector<string> tokenize_ascii(const char* input, const char* seps) {
+inline string translate_separators(SEXP seps) {
+  if (TYPEOF(seps) != STRSXP || Rf_xlength(seps) != 1) {
+    Rf_error("`seps` must be a scalar string"); 
+  }
+  string out(Rf_translateCharUTF8(STRING_ELT(seps, 0)));
+  return out;
+}
+
+inline vector<string> tokenize(const char* input, const char* seps, bool utf8 = false) {
   vector<string> out;
   
   const char* beg = input;
   const char* end = input;
   const char* it = input;
+  char in_l = 1, sep_l = 1;
   
   while (*it) {
+    if (utf8) {
+      in_l = utf8clen(*it);
+    }
     const char* tseps = seps;
+    bool matched = false;
     while (*tseps) {
-      if (*it == *tseps) {
+      if (utf8) {
+        sep_l = utf8clen(*tseps);
+        matched = in_l == sep_l && strncmp(tseps, it, sep_l) == 0;
+      } else {
+        matched = *it == *tseps;
+      }
+      if (matched) {
         if (end > beg) {
           string substr(beg, end);
           out.push_back(substr);
         }
-        beg = it + 1;
+        beg = it + in_l;
         break;
-      } 
-      tseps++;
+      }
+      tseps += sep_l;
     }
-    it++;
-    if (!(*tseps)) {
+    it += in_l;
+    if (!matched) {
       // no match
       end = it;
     }
   }
+  // last piece
   if (end > beg) {
     string substr(beg, end);
     out.push_back(substr);
@@ -66,7 +112,8 @@ class Corpus
   bool is_list;
   R_xlen_t len;
   string seps;
-
+  bool do_utf8 = false;
+  
  public:
 
   Corpus(SEXP data) {
@@ -74,6 +121,9 @@ class Corpus
   }
   
   Corpus(SEXP data, const string& seps) {
+    if (!is_ascii(seps.c_str()))
+      this->do_utf8 = true;
+    this->seps = seps;
     if (Rf_inherits(data, "data.frame")) {
       if (Rf_xlength(data) < 2)
         Rf_error("A data.frame `corpus` must have at least two columns");
@@ -89,7 +139,6 @@ class Corpus
     }
     this->data = data;
     this->len = Rf_xlength(data);
-    this->seps = seps;
   }
 
   inline R_xlen_t size () const {
@@ -99,16 +148,6 @@ class Corpus
   SEXP names() const {
     return names_;
   } 
-
-  /* Nullable<const CharacterVector&> names() const { */
-  /*   SEXP names = Rf_getAttrib(data, R_NamesSymbol); */
-  /*   if (names == R_NilValue) { */
-  /*     return Nullable<const CharacterVector&>(R_NilValue); */
-  /*   } else { */
-  /*     const CharacterVector cvnames(names); */
-  /*     return Nullable<const CharacterVector&>(cvnames); */
-  /*   } */
-  /* }  */
   
   const vector<string> operator[](R_xlen_t i) const {
     if (is_list) {
@@ -125,7 +164,15 @@ class Corpus
       return out;
     } else {
       // character vector
-      return tokenize_ascii(CHAR(STRING_ELT(data, i)), seps.c_str());
+      if (do_utf8) {
+        const char* doc = CHAR(STRING_ELT(data, i));
+        if (is_ascii(doc))
+          return tokenize(doc, seps.c_str(), false);
+        else
+          return tokenize(doc, seps.c_str(), true);
+      } else {
+        return tokenize(CHAR(STRING_ELT(data, i)), seps.c_str(), true);
+      }
     }      
   }
 

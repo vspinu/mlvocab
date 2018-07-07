@@ -30,8 +30,8 @@ using namespace Rcpp;
 inline bool is_ascii(const char *str) {
   const char *p;
   for(p = str; *p; p++)
-	if((unsigned int)*p > 0x7F) return FALSE;
-  return TRUE;
+	if((unsigned int)*p > 0x7F) return false;
+  return true;
 }
 
 

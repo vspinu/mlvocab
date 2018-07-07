@@ -10,7 +10,7 @@
 \alias{vocab_embed}
 \title{Build and manipulate vocabularies}
 \usage{
-vocab(corpus, ngram = c(1, 1), ngram_sep = "_", separators = " \\t\\n\\r")
+vocab(corpus, ngram = c(1, 1), ngram_sep = "_", seps = " \\t\\n\\r")
 
 vocab_update(vocab, corpus)
 
@@ -23,20 +23,23 @@ vocab_embed(vocab, embeddings, nbuckets = attr(vocab, "nbuckets"),
   max_in_bucket = 30)
 }
 \arguments{
-\item{corpus}{A collection of documents. It can be a list of character
-vectors, a character vector or a data.frame with two columns - id and
-documents. When a character vector each string is tokenized with
-\code{separators} with a fast internal tokenizer. When a data.frame, second
-column can be either a list of string or a character vector.}
+\item{corpus}{A collection of ASCII or UTF-8 encoded documents. It can be a
+list of character vectors, a character vector or a data.frame with two
+columns - id and documents. When a character vector each string is
+tokenized with \code{separators} with a fast internal tokenizer. When a
+\code{data.frame}, second column can be either a list of string or a character
+vector.}
 
 \item{ngram}{a vector of length 2 of the form \code{c(min_ngram, max_ngram)} or a
 singleton \code{max_ngram} which is equivalent to \code{c(1L, max_ngram)}.}
 
 \item{ngram_sep}{separator to link terms within ngrams.}
 
-\item{separators}{characters used to tokenize \code{corpus} when \code{corpus} is a
-character vector, ignored otherwise. Only ASCII separators are currently
-supported. Defaults to a set of white-space characters.}
+\item{seps}{a scalar string containing characters to be used for document
+splitting when \code{corpus} is a character vector; ignored otherwise. Defaults
+to a set of white-space characters. Only ASCII and UTF-8 separators are
+supported. When UTF-8 characters separators are used, \code{corpus} is assumed
+to be in UTF-8 encoding. Use \code{enc2utf8} for conversion.}
 
 \item{vocab}{\code{data.frame} obtained from a call to \code{\link[=vocab]{vocab()}}.}
 
@@ -79,11 +82,12 @@ word-vector matrix into a smaller, one vector per term, embedding
 matrix.
 
 \code{\link[=vocab_embed]{vocab_embed()}} is commonly used in conjunction with sequence generators
-(\code{\link[=tix_mat]{tix_mat()}} and \code{\link[=tix_seq]{tix_seq()}}). When a term in a corpus is not present in a
-vocabulary (aka unknown), it is hashed into one of the \code{nbuckets}
-buckets. Embeddings which are hashed into same bucket are averaged to
-produce the embedding for that bucket. Maximum number of embeddings to
-average per bucket is controled with \code{max_in_bucket} parameter.
+(\code{\link[=tix_mat]{tix_mat()}}, \code{\link[=tix_seq]{tix_seq()}} and \code{\link[=tix_df]{tix_df()}}). When a term in a corpus is not
+present in a vocabulary (aka unknown), it is hashed into one of the
+\code{nbuckets} buckets. Embeddings which are hashed into same bucket are
+averaged to produce the embedding for that bucket. Maximum number of
+embeddings to average per bucket is controled with \code{max_in_bucket}
+parameter.
 
 Similarly, when a term from the vocabulary is not present in the embedding
 matrix (aka missing) \code{max_in_bucket} embeddings are averaged to produce the
