@@ -5,6 +5,7 @@ Version 0.0.1.999
 * Add support for `data.frame` corpus
 * New index generator function `tix_df` to produce flat indices as `data.frames` with provision for multi-keys for documents. 
 * Rename `tixyz` function into `tix_xyz`.
+* Rename `vocab_embed` -> `subembed`.
 
 
 Version 0.0.1

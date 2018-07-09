@@ -13,7 +13,7 @@ tix_seq(corpus, vocab, keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
   "nbuckets"), reverse = FALSE)
 
 tix_df(corpus, vocab, keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
-  "nbuckets"), reverse = FALSE)
+  "nbuckets"), reverse = FALSE, as_factor = FALSE)
 
 tix_mat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
   keep_unknown = nbuckets > 0, nbuckets = attr(vocab, "nbuckets"),
@@ -25,13 +25,17 @@ tix_mat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
 \item{vocab}{data frame produced by \code{\link[=vocab]{vocab()}} or \code{\link[=vocab_update]{vocab_update()}}}
 
 \item{keep_unknown}{logical. If \code{TRUE}, preserve unknowns in the output
-sequences.}
+sequences. When \code{nbuckets} == 0 then unknowns are indexed with 0.}
 
 \item{nbuckets}{integer. How many buckets to hash unknowns into.}
 
 \item{reverse}{logical. Should each sequence be reversed in the final
 output? Reversion happens after \code{pad_right} and \code{trunc_right} have been
 applied to the original text sequence. Default \code{FALSE}.}
+
+\item{as_factor}{if TRUE, the returned index column will be a factor instead
+of an integer vector. Will throw an error when \code{keep_unknown} is TRUE and
+\code{nbuckets} == 0.}
 
 \item{maxlen}{integer. Maximum length of each sequence.}
 
@@ -43,18 +47,20 @@ sequences happen on the right? Default \code{TRUE}.}
 }
 \value{
 \code{\link[=tix_seq]{tix_seq()}} returns a list of integer vectors, \code{\link[=tix_df]{tix_df()}} produces a
-flat index data.frame with two columns, \code{\link[=tix_mat]{tix_mat()}} returns an integer
+flat index \code{\link[=data.frame]{data.frame()}} with two columns, \code{\link[=tix_mat]{tix_mat()}} returns an integer
 matrix, one row per sequence.
 }
 \description{
 Term Indices: Convert text to integer indices
 }
 \examples{
+
 corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 v <- vocab(corpus["b"]) # "The" is unknown
 v
+
 tix_seq(corpus, v)
 tix_seq(corpus, v, keep_unknown = TRUE)
 tix_seq(corpus, v, nbuckets = 1)

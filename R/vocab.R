@@ -14,11 +14,19 @@
 ##'
 ##' [vocab()] creates a vocabulary from a text corpus; [vocab_update()] and
 ##' [vocab_prune()] update and prune an existing vocabulary respectively.
+##'
+##' When `corpus` is a character vector each string is tokenized with `seps`
+##' with the internal tokenizer. When `corpus` has names, names will be used to
+##' name the output whenever appropriate.
+##'
+##' When corpus is a `data.frame`, the documents must be in last column,  which
+##' can be either a list of strings or a character vector. All other columns are
+##' considered document ids. If first column is a character vector most function
+##' will use it to name the output.
+##' 
 ##' @param corpus A collection of ASCII or UTF-8 encoded documents. It can be a
-##'   list of character vectors, a character vector or a data.frame with two
-##'   columns - id and documents. When a character vector each string is
-##'   tokenized with `seps` with a fast internal tokenizer. When a `data.frame`,
-##'   second column can be either a list of string or a character vector.
+##'   list of character vectors, a character vector or a data.frame with at
+##'   least two columns - id and documents. See details.
 ##' @param ngram a vector of length 2 of the form `c(min_ngram, max_ngram)` or a
 ##'   singleton `max_ngram` which is equivalent to `c(1L, max_ngram)`.
 ##' @param ngram_sep separator to link terms within ngrams.
@@ -31,6 +39,7 @@
 ##'   sophisticated boundary segmentation algorithms (as implemented for example
 ##'   in [stringi::stri_split_boundaries()]) would do a better segmentation on
 ##'   the expense of creating an intermediate list of segmented documents.
+##' 
 ##' @examples
 ##'
 ##' corpus <-
@@ -56,12 +65,6 @@
 ##' enames <- c("the", "quick", "brown", "fox", "jumps")
 ##' emat <- matrix(rnorm(50), nrow = 5,
 ##'                dimnames = list(enames, NULL))
-##'
-##' vocab_embed(v2, emat)
-##' vocab_embed(v2, t(emat)) # automatic detection of the orientation
-##'
-##' vembs <- vocab_embed(v2, emat)
-##' all(vembs[enames, ] == emat[enames, ])
 ##' @export
 vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", seps = " \t\n\r") {
   old_vocab <- structure(`_empty_vocab`,
@@ -167,11 +170,12 @@ vocab_prune <- function(vocab,
   pruned
 }
 
-##' @description [vocab_embed()] subsets a (commonly large) pre-trained
-##'   word-vector matrix into a smaller, one vector per term, embedding
-##'   matrix.
 ##'
-##' [vocab_embed()] is commonly used in conjunction with sequence generators
+##'
+##' [subembed()] subsets a (commonly large) pre-trained word-vector matrix
+##' into a smaller, one vector per term, embedding matrix.
+##'
+##' [subembed()] is commonly used in conjunction with sequence generators
 ##' ([tix_mat()], [tix_seq()] and [tix_df()]). When a term in a corpus is not
 ##' present in a vocabulary (aka unknown), it is hashed into one of the
 ##' `nbuckets` buckets. Embeddings which are hashed into same bucket are
@@ -193,9 +197,17 @@ vocab_prune <- function(vocab,
 ##'   reached due to the finiteness of the `embeddings` vocabulary, or even
 ##'   result in `0` embeddings being hashed into a bucket producing `[0 0 ...]`
 ##'   embeddings for some buckets.
-##' @name vocab
+##' 
+##' @examples
+##' 
+##' subembed(v2, emat)
+##' subembed(v2, t(emat)) # automatic detection of the orientation
+##'
+##' vembs <- subembed(v2, emat)
+##' all(vembs[enames, ] == emat[enames, ])
+##' 
 ##' @export
-vocab_embed <- function(vocab, embeddings,
+subembed <- function(vocab, embeddings,
                         nbuckets = attr(vocab, "nbuckets"),
                         max_in_bucket = 30) {
   if (is.null(colnames(embeddings)) && is.null(rownames(embeddings)))

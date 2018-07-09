@@ -19,7 +19,7 @@
 ##' \item{term matrices}{[dtm()], [tdm()] and [tcm()] create document-term,
 ##' term-document and term-co-occurrence matrices respectively.}
 ##'
-##' \item{vocabulary embedding}{given pre-trained word-vectors [vocab_embed()]
+##' \item{vocabulary embedding}{given pre-trained word-vectors [subembed()]
 ##' creates smaller embedding matrices treating missing and unknown vocabulary
 ##' terms with grace.}
 ##'

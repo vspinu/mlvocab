@@ -11,7 +11,7 @@ Current functionality includes:
 
  - __term index sequences__: `tix_seq()`, `tix_mat()` and `tix_df()` produce integer sequences suitable for direct consumption by various sequence models.
  - __term matrices__: `dtm()`, `tdm()` and `tcm()` create document-term term-document and term-co-occurrence matrices respectively.
- - __vocabulary embedding__: given pre-trained word-vectors `vocab_embed()` creates smaller embedding matrices treating missing and unknown vocabulary terms with grace.
+ - __subseting embedding matrices__: given pre-trained word-vectors `subembed()` creates smaller embedding matrices treating missing and unknown vocabulary terms with grace.
  - __tfidf weighting__: `tfidf()` computes various versions of term frequency, inverse document frequency weighting of `dtm` and `tdm` matrices.
  
  

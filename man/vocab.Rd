@@ -6,8 +6,6 @@
 \alias{vocab_update}
 \alias{vocab}
 \alias{vocab_prune}
-\alias{vocab}
-\alias{vocab_embed}
 \title{Build and manipulate vocabularies}
 \usage{
 vocab(corpus, ngram = c(1, 1), ngram_sep = "_", seps = " \\t\\n\\r")
@@ -18,17 +16,11 @@ vocab_prune(vocab, max_terms = Inf, term_count_min = 1L,
   term_count_max = Inf, doc_proportion_min = 0, doc_proportion_max = 1,
   doc_count_min = 1L, doc_count_max = Inf, nbuckets = attr(vocab,
   "nbuckets"))
-
-vocab_embed(vocab, embeddings, nbuckets = attr(vocab, "nbuckets"),
-  max_in_bucket = 30)
 }
 \arguments{
 \item{corpus}{A collection of ASCII or UTF-8 encoded documents. It can be a
-list of character vectors, a character vector or a data.frame with two
-columns - id and documents. When a character vector each string is
-tokenized with \code{separators} with a fast internal tokenizer. When a
-\code{data.frame}, second column can be either a list of string or a character
-vector.}
+list of character vectors, a character vector or a data.frame with at
+least two columns - id and documents. See details.}
 
 \item{ngram}{a vector of length 2 of the form \code{c(min_ngram, max_ngram)} or a
 singleton \code{max_ngram} which is equivalent to \code{c(1L, max_ngram)}.}
@@ -37,13 +29,13 @@ singleton \code{max_ngram} which is equivalent to \code{c(1L, max_ngram)}.}
 
 \item{seps}{a scalar string containing characters to be used for document
 splitting when \code{corpus} is a character vector; ignored otherwise. Defaults
-to a set of white-space characters. Only ASCII and UTF-8 separators are
-supported. When UTF-8 characters separators are used, \code{corpus} is assumed
-to be in UTF-8 encoding. Use \code{enc2utf8} for conversion. Please note that
-in most cases more sophisticated boundary segmentation algorithms (as
-implemented for example in \code{\link[stringi:stri_split_boundaries]{stringi::stri_split_boundaries()}}) would do a
-better (and often faster) segmentation on the expense of creating an
-intermediate list of segmented documents.}
+to a set of basic white space separators. \code{NULL} means no
+segmentation. Only ASCII and UTF-8 separators are supported. When UTF-8
+characters separators are used, \code{corpus} is assumed to be in UTF-8
+encoding (use \code{enc2utf8} to convert). Please note that in most cases more
+sophisticated boundary segmentation algorithms (as implemented for example
+in \code{\link[stringi:stri_split_boundaries]{stringi::stri_split_boundaries()}}) would do a better segmentation on
+the expense of creating an intermediate list of segmented documents.}
 
 \item{vocab}{\code{data.frame} obtained from a call to \code{\link[=vocab]{vocab()}}.}
 
@@ -65,38 +57,20 @@ this many docs}
 remaining terms of the pruned \code{vocab}. All pruned terms will be hashed
 into this many buckets and the corresponding statistics (\code{term_count} and
 \code{doc_count}) updated.}
-
-\item{embeddings}{embeddings matrix. The terms dimension must be named. If
-both \code{\link[=colnames]{colnames()}} and \code{\link[=rownames]{rownames()}} are non-null, dimension with more
-elements is considered term-dimension.}
-
-\item{max_in_bucket}{At most this many embedding vectors will be averaged
-into each unknown or missing bucket (see details). Lower number results in
-faster processing. For large \code{nbuckets} this number might not be
-reached due to the finiteness of the \code{embeddings} vocabulary, or even
-result in \code{0} embeddings being hashed into a bucket producing \code{[0 0 ...]}
-embeddings for some buckets.}
 }
 \description{
 \code{\link[=vocab]{vocab()}} creates a vocabulary from a text corpus; \code{\link[=vocab_update]{vocab_update()}} and
 \code{\link[=vocab_prune]{vocab_prune()}} update and prune an existing vocabulary respectively.
+}
+\details{
+When \code{corpus} is a character vector each string is tokenized with \code{seps}
+with the internal tokenizer. When \code{corpus} has names, names will be used to
+name the output whenever appropriate.
 
-\code{\link[=vocab_embed]{vocab_embed()}} subsets a (commonly large) pre-trained
-word-vector matrix into a smaller, one vector per term, embedding
-matrix.
-
-\code{\link[=vocab_embed]{vocab_embed()}} is commonly used in conjunction with sequence generators
-(\code{\link[=tix_mat]{tix_mat()}}, \code{\link[=tix_seq]{tix_seq()}} and \code{\link[=tix_df]{tix_df()}}). When a term in a corpus is not
-present in a vocabulary (aka unknown), it is hashed into one of the
-\code{nbuckets} buckets. Embeddings which are hashed into same bucket are
-averaged to produce the embedding for that bucket. Maximum number of
-embeddings to average per bucket is controled with \code{max_in_bucket}
-parameter.
-
-Similarly, when a term from the vocabulary is not present in the embedding
-matrix (aka missing) \code{max_in_bucket} embeddings are averaged to produce the
-missing embedding. Different buckets are used for "missing" and "unknown"
-embeddings because \code{nbuckets} can be 0.
+When corpus is a \code{data.frame}, the documents must be in last column,  which
+can be either a list of strings or a character vector. All other columns are
+considered document ids. If first column is a character vector most function
+will use it to name the output.
 }
 \examples{
 
@@ -123,10 +97,4 @@ v2 <- vocab_prune(v, max_terms = 7, nbuckets = 2)
 enames <- c("the", "quick", "brown", "fox", "jumps")
 emat <- matrix(rnorm(50), nrow = 5,
                dimnames = list(enames, NULL))
-
-vocab_embed(v2, emat)
-vocab_embed(v2, t(emat)) # automatic detection of the orientation
-
-vembs <- vocab_embed(v2, emat)
-all(vembs[enames, ] == emat[enames, ])
 }

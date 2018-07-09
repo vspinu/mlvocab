@@ -26,7 +26,7 @@ sequences suitable for direct consumption by various sequence models.}
 \item{term matrices}{\code{\link[=dtm]{dtm()}}, \code{\link[=tdm]{tdm()}} and \code{\link[=tcm]{tcm()}} create document-term,
 term-document and term-co-occurrence matrices respectively.}
 
-\item{vocabulary embedding}{given pre-trained word-vectors \code{\link[=vocab_embed]{vocab_embed()}}
+\item{vocabulary embedding}{given pre-trained word-vectors \code{\link[=subembed]{subembed()}}
 creates smaller embedding matrices treating missing and unknown vocabulary
 terms with grace.}
 
