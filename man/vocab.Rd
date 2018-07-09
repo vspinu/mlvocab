@@ -39,7 +39,11 @@ singleton \code{max_ngram} which is equivalent to \code{c(1L, max_ngram)}.}
 splitting when \code{corpus} is a character vector; ignored otherwise. Defaults
 to a set of white-space characters. Only ASCII and UTF-8 separators are
 supported. When UTF-8 characters separators are used, \code{corpus} is assumed
-to be in UTF-8 encoding. Use \code{enc2utf8} for conversion.}
+to be in UTF-8 encoding. Use \code{enc2utf8} for conversion. Please note that
+in most cases more sophisticated boundary segmentation algorithms (as
+implemented for example in \code{\link[stringi:stri_split_boundaries]{stringi::stri_split_boundaries()}}) would do a
+better (and often faster) segmentation on the expense of creating an
+intermediate list of segmented documents.}
 
 \item{vocab}{\code{data.frame} obtained from a call to \code{\link[=vocab]{vocab()}}.}
 
@@ -74,7 +78,7 @@ result in \code{0} embeddings being hashed into a bucket producing \code{[0 0 ..
 embeddings for some buckets.}
 }
 \description{
-\code{\link[=vocab]{vocab()}} creates a vocabulry from a text corpus; \code{\link[=vocab_update]{vocab_update()}} and
+\code{\link[=vocab]{vocab()}} creates a vocabulary from a text corpus; \code{\link[=vocab_update]{vocab_update()}} and
 \code{\link[=vocab_prune]{vocab_prune()}} update and prune an existing vocabulary respectively.
 
 \code{\link[=vocab_embed]{vocab_embed()}} subsets a (commonly large) pre-trained
@@ -95,6 +99,7 @@ missing embedding. Different buckets are used for "missing" and "unknown"
 embeddings because \code{nbuckets} can be 0.
 }
 \examples{
+
 corpus <-
    list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
         b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",

@@ -21,8 +21,8 @@ C_corpus2ixseq <- function(corpus0, vocabdf, keep_unknown, nbuckets, reverse) {
     .Call(`_mlvocab_C_corpus2ixseq`, corpus0, vocabdf, keep_unknown, nbuckets, reverse)
 }
 
-C_corpus2ixdf <- function(corpus0, vocabdf, keep_unknown, nbuckets, reverse) {
-    .Call(`_mlvocab_C_corpus2ixdf`, corpus0, vocabdf, keep_unknown, nbuckets, reverse)
+C_corpus2ixdf <- function(corpus0, vocabdf, keep_unknown, nbuckets, reverse, asfactor) {
+    .Call(`_mlvocab_C_corpus2ixdf`, corpus0, vocabdf, keep_unknown, nbuckets, reverse, asfactor)
 }
 
 C_corpus2ixmat <- function(corpus0, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse) {

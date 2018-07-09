@@ -33,10 +33,11 @@ SEXP C_corpus2ixseq(SEXP corpus0, const DataFrame& vocabdf,
 
 // [[Rcpp::export]]
 DataFrame C_corpus2ixdf(SEXP corpus0, const DataFrame& vocabdf,
-                        bool keep_unknown, int nbuckets, bool reverse) {
+                        bool keep_unknown, int nbuckets,
+                        bool reverse, bool asfactor) {
   Vocab* v = new Vocab(vocabdf);
   Corpus corpus(corpus0, v->separators());
-  return(v->corpus2ixdf(corpus, keep_unknown, nbuckets, reverse));
+  return(v->corpus2ixdf(corpus, keep_unknown, nbuckets, reverse, asfactor));
 }
 
 // [[Rcpp::export]]
@@ -45,9 +46,7 @@ IntegerMatrix C_corpus2ixmat(SEXP corpus0, const DataFrame& vocabdf,
                              bool keep_unknown, int nbuckets, bool reverse) {
   Vocab* v = new Vocab(vocabdf);
   const Corpus corpus(corpus0, v->separators());
-  IntegerMatrix out = v->corpus2ixmat(corpus, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse);
-  rownames(out) = corpus.names();
-  return(out);
+  return v->corpus2ixmat(corpus, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse);
 }
  
 // [[Rcpp::export]]

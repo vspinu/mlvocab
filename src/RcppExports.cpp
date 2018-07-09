@@ -72,8 +72,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_corpus2ixdf
-DataFrame C_corpus2ixdf(SEXP corpus0, const DataFrame& vocabdf, bool keep_unknown, int nbuckets, bool reverse);
-RcppExport SEXP _mlvocab_C_corpus2ixdf(SEXP corpus0SEXP, SEXP vocabdfSEXP, SEXP keep_unknownSEXP, SEXP nbucketsSEXP, SEXP reverseSEXP) {
+DataFrame C_corpus2ixdf(SEXP corpus0, const DataFrame& vocabdf, bool keep_unknown, int nbuckets, bool reverse, bool asfactor);
+RcppExport SEXP _mlvocab_C_corpus2ixdf(SEXP corpus0SEXP, SEXP vocabdfSEXP, SEXP keep_unknownSEXP, SEXP nbucketsSEXP, SEXP reverseSEXP, SEXP asfactorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -82,7 +82,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type keep_unknown(keep_unknownSEXP);
     Rcpp::traits::input_parameter< int >::type nbuckets(nbucketsSEXP);
     Rcpp::traits::input_parameter< bool >::type reverse(reverseSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_corpus2ixdf(corpus0, vocabdf, keep_unknown, nbuckets, reverse));
+    Rcpp::traits::input_parameter< bool >::type asfactor(asfactorSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_corpus2ixdf(corpus0, vocabdf, keep_unknown, nbuckets, reverse, asfactor));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -215,7 +216,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mlvocab_C_embed_vocab", (DL_FUNC) &_mlvocab_C_embed_vocab, 5},
     {"_mlvocab_C_rehash_vocab", (DL_FUNC) &_mlvocab_C_rehash_vocab, 3},
     {"_mlvocab_C_corpus2ixseq", (DL_FUNC) &_mlvocab_C_corpus2ixseq, 5},
-    {"_mlvocab_C_corpus2ixdf", (DL_FUNC) &_mlvocab_C_corpus2ixdf, 5},
+    {"_mlvocab_C_corpus2ixdf", (DL_FUNC) &_mlvocab_C_corpus2ixdf, 6},
     {"_mlvocab_C_corpus2ixmat", (DL_FUNC) &_mlvocab_C_corpus2ixmat, 8},
     {"_mlvocab_C_dtm", (DL_FUNC) &_mlvocab_C_dtm, 7},
     {"_mlvocab_C_tdm", (DL_FUNC) &_mlvocab_C_tdm, 7},

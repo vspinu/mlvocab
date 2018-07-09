@@ -12,23 +12,27 @@
 
 ##' Build and manipulate vocabularies
 ##'
-##' [vocab()] creates a vocabulry from a text corpus; [vocab_update()] and
+##' [vocab()] creates a vocabulary from a text corpus; [vocab_update()] and
 ##' [vocab_prune()] update and prune an existing vocabulary respectively.
 ##' @param corpus A collection of ASCII or UTF-8 encoded documents. It can be a
 ##'   list of character vectors, a character vector or a data.frame with two
 ##'   columns - id and documents. When a character vector each string is
-##'   tokenized with `separators` with a fast internal tokenizer. When a
-##'   `data.frame`, second column can be either a list of string or a character
-##'   vector.
+##'   tokenized with `seps` with a fast internal tokenizer. When a `data.frame`,
+##'   second column can be either a list of string or a character vector.
 ##' @param ngram a vector of length 2 of the form `c(min_ngram, max_ngram)` or a
 ##'   singleton `max_ngram` which is equivalent to `c(1L, max_ngram)`.
 ##' @param ngram_sep separator to link terms within ngrams.
 ##' @param seps a scalar string containing characters to be used for document
 ##'   splitting when `corpus` is a character vector; ignored otherwise. Defaults
-##'   to a set of white-space characters. Only ASCII and UTF-8 separators are
-##'   supported. When UTF-8 characters separators are used, `corpus` is assumed
-##'   to be in UTF-8 encoding. Use `enc2utf8` for conversion.
+##'   to a set of basic white space separators. `NULL` means no
+##'   segmentation. Only ASCII and UTF-8 separators are supported. When UTF-8
+##'   characters separators are used, `corpus` is assumed to be in UTF-8
+##'   encoding (use `enc2utf8` to convert). Please note that in most cases more
+##'   sophisticated boundary segmentation algorithms (as implemented for example
+##'   in [stringi::stri_split_boundaries()]) would do a better segmentation on
+##'   the expense of creating an intermediate list of segmented documents.
 ##' @examples
+##'
 ##' corpus <-
 ##'    list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
 ##'         b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
@@ -63,7 +67,7 @@ vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", seps = " \t\n\r") {
   old_vocab <- structure(`_empty_vocab`,
                          ngram = .normalize_ngram(ngram),
                          ngram_sep = ngram_sep,
-                         separators = seps)
+                         seps = seps)
   C_vocab(corpus, old_vocab)
 }
 

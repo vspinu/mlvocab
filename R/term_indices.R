@@ -4,18 +4,20 @@
 ##' @param corpus text corpus; see `[vocab()]`.
 ##' @param vocab data frame produced by [vocab()] or [vocab_update()]
 ##' @param keep_unknown logical. If `TRUE`, preserve unknowns in the output
-##'   sequences.
+##'   sequences. When `nbuckets` == 0 then unknowns are indexed with 0.
 ##' @param nbuckets integer. How many buckets to hash unknowns into.
 ##' @return [tix_seq()] returns a list of integer vectors, [tix_df()] produces a
-##'   flat index data.frame with two columns, [tix_mat()] returns an integer
+##'   flat index [data.frame()] with two columns, [tix_mat()] returns an integer
 ##'   matrix, one row per sequence.
 ##' @name term_indices
 ##' @examples
+##' 
 ##' corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
 ##'                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
 ##'                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 ##' v <- vocab(corpus["b"]) # "The" is unknown
 ##' v
+##' 
 ##' tix_seq(corpus, v)
 ##' tix_seq(corpus, v, keep_unknown = TRUE)
 ##' tix_seq(corpus, v, nbuckets = 1)
@@ -29,20 +31,48 @@
 ##' tix_mat(corpus, v, maxlen = 12, trunc_right = FALSE, nbuckets = 1)
 ##' @export
 tix_seq <- function(corpus, vocab,
-                   keep_unknown = nbuckets > 0,
-                   nbuckets = attr(vocab, "nbuckets"),
-                  reverse = FALSE) {
+                    keep_unknown = nbuckets > 0,
+                    nbuckets = attr(vocab, "nbuckets"),
+                    reverse = FALSE) {
   C_corpus2ixseq(corpus, vocab, keep_unknown, nbuckets, reverse)
 }
 
 ##' @name term_indices
+##' @param as_factor if TRUE, the returned index column will be a factor instead
+##'   of an integer vector. Will throw an error when `keep_unknown` is TRUE and
+##'   `nbuckets` == 0.
 ##' @export
 tix_df <- function(corpus, vocab,
-                 keep_unknown = nbuckets > 0,
-                 nbuckets = attr(vocab, "nbuckets"),
-                 reverse = FALSE) {
-  C_corpus2ixdf(corpus, vocab, keep_unknown, nbuckets, reverse)
+                   keep_unknown = nbuckets > 0,
+                   nbuckets = attr(vocab, "nbuckets"),
+                   reverse = FALSE,
+                   as_factor = FALSE) {
+  if (as_factor && keep_unknown && nbuckets == 0) {
+    stop("Cannot return a factor when `nbuckets` is 0 and `keep_unknown` is TRUE")
+  }
+  C_corpus2ixdf(corpus, vocab, keep_unknown, nbuckets, reverse, as_factor)
+
+  ## The following df index has an outrageous performance and memory consumption :(
+  ## ## NB: C_corpus2ixdf doesn't use corpus names internally
+  ## if (is.data.frame(corpus)) {
+  ##   ixdf <- C_corpus2ixdf(corpus[[ncol(corpus)]],
+  ##                         vocab, keep_unknown, nbuckets, reverse, as_factor)
+  ##   corpus[[ncol(corpus)]] <- NULL
+  ##   ix <- ixdf[[1]]
+  ##   date <- corpus$date[ix]
+  ##   str <- corpus$id[ix]
+  ##   cbind(corpus[ix, , drop = F], ix = ixdf$ix,
+  ##         stringsAsFactors = FALSE, row.names = NULL) 
+  ## } else {
+  ##   ixdf <- C_corpus2ixdf(corpus, vocab, keep_unknown, nbuckets, reverse, as_factor)
+  ##   if (!is.null(names(corpus))) {
+  ##     ixdf[[1]] <- names(corpus)[ixdf[[1]]]
+  ##   }
+  ##   ixdf
+  ## }
+
 }
+
 
 ##' @param maxlen integer. Maximum length of each sequence.
 ##' @param pad_right logical. Should 0-padding of shorter than `maxlen`

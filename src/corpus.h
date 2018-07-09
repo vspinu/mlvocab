@@ -48,6 +48,8 @@ inline char utf8clen(char c) {
 /// TOKENIZER
 
 inline string translate_separators(SEXP seps) {
+  if (seps == R_NilValue)
+    return "";
   if (TYPEOF(seps) != STRSXP || Rf_xlength(seps) != 1) {
     Rf_error("`seps` must be a scalar string"); 
   }
@@ -103,11 +105,11 @@ inline vector<string> tokenize(const char* input, const char* seps, bool utf8 = 
 
 /// CORPUS
 
-// wrapper for transient usage only, because it relies on SEXP pointer which is
-// assumed protected.
+// Wrapper for transient usage only. We assume the SEXP data pointer is protected.
 class Corpus
 {
   SEXP data;
+  SEXP corpus;
   SEXP names_;
   bool is_list;
   R_xlen_t len;
@@ -124,21 +126,26 @@ class Corpus
     if (!is_ascii(seps.c_str()))
       this->do_utf8 = true;
     this->seps = seps;
+    this->data = data;
     if (Rf_inherits(data, "data.frame")) {
       if (Rf_xlength(data) < 2)
         Rf_error("A data.frame `corpus` must have at least two columns");
-      names_ = VECTOR_ELT(data, 0);
-      data = VECTOR_ELT(data,1);
+      if (Rf_isString(VECTOR_ELT(data, 0)))
+        // TOTHINK: automatic conversion to characters seems like a bad idea
+        this->names_ = VECTOR_ELT(data, 0);
+      else
+        this->names_ = R_NilValue;
+      this->corpus = VECTOR_ELT(data, Rf_length(data) - 1); // last column
     } else {
-      names_ = Rf_getAttrib(data, R_NamesSymbol);
+      this->names_ = Rf_getAttrib(data, R_NamesSymbol);
+      this->corpus = data;
     }
-    switch (TYPEOF(data)) {
+    switch (TYPEOF(this->corpus)) {
      case VECSXP: is_list = true; break;
      case STRSXP: is_list = false; break;
      default: Rf_error("Corpus must be a list of strings, a character vector or a two column data.frame");
     }
-    this->data = data;
-    this->len = Rf_xlength(data);
+    this->len = Rf_xlength(corpus);
   }
 
   inline R_xlen_t size () const {
@@ -147,11 +154,19 @@ class Corpus
  
   SEXP names() const {
     return names_;
-  } 
+  }
+
+  SEXP id() const {
+    if (Rf_inherits(data, "data.frame"))
+      // returning full data for simplicity (only needed in corpus2ixdf)
+      return data;
+    else
+      return names_;
+  }
   
   const vector<string> operator[](R_xlen_t i) const {
     if (is_list) {
-      SEXP doc = VECTOR_ELT(data, i);
+      SEXP doc = VECTOR_ELT(corpus, i);
       if (!Rf_isString(doc))
         Rf_error("Each element of a corpus list must be a character vector");
       R_xlen_t N = Rf_xlength(doc);
@@ -165,13 +180,13 @@ class Corpus
     } else {
       // character vector
       if (do_utf8) {
-        const char* doc = CHAR(STRING_ELT(data, i));
+        const char* doc = CHAR(STRING_ELT(corpus, i));
         if (is_ascii(doc))
           return tokenize(doc, seps.c_str(), false);
         else
           return tokenize(doc, seps.c_str(), true);
       } else {
-        return tokenize(CHAR(STRING_ELT(data, i)), seps.c_str(), true);
+        return tokenize(CHAR(STRING_ELT(corpus, i)), seps.c_str(), true);
       }
     }      
   }
