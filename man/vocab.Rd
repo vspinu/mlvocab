@@ -53,10 +53,10 @@ this many docs}
 \item{doc_count_max, doc_proportion_max}{keep terms appearing in at \emph{most}
 this many docs}
 
-\item{nbuckets}{How many unknown buckets to create along the
-remaining terms of the pruned \code{vocab}. All pruned terms will be hashed
-into this many buckets and the corresponding statistics (\code{term_count} and
-\code{doc_count}) updated.}
+\item{nbuckets}{How many unknown buckets to create along the remaining terms
+of the pruned \code{vocab}. All pruned terms will be hashed into this many
+buckets and the corresponding statistics (\code{term_count} and \code{doc_count})
+updated.}
 }
 \description{
 \code{\link[=vocab]{vocab()}} creates a vocabulary from a text corpus; \code{\link[=vocab_update]{vocab_update()}} and
@@ -93,8 +93,4 @@ vocab_prune(v, max_terms = 7)
 vocab_prune(v, term_count_min = 2)
 vocab_prune(v, max_terms = 7, nbuckets = 2)
 
-v2 <- vocab_prune(v, max_terms = 7, nbuckets = 2)
-enames <- c("the", "quick", "brown", "fox", "jumps")
-emat <- matrix(rnorm(50), nrow = 5,
-               dimnames = list(enames, NULL))
 }
