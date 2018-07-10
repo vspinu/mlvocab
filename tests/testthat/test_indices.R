@@ -59,13 +59,13 @@ test_that("text2ixdf works", {
   tdscorpus <- rbind(dscorpus, list(names = "c", corpus = "dog eats dog"))
 
   df <- tix_df(tcorpus, vocab)
-  expect_equal(df$ix, unname(do.call(c, tix_seq(tcorpus, vocab))))
+  expect_equal(df$term, unname(do.call(c, tix_seq(tcorpus, vocab))))
   expect_equal(df$id, gsub("[0-9]", "", names(do.call(c, tix_seq(tcorpus, vocab)))))
   df <- tix_df(tdcorpus, vocab)
-  expect_equal(df$corpus_term_ix, unname(do.call(c, tix_seq(tdcorpus, vocab))))
+  expect_equal(df$corpus_term, unname(do.call(c, tix_seq(tdcorpus, vocab))))
   expect_equal(df$names, gsub("[0-9]", "", names(do.call(c, tix_seq(tdcorpus, vocab)))))
   df <- tix_df(tdscorpus, vocab)
-  expect_equal(df$corpus_term_ix, unname(do.call(c, tix_seq(tdscorpus, vocab))))
+  expect_equal(df$corpus_term, unname(do.call(c, tix_seq(tdscorpus, vocab))))
   expect_equal(df$names, gsub("[0-9]", "", names(do.call(c, tix_seq(tdscorpus, vocab)))))  
 })
 
@@ -76,11 +76,11 @@ test_that("text2ixdf works with no names", {
   id <- as.integer(as.factor(gsub("[0-9]", "", names(do.call(c, tix_seq(corpus, vocab))))))
 
   df <- tix_df(tcorpus, vocab)
-  expect_equal(df$ix, unname(do.call(c, tix_seq(corpus, vocab))))
+  expect_equal(df$term, unname(do.call(c, tix_seq(corpus, vocab))))
   expect_equal(df$id, id)
 
   df <- tix_df(tscorpus, vocab)
-  expect_equal(df$ix, unname(do.call(c, tix_seq(corpus, vocab))))
+  expect_equal(df$term, unname(do.call(c, tix_seq(corpus, vocab))))
   expect_equal(df$id, id)
 })
 
@@ -132,18 +132,18 @@ test_that("text2ixdf works multiple id columns", {
   new_ids <- df[, -ncol(df)]
   expect_equal(names(old_ids), names(new_ids))
   expect_equal(sapply(old_ids, class), sapply(new_ids, class))
-  expect_equal(unname(split(df$corpus_term_ix, df[[1]])), seq)
+  expect_equal(unname(split(df$corpus_term, df[[1]])), seq)
   
 })
 
 test_that("text2ixdf works with return_factor=T", {
   df <- tix_df(dcorpus, vocab)
-  df$corpus_term_ix <- structure(df$corpus_term_ix, levels = vocab$term, class = "factor")
+  df$corpus_term <- structure(df$corpus_term, levels = vocab$term, class = "factor")
   expect_equal(tix_df(dcorpus, vocab, as_factor = T), df)
 
   tvocab <- vocab_prune(vocab(corpus), max_terms = 3, nbuckets = 3)
   df <- tix_df(dcorpus, tvocab)
-  df$corpus_term_ix <- structure(df$corpus_term_ix, levels = tvocab$term, class = "factor")
+  df$corpus_term <- structure(df$corpus_term, levels = tvocab$term, class = "factor")
   expect_equal(tix_df(dcorpus, tvocab, as_factor = T), df)
 })
 

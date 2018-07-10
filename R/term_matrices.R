@@ -6,9 +6,9 @@
 ##' 
 ##' @param corpus text corpus; see `[vocab()]`.
 ##' @param vocab a `data.frame` produced by an early call to [vocab()]. When
-##'   `vocab` is `NULL` and `nbuckets` is `NULL` or `0`, the vocabulary
-##'   is first computed from corpus. When `nbuckets` > `0` and `vocab` is
-##'   `NULL` the result matrix will consist of buckets only.
+##'   `vocab` is `NULL` and `nbuckets` is `NULL` or `0`, the vocabulary is first
+##'   computed from corpus. When `nbuckets` > `0` and `vocab` is `NULL` the
+##'   result matrix will consist of buckets only.
 ##' @param nbuckets number of unknown buckets
 ##' @param output one of "triplet", "column", "row", "df" or an unambiguous
 ##'   abbreviation thereof. First three options return the corresponding sparse

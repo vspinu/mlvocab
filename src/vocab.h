@@ -544,7 +544,7 @@ class Vocab {
       }
       SEXP new_names = PROTECT(Rf_duplicate(Rf_getAttrib(obj, R_NamesSymbol)));
       R_xlen_t last_i = Rf_xlength(new_names) - 1;
-      string ix_name = std::string(CHAR(STRING_ELT(new_names, last_i))) + "_term_ix";
+      string ix_name = std::string(CHAR(STRING_ELT(new_names, last_i))) + "_term";
       SET_STRING_ELT(new_names, last_i, Rf_mkCharCE(ix_name.c_str(), CE_UTF8));
       set_df_attrs(df, new_names);
       // for data.table and tible sake
@@ -555,7 +555,7 @@ class Vocab {
       // obj is a primitive vector
       SEXP df = PROTECT(Rf_allocVector(VECSXP, 2));
       SET_VECTOR_ELT(df, 0, replicate_sexp(obj, reps, N));
-      set_df_attrs(df, CharacterVector::create("id", "ix"));
+      set_df_attrs(df, CharacterVector::create("id", "term"));
       UNPROTECT(1);
       return df;
     }
