@@ -13,7 +13,7 @@ test_that("Tokenizer tokenizes with Unicode tokens", {
                list(c("aℵ", "aβ", "α", "β"), c("a", "cdssfdsffsfsd")))
 })
 
-test_that("Tokenizer tokenizes with Unicode tokens and Unicode seps", {
+test_that("Tokenizer tokenizes with Unicode tokens and Unicode regex", {
   expect_equal(C_tokenize(c("aℵb aβb α β", "abcdssfdsffsfsd"), "[ b β]+"),
                list(c("aℵ", "a", "α"), c("a", "cdssfdsffsfsd")))
 })
@@ -25,17 +25,17 @@ test_that("Tokenizer handles missing values", {
 
 test_that("utf8 string corpus is correctly tokenized", {
   corpus <- c("a α b β", "aℵb aβb α β", "ASCII string")
-  v <- vocab(corpus, seps = " ")
+  v <- vocab(corpus, regex = " ")
   expect_equal(v$term, c("a", "α", "b", "β", "aℵb", "aβb", "ASCII", "string"))
-  v <- vocab(corpus, seps = "[ abβ]")
+  v <- vocab(corpus, regex = "[ abβ]")
   expect_equal(v$term, c("α", "ℵ", "ASCII", "string"))
-  ## str(vocab(c(NA, "aℵb aβb α β", NA, "abcdssfdsffsfsd"), seps = "[ b β]"))
+  ## str(vocab(c(NA, "aℵb aβb α β", NA, "abcdssfdsffsfsd"), regex = "[ b β]"))
 })
 
 
 test_that("NULL separator results in no segmentation", {
   corpus <- c("some sentence", "another sentence")
-  v <- vocab(corpus, seps = NULL)
+  v <- vocab(corpus, regex = NULL)
   expect_equal(v$term, corpus)
-  expect_equal(v, vocab(corpus, seps = ""))
+  expect_equal(v, vocab(corpus, regex = ""))
 })

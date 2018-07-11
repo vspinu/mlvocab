@@ -6,7 +6,7 @@ scorpus <- sapply(corpus, paste, collapse = " ")
 dcorpus <- data.frame(names = names(corpus), stringsAsFactors = F)
 dcorpus$corpus <- corpus
 dscorpus <- data.frame(names = names(scorpus), corpus = unname(scorpus), stringsAsFactors = F)
-vocab <- vocab(corpus, seps = " ")
+vocab <- vocab(corpus, regex = " ")
 
 test_that("text2seq works",  {
 

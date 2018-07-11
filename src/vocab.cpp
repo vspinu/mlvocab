@@ -141,16 +141,16 @@ NumericVector C_ngram_weights(const NumericVector& weights, int ngram_min, int n
 }
 
 // [[Rcpp::export]]
-SEXP C_tokenize(SEXP input, SEXP seps) {
+SEXP C_tokenize(SEXP input, SEXP rx) {
   R_len_t len = Rf_xlength(input);
-  string sseps = translate_separators(seps);
-  regex rgx(sseps,
+  string srx = translate_separators(rx);
+  regex rgx(srx,
             regex_constants::ECMAScript | regex_constants::nosubs |
             regex_constants::optimize);
-  wregex wrgx(to_utf32(sseps),
+  wregex wrgx(to_utf32(srx),
               regex_constants::ECMAScript | regex_constants::nosubs |
               regex_constants::optimize | regex_constants::collate);
-  bool do_utf8 = !is_ascii(sseps.c_str());
+  bool do_utf8 = !is_ascii(srx.c_str());
   SEXP out = PROTECT(Rf_allocVector(VECSXP, len));
   for (R_len_t i = 0; i < len; i++) {
     vector<string> el;

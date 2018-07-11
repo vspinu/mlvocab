@@ -31,13 +31,13 @@ using namespace std;
 
 /// TOKENIZER
 
-inline string translate_separators(SEXP seps) {
-  if (seps == R_NilValue)
+inline string translate_separators(SEXP regex) {
+  if (regex == R_NilValue)
     return "";
-  if (TYPEOF(seps) != STRSXP || Rf_xlength(seps) != 1) {
-    Rf_error("`seps` must be a scalar string");
+  if (TYPEOF(regex) != STRSXP || Rf_xlength(regex) != 1) {
+    Rf_error("`regex` must be a scalar string");
   }
-  string out(Rf_translateCharUTF8(STRING_ELT(seps, 0)));
+  string out(Rf_translateCharUTF8(STRING_ELT(regex, 0)));
   return out;
 }
 
@@ -97,7 +97,7 @@ class Corpus
   SEXP corpus;
   SEXP nms;
   R_xlen_t len;
-  string seps;
+  string regex_;
   regex rgx;
   wregex wrgx;
   bool is_list;
@@ -110,13 +110,13 @@ class Corpus
     Corpus(data, " \t\n\r");
   }
 
-  Corpus(SEXP data, const string& seps) {
-    if (!is_ascii(seps.c_str()))
+  Corpus(SEXP data, const string& regex) {
+    if (!is_ascii(regex.c_str()))
       this->do_utf8 = true;
-    if (seps != "") {
+    if (regex != "") {
       this->do_tokenize = true;
     }
-    this->seps = seps;
+    this->regex_ = regex;
     this->data = data;
     if (Rf_inherits(data, "data.frame")) {
       if (Rf_xlength(data) < 2)
@@ -137,12 +137,12 @@ class Corpus
      default: Rf_error("Corpus must be a list of strings, a character vector or a data.frame");
     }
     this->len = Rf_xlength(corpus);
-    this->rgx = regex(seps,
-                      regex_constants::ECMAScript | regex_constants::nosubs |
-                      regex_constants::optimize);
-    this->wrgx = wregex(to_utf32(seps),
-                        regex_constants::ECMAScript | regex_constants::nosubs |
-                        regex_constants::optimize | regex_constants::collate);
+    this->rgx = std::regex(regex_,
+                           regex_constants::ECMAScript | regex_constants::nosubs |
+                           regex_constants::optimize);
+    this->wrgx = std::wregex(to_utf32(regex_),
+                             regex_constants::ECMAScript | regex_constants::nosubs |
+                             regex_constants::optimize | regex_constants::collate);
   }
 
   inline R_xlen_t size () const {

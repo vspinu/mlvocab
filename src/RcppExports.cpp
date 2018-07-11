@@ -198,14 +198,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_tokenize
-SEXP C_tokenize(SEXP input, SEXP seps);
-RcppExport SEXP _mlvocab_C_tokenize(SEXP inputSEXP, SEXP sepsSEXP) {
+SEXP C_tokenize(SEXP input, SEXP rx);
+RcppExport SEXP _mlvocab_C_tokenize(SEXP inputSEXP, SEXP rxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type input(inputSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type seps(sepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_tokenize(input, seps));
+    Rcpp::traits::input_parameter< SEXP >::type rx(rxSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_tokenize(input, rx));
     return rcpp_result_gen;
 END_RCPP
 }

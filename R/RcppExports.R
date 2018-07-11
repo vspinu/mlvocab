@@ -53,7 +53,7 @@ C_ngram_weights <- function(weights, ngram_min, ngram_max) {
     .Call(`_mlvocab_C_ngram_weights`, weights, ngram_min, ngram_max)
 }
 
-C_tokenize <- function(input, seps) {
-    .Call(`_mlvocab_C_tokenize`, input, seps)
+C_tokenize <- function(input, rx) {
+    .Call(`_mlvocab_C_tokenize`, input, rx)
 }
 

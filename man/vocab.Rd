@@ -8,7 +8,7 @@
 \alias{vocab_prune}
 \title{Build and manipulate vocabularies}
 \usage{
-vocab(corpus, ngram = c(1, 1), ngram_sep = "_", seps = "[[:space:]]+")
+vocab(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+")
 
 vocab_update(vocab, corpus)
 
@@ -27,7 +27,7 @@ singleton \code{max_ngram} which is equivalent to \code{c(1L, max_ngram)}.}
 
 \item{ngram_sep}{separator to link terms within ngrams.}
 
-\item{seps}{a regexp to be used for segmentation of documents when \code{corpus}
+\item{regex}{a regexp to be used for segmentation of documents when \code{corpus}
 is a character vector; ignored otherwise. Defaults to a set of basic white
 space separators. \code{NULL} means no segmentation. The regexp grammar is the
 extended ECMAScript as implemented in C++11.}
@@ -58,7 +58,7 @@ updated.}
 \code{\link[=vocab_prune]{vocab_prune()}} update and prune an existing vocabulary respectively.
 }
 \details{
-When \code{corpus} is a character vector each string is tokenized with \code{seps}
+When \code{corpus} is a character vector each string is tokenized with \code{regex}
 with the internal tokenizer. When \code{corpus} has names, names will be used to
 name the output whenever appropriate.
 

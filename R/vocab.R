@@ -15,7 +15,7 @@
 ##' [vocab()] creates a vocabulary from a text corpus; [vocab_update()] and
 ##' [vocab_prune()] update and prune an existing vocabulary respectively.
 ##'
-##' When `corpus` is a character vector each string is tokenized with `seps`
+##' When `corpus` is a character vector each string is tokenized with `regex`
 ##' with the internal tokenizer. When `corpus` has names, names will be used to
 ##' name the output whenever appropriate.
 ##'
@@ -30,7 +30,7 @@
 ##' @param ngram a vector of length 2 of the form `c(min_ngram, max_ngram)` or a
 ##'   singleton `max_ngram` which is equivalent to `c(1L, max_ngram)`.
 ##' @param ngram_sep separator to link terms within ngrams.
-##' @param seps a regexp to be used for segmentation of documents when `corpus`
+##' @param regex a regexp to be used for segmentation of documents when `corpus`
 ##'   is a character vector; ignored otherwise. Defaults to a set of basic white
 ##'   space separators. `NULL` means no segmentation. The regexp grammar is the
 ##'   extended ECMAScript as implemented in C++11.
@@ -61,11 +61,11 @@
 ##' vocab_prune(v, max_terms = 7, nbuckets = 2)
 ##'
 ##' @export
-vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", seps = "[[:space:]]+") {
+vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+") {
   old_vocab <- structure(`_empty_vocab`,
                          ngram = .normalize_ngram(ngram),
                          ngram_sep = ngram_sep,
-                         seps = seps)
+                         regex = regex)
   C_vocab(corpus, old_vocab)
 }
 

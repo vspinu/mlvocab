@@ -45,7 +45,7 @@ class Vocab {
   int ngram_min;
   int ngram_max;
   string ngram_sep;
-  string seps;
+  string regex;
   int ndocs;
   int nbuckets;
   int nuniqterms;
@@ -69,7 +69,7 @@ class Vocab {
     /* this->chargram = chargram[0]; */
     const CharacterVector& ngram_sep = df.attr("ngram_sep");
     // FIXME: remove this nullable. It's always there.
-    this->seps = translate_separators(df.attr("seps"));
+    this->regex = translate_separators(df.attr("regex"));
     this->ngram_sep = as<string>(ngram_sep[0]);
 
     const CharacterVector& terms = df["term"];
@@ -89,7 +89,7 @@ class Vocab {
   };
 
   const char* separators() {
-    return this->seps.c_str();
+    return this->regex.c_str();
   }
 
   void rebucket_unknowns(const DataFrame& df, size_t nbuckets) {
@@ -156,8 +156,8 @@ class Vocab {
     out.attr("document_count") = IntegerVector::create(ndocs);
     out.attr("nbuckets") = IntegerVector::create(nbuckets);
     out.attr("ngram_sep") = CharacterVector::create(ngram_sep);
-    if (seps != "")
-      out.attr("seps") = CharacterVector::create(seps);
+    if (regex != "")
+      out.attr("regex") = CharacterVector::create(regex);
     out.attr("class") = CharacterVector::create("mlvocab_vocab", "data.frame");
 
     return out;
