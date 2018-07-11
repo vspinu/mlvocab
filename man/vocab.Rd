@@ -8,7 +8,7 @@
 \alias{vocab_prune}
 \title{Build and manipulate vocabularies}
 \usage{
-vocab(corpus, ngram = c(1, 1), ngram_sep = "_", seps = " \\t\\n\\r")
+vocab(corpus, ngram = c(1, 1), ngram_sep = "_", seps = "[[:space:]]+")
 
 vocab_update(vocab, corpus)
 
@@ -27,15 +27,10 @@ singleton \code{max_ngram} which is equivalent to \code{c(1L, max_ngram)}.}
 
 \item{ngram_sep}{separator to link terms within ngrams.}
 
-\item{seps}{a scalar string containing characters to be used for document
-splitting when \code{corpus} is a character vector; ignored otherwise. Defaults
-to a set of basic white space separators. \code{NULL} means no
-segmentation. Only ASCII and UTF-8 separators are supported. When UTF-8
-characters separators are used, \code{corpus} is assumed to be in UTF-8
-encoding (use \code{enc2utf8} to convert). Please note that in most cases more
-sophisticated boundary segmentation algorithms (as implemented for example
-in \code{\link[stringi:stri_split_boundaries]{stringi::stri_split_boundaries()}}) would do a better segmentation on
-the expense of creating an intermediate list of segmented documents.}
+\item{seps}{a regexp to be used for segmentation of documents when \code{corpus}
+is a character vector; ignored otherwise. Defaults to a set of basic white
+space separators. \code{NULL} means no segmentation. The regexp grammar is the
+extended ECMAScript as implemented in C++11.}
 
 \item{vocab}{\code{data.frame} obtained from a call to \code{\link[=vocab]{vocab()}}.}
 
@@ -93,4 +88,7 @@ vocab_prune(v, max_terms = 7)
 vocab_prune(v, term_count_min = 2)
 vocab_prune(v, max_terms = 7, nbuckets = 2)
 
+}
+\references{
+https://en.cppreference.com/w/cpp/regex/ecmascript
 }

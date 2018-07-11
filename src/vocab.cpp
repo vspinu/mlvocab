@@ -140,15 +140,36 @@ NumericVector C_ngram_weights(const NumericVector& weights, int ngram_min, int n
   return wrap(ngram_weights(as<vector<double>>(weights), ngram_min, ngram_max));
 }
 
-
 // [[Rcpp::export]]
-SEXP C_tokenize(const CharacterVector& input, const std::string& seps) {
-  R_len_t len = input.size();
+SEXP C_tokenize(SEXP input, SEXP seps) {
+  R_len_t len = Rf_xlength(input);
+  string sseps = translate_separators(seps);
+  regex rgx(sseps,
+            regex_constants::ECMAScript | regex_constants::nosubs |
+            regex_constants::optimize);
+  wregex wrgx(to_utf32(sseps),
+              regex_constants::ECMAScript | regex_constants::nosubs |
+              regex_constants::optimize | regex_constants::collate);
+  bool do_utf8 = !is_ascii(sseps.c_str());
   SEXP out = PROTECT(Rf_allocVector(VECSXP, len));
-  const char* cseps = seps.c_str();
   for (R_len_t i = 0; i < len; i++) {
-    const char* doc = input[i];
-    SET_VECTOR_ELT(out, i, wrap(tokenize(doc, cseps, !is_ascii(doc))));
+    vector<string> el;
+    SEXP in = STRING_ELT(input, i);
+    if (in == NA_STRING) {
+      SET_VECTOR_ELT(out, i, Rf_ScalarString(NA_STRING));
+      continue;
+    }
+    const char* doc = CHAR(in);
+    if (do_utf8) {
+      if (is_ascii(doc))
+        el = tokenize(doc, rgx);
+      else {
+        el = wtokenize(doc, wrgx);
+      }
+    } else {
+      el = tokenize(doc, rgx);
+    }
+    SET_VECTOR_ELT(out, i, toRstrvec(el));
   }
   UNPROTECT(1);
   return out;

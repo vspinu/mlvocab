@@ -34,6 +34,16 @@ inline bool is_ascii(const char *str) {
   return true;
 }
 
+inline SEXP toRstrvec(const vector<string>& vec) {
+  R_xlen_t N = vec.size();
+  SEXP out = PROTECT(Rf_allocVector(STRSXP, N));
+  for (R_xlen_t i = 0; i < N; i++) {
+    SET_STRING_ELT(out, i, Rf_mkCharCE(vec[i].c_str(), CE_UTF8));
+  }
+  UNPROTECT(1);
+  return out;
+}
+
 
 /// SPARSE HASH MAP
 

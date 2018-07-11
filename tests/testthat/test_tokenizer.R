@@ -1,24 +1,41 @@
 context("tokenizer")
 
+## C_tokenize(c("fsfsabcdsssfdsffsfsd", "abcdssfdsffsfsd"), "[sf]")
+## stringi::stri_split_regex(c("fsfsabcdsssfdsffsfsd", "abcdssfdsffsfsd"), "[sf]")
+
 test_that("Tokenizer tokenizes with ASCII tokens", {
-  expect_equal(C_tokenize(c("fsfsabcdsssfdsffsfsd", "abcdssfdsffsfsd"), "sf"),
-               list(c("abcd", "d", "d"), c("abcd", "d", "d")))  
+  expect_equal(C_tokenize(c("fsfsabcdsssfdsffsfsd", "abcdssfdsffsfsd"), "[sf]+"),
+               list(c("abcd", "d", "d"), c("abcd", "d", "d")))
 })
 
 test_that("Tokenizer tokenizes with Unicode tokens", {
-  expect_equal(C_tokenize(c("aℵb aβb α β", "abcdssfdsffsfsd"), " b"),
-               list(c("aℵ", "aβ", "α", "β"), c("a", "cdssfdsffsfsd")))  
+  expect_equal(C_tokenize(c("aℵb aβb α β", "abcdssfdsffsfsd"), "[b ]+"),
+               list(c("aℵ", "aβ", "α", "β"), c("a", "cdssfdsffsfsd")))
 })
 
 test_that("Tokenizer tokenizes with Unicode tokens and Unicode seps", {
-  expect_equal(C_tokenize(c("aℵb aβb α β", "abcdssfdsffsfsd"), " bβ"),
-               list(c("aℵ", "a", "α"), c("a", "cdssfdsffsfsd")))  
+  expect_equal(C_tokenize(c("aℵb aβb α β", "abcdssfdsffsfsd"), "[ b β]+"),
+               list(c("aℵ", "a", "α"), c("a", "cdssfdsffsfsd")))
+})
+
+test_that("Tokenizer handles missing values", {
+  expect_equal(C_tokenize(c(NA, "aℵb aβb α β", NA, "abcdssfdsffsfsd"), "[ b β]+"),
+               list(NA_character_, c("aℵ", "a", "α"), NA_character_,  c("a", "cdssfdsffsfsd")))
 })
 
 test_that("utf8 string corpus is correctly tokenized", {
-  corpus <- c("a α b β", "ASCII string")
+  corpus <- c("a α b β", "aℵb aβb α β", "ASCII string")
   v <- vocab(corpus, seps = " ")
-  expect_equal(v$term, c("a", "α", "b", "β", "ASCII", "string"))
-  v <- vocab(corpus, seps = "α ")
-  expect_equal(v$term, c("a", "b", "β", "ASCII", "string"))
+  expect_equal(v$term, c("a", "α", "b", "β", "aℵb", "aβb", "ASCII", "string"))
+  v <- vocab(corpus, seps = "[ abβ]")
+  expect_equal(v$term, c("α", "ℵ", "ASCII", "string"))
+  ## str(vocab(c(NA, "aℵb aβb α β", NA, "abcdssfdsffsfsd"), seps = "[ b β]"))
+})
+
+
+test_that("NULL separator results in no segmentation", {
+  corpus <- c("some sentence", "another sentence")
+  v <- vocab(corpus, seps = NULL)
+  expect_equal(v$term, corpus)
+  expect_equal(v, vocab(corpus, seps = ""))
 })

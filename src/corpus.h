@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License along with
 // mlvocab. If not, see <http://www.gnu.org/licenses/>.
 
- 
+
 #ifndef VOCAB_CORPUS_H
 #define VOCAB_CORPUS_H
 
@@ -22,27 +22,11 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <codecvt>
+#include <regex>
 
 using namespace std;
 
-// utf-8 length computation (taken from R's util.c)
-// See also https://stackoverflow.com/a/28311607/453735
-// and https://github.com/wch/r-source/blob/trunk/src/main/valid_utf8.h#L67
-
-/* Number of additional bytes */
-static const unsigned char utf8_table4[] =
-  {
-   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-   2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-   3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5
-  };
-
-inline char utf8clen(char c) {
-  /* This allows through 8-bit chars 10xxxxxx, which are invalid */
-  if ((c & 0xc0) != 0xc0) return 1;
-  return 1 + utf8_table4[c & 0x3f];
-}
 
 
 /// TOKENIZER
@@ -51,53 +35,54 @@ inline string translate_separators(SEXP seps) {
   if (seps == R_NilValue)
     return "";
   if (TYPEOF(seps) != STRSXP || Rf_xlength(seps) != 1) {
-    Rf_error("`seps` must be a scalar string"); 
+    Rf_error("`seps` must be a scalar string");
   }
   string out(Rf_translateCharUTF8(STRING_ELT(seps, 0)));
   return out;
 }
 
-inline vector<string> tokenize(const char* input, const char* seps, bool utf8 = false) {
+// from https://stackoverflow.com/a/43302460
+inline std::string to_utf8(std::wstring const& utf32) {
+  std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cnv;
+  std::string utf8 = cnv.to_bytes(utf32);
+  if(cnv.converted() < utf32.size())
+    Rf_error("Incomplete conversion");
+  return utf8;
+}
+
+inline std::wstring to_utf32(std::string const& utf8) {
+  std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cnv;
+  std::wstring utf32 = cnv.from_bytes(utf8);
+  if(cnv.converted() < utf8.size())
+    Rf_error("Incomplete conversion");
+  return utf32;
+}
+
+inline vector<string> wtokenize(const char* doc, const wregex& wrgx) {
   vector<string> out;
-  
-  const char* beg = input;
-  const char* end = input;
-  const char* it = input;
-  char in_l = 1, sep_l = 1;
-  
-  while (*it) {
-    if (utf8) {
-      in_l = utf8clen(*it);
+  wstring udoc(to_utf32(doc));
+  wsregex_token_iterator iter(udoc.begin(), udoc.end(), wrgx, -1);
+  wsregex_token_iterator end;
+  while (iter != end) {
+    const wssub_match match = *iter;
+    if (match.first < match.second) {
+      out.push_back(to_utf8(wstring(match.first, match.second)));
     }
-    const char* tseps = seps;
-    bool matched = false;
-    while (*tseps) {
-      if (utf8) {
-        sep_l = utf8clen(*tseps);
-        matched = in_l == sep_l && strncmp(tseps, it, sep_l) == 0;
-      } else {
-        matched = *it == *tseps;
-      }
-      if (matched) {
-        if (end > beg) {
-          string substr(beg, end);
-          out.push_back(substr);
-        }
-        beg = it + in_l;
-        break;
-      }
-      tseps += sep_l;
-    }
-    it += in_l;
-    if (!matched) {
-      // no match
-      end = it;
-    }
+    iter++;
   }
-  // last piece
-  if (end > beg) {
-    string substr(beg, end);
-    out.push_back(substr);
+  return out;
+}
+
+inline vector<string> tokenize(const char* doc, const regex& rgx) {
+  vector<string> out;
+  cregex_token_iterator iter(doc, doc + strlen(doc), rgx, -1);
+  cregex_token_iterator end;
+  while (iter != end) {
+    csub_match match = *iter;
+    if (match.first < match.second) {
+      out.push_back(string(match.first, match.second));
+    }
+    iter++;
   }
   return out;
 }
@@ -110,21 +95,27 @@ class Corpus
 {
   SEXP data;
   SEXP corpus;
-  SEXP names_;
-  bool is_list;
+  SEXP nms;
   R_xlen_t len;
   string seps;
+  regex rgx;
+  wregex wrgx;
+  bool is_list;
   bool do_utf8 = false;
-  
+  bool do_tokenize = false;
+
  public:
 
   Corpus(SEXP data) {
     Corpus(data, " \t\n\r");
   }
-  
+
   Corpus(SEXP data, const string& seps) {
     if (!is_ascii(seps.c_str()))
       this->do_utf8 = true;
+    if (seps != "") {
+      this->do_tokenize = true;
+    }
     this->seps = seps;
     this->data = data;
     if (Rf_inherits(data, "data.frame")) {
@@ -132,28 +123,34 @@ class Corpus
         Rf_error("A data.frame `corpus` must have at least two columns");
       if (Rf_isString(VECTOR_ELT(data, 0)))
         // TOTHINK: automatic conversion to characters seems like a bad idea
-        this->names_ = VECTOR_ELT(data, 0);
+        this->nms = VECTOR_ELT(data, 0);
       else
-        this->names_ = R_NilValue;
+        this->nms = R_NilValue;
       this->corpus = VECTOR_ELT(data, Rf_length(data) - 1); // last column
     } else {
-      this->names_ = Rf_getAttrib(data, R_NamesSymbol);
+      this->nms = Rf_getAttrib(data, R_NamesSymbol);
       this->corpus = data;
     }
     switch (TYPEOF(this->corpus)) {
-     case VECSXP: is_list = true; break;
-     case STRSXP: is_list = false; break;
-     default: Rf_error("Corpus must be a list of strings, a character vector or a two column data.frame");
+     case VECSXP: this->is_list = true; break;
+     case STRSXP: this->is_list = false; break;
+     default: Rf_error("Corpus must be a list of strings, a character vector or a data.frame");
     }
     this->len = Rf_xlength(corpus);
+    this->rgx = regex(seps,
+                      regex_constants::ECMAScript | regex_constants::nosubs |
+                      regex_constants::optimize);
+    this->wrgx = wregex(to_utf32(seps),
+                        regex_constants::ECMAScript | regex_constants::nosubs |
+                        regex_constants::optimize | regex_constants::collate);
   }
 
   inline R_xlen_t size () const {
     return len;
   }
- 
+
   SEXP names() const {
-    return names_;
+    return nms;
   }
 
   SEXP id() const {
@@ -161,9 +158,9 @@ class Corpus
       // returning full data for simplicity (only needed in corpus2ixdf)
       return data;
     else
-      return names_;
+      return nms;
   }
-  
+
   const vector<string> operator[](R_xlen_t i) const {
     if (is_list) {
       SEXP doc = VECTOR_ELT(corpus, i);
@@ -178,20 +175,22 @@ class Corpus
       }
       return out;
     } else {
-      // character vector
-      if (do_utf8) {
-        const char* doc = CHAR(STRING_ELT(corpus, i));
-        if (is_ascii(doc))
-          return tokenize(doc, seps.c_str(), false);
-        else
-          return tokenize(doc, seps.c_str(), true);
+      const char* doc = CHAR(STRING_ELT(corpus, i));
+      if (do_tokenize) {
+        if (do_utf8) {
+          if (is_ascii(doc))
+            return tokenize(doc, rgx);
+          else
+            return wtokenize(doc, wrgx);
+        } else {
+          return tokenize(doc, rgx);
+        }
       } else {
-        return tokenize(CHAR(STRING_ELT(corpus, i)), seps.c_str(), true);
+        return {string(doc)};
       }
-    }      
+    }
   }
 
-  
 };
 
 #endif /* VOCAB_CORPUS_H */

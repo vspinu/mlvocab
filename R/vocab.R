@@ -23,22 +23,21 @@
 ##' can be either a list of strings or a character vector. All other columns are
 ##' considered document ids. If first column is a character vector most function
 ##' will use it to name the output.
-##' 
+##'
 ##' @param corpus A collection of ASCII or UTF-8 encoded documents. It can be a
 ##'   list of character vectors, a character vector or a data.frame with at
 ##'   least two columns - id and documents. See details.
 ##' @param ngram a vector of length 2 of the form `c(min_ngram, max_ngram)` or a
 ##'   singleton `max_ngram` which is equivalent to `c(1L, max_ngram)`.
 ##' @param ngram_sep separator to link terms within ngrams.
-##' @param seps a scalar string containing characters to be used for document
-##'   splitting when `corpus` is a character vector; ignored otherwise. Defaults
-##'   to a set of basic white space separators. `NULL` means no
-##'   segmentation. Only ASCII and UTF-8 separators are supported. When UTF-8
-##'   characters separators are used, `corpus` is assumed to be in UTF-8
-##'   encoding (use `enc2utf8` to convert). Please note that in most cases more
-##'   sophisticated boundary segmentation algorithms (as implemented for example
-##'   in [stringi::stri_split_boundaries()]) would do a better segmentation on
-##'   the expense of creating an intermediate list of segmented documents.
+##' @param seps a regexp to be used for segmentation of documents when `corpus`
+##'   is a character vector; ignored otherwise. Defaults to a set of basic white
+##'   space separators. `NULL` means no segmentation. The regexp grammar is the
+##'   extended ECMAScript as implemented in C++11.
+##'
+##' @references
+##'
+##' https://en.cppreference.com/w/cpp/regex/ecmascript
 ##' 
 ##' @examples
 ##'
@@ -62,7 +61,7 @@
 ##' vocab_prune(v, max_terms = 7, nbuckets = 2)
 ##'
 ##' @export
-vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", seps = " \t\n\r") {
+vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", seps = "[[:space:]]+") {
   old_vocab <- structure(`_empty_vocab`,
                          ngram = .normalize_ngram(ngram),
                          ngram_sep = ngram_sep,
