@@ -16,14 +16,14 @@ Imports:
   digest (>= 0.6.8),
   sparsepp (>= 0.2.0)
 LinkingTo:
-  Rcpp,
+  Rcpp (>= 0.12.9),
   digest (>= 0.6.8),
   sparsepp (>= 0.2.0)
 Suggests:
   testthat,
   knitr
 LazyData: true
-SystemRequirements: C++11
+SystemRequirements: C++11 with suport for regex (such as GCC 4.9 or later, > 5 prefered)
 BugReports: https://github.com/vspinu/mlvocab/issues
 URL: https://github.com/vspinu/mlvocab/
 RoxygenNote: 6.0.1

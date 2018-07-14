@@ -2,7 +2,48 @@ dist: trusty
 sudo: false
 language: R
 cache: packages
+warnings_are_errors: true
 
-r:
-- release
-- devel
+before_install:
+  - source travis/before_install.sh
+  - cat ~/.R/Makevars
+
+matrix:
+  include:
+    - r: release
+      env: COMPILER=gcc VER=4.9
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.9
+            - g++-4.9
+    - r: release
+      env: COMPILER=clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-6
+            - g++-6
+            - clang
+    - r: devel
+      env: COMPILER=gcc VER=4.9
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.9
+            - g++-4.9
+    - r: devel
+      env: COMPILER=gcc VER=8
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-8
+            - g++-8

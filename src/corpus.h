@@ -22,11 +22,24 @@
 #include <cstring>
 #include <string>
 #include <vector>
-#include <codecvt>
 #include <regex>
-
+ 
 using namespace std;
 
+/* #define XSTR(x) STR(x) */
+/* #define STR(x) #x */
+/* #pragma message "GCC_VERSION=" XSTR(__GNUC__) "." XSTR(__GNUC_MINOR__) */
+/* /\* #define CHECK_CWCHAR *\/ */
+
+#if defined(CHECK_CWCHAR) || (defined(__GNUC__) && (__GNUC__ < 5))
+#include <cwchar>
+#else
+#include <codecvt>
+#endif
+
+#ifdef CHECK_CWCHAR
+#pragma message "**** TESTING <cwchar> ****"
+#endif
 
 
 /// TOKENIZER
@@ -41,20 +54,42 @@ inline string translate_separators(SEXP regex) {
   return out;
 }
 
-// from https://stackoverflow.com/a/43302460
 inline std::string to_utf8(std::wstring const& utf32) {
+  std::string utf8;
+#if defined(CHECK_CWCHAR) || (defined(__GNUC__) && (__GNUC__ < 5))
+  // http://man7.org/linux/man-pages/man3/wcsrtombs.3.html
+  const wchar_t* source = utf32.data();
+  size_t size = wcsrtombs(nullptr, &source, 0, nullptr);
+  if (size == std::string::npos)
+    Rf_error("UTF-16/32 -> UTF-8 conversion error");
+  utf8.resize(size);
+  wcsrtombs(&utf8[0], &source, size, nullptr);
+#else
+  // from https://stackoverflow.com/a/43302460
   std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cnv;
-  std::string utf8 = cnv.to_bytes(utf32);
+  utf8 = cnv.to_bytes(utf32);
   if(cnv.converted() < utf32.size())
-    Rf_error("Incomplete conversion");
+    Rf_error("Incomplete conversion of UTF-16/32 -> UTF-8");
+#endif
   return utf8;
 }
 
 inline std::wstring to_utf32(std::string const& utf8) {
+  std::wstring utf32;
+#if defined(CHECK_CWCHAR) || (defined(__GNUC__) && (__GNUC__ < 5))
+  // http://man7.org/linux/man-pages/man3/mbsrtowcs.3.html
+  const char* source = utf8.data();
+  size_t size = mbsrtowcs(nullptr, &source, 0, nullptr);
+  if (size == std::string::npos)
+    Rf_error("UTF-16/32 -> UTF-8 conversion error");
+  utf32.resize(size);
+  mbsrtowcs(&utf32[0], &source, size, nullptr);
+#else
   std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cnv;
-  std::wstring utf32 = cnv.from_bytes(utf8);
+  utf32 = cnv.from_bytes(utf8);
   if(cnv.converted() < utf8.size())
-    Rf_error("Incomplete conversion");
+    Rf_error("Incomplete conversion of UTF-8 -> UTF-16/32");
+#endif
   return utf32;
 }
 

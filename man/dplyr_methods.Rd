@@ -5,7 +5,7 @@
 \alias{arrange.mlvocab_vocab}
 \title{Methods for \code{dplyr} predicates}
 \usage{
-\method{arrange}{mlvocab_vocab}(.data, ...)
+arrange.mlvocab_vocab(.data, ...)
 }
 \arguments{
 \item{.data}{vocab data.frame}

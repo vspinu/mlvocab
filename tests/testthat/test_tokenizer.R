@@ -2,6 +2,8 @@ context("tokenizer")
 
 ## C_tokenize(c("fsfsabcdsssfdsffsfsd", "abcdssfdsffsfsd"), "[sf]")
 ## stringi::stri_split_regex(c("fsfsabcdsssfdsffsfsd", "abcdssfdsffsfsd"), "[sf]")
+## C_tokenize(c("aℵζsdfd γκkkdaβδbdc αbbf"), "[ α-ϵ]+")
+## C_tokenize(c("aℵb aβb α β", "abcdssfdsffsfsd"), "[ b β]+")
 
 test_that("Tokenizer tokenizes with ASCII tokens", {
   expect_equal(C_tokenize(c("fsfsabcdsssfdsffsfsd", "abcdssfdsffsfsd"), "[sf]+"),
@@ -32,10 +34,14 @@ test_that("utf8 string corpus is correctly tokenized", {
   ## str(vocab(c(NA, "aℵb aβb α β", NA, "abcdssfdsffsfsd"), regex = "[ b β]"))
 })
 
-
 test_that("NULL separator results in no segmentation", {
   corpus <- c("some sentence", "another sentence")
   v <- vocab(corpus, regex = NULL)
   expect_equal(v$term, corpus)
   expect_equal(v, vocab(corpus, regex = ""))
+})
+
+test_that("Tokenizer tokenizes with Unicode range regexp", {
+  expect_equal(C_tokenize(c("aℵζsdfd γκkkdaβδbdc γδϵbbf"), "[ α-ϵ]+"),
+               list(c("aℵ", "sdfd", "kkda", "bdc", "bbf")))
 })
