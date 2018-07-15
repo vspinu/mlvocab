@@ -19,8 +19,7 @@ dtm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
                 nbuckets = attr(vocab, "nbuckets"),
                 output = c("triplet", "column", "row", "df")) {
-  tm(C_dtm, corpus, vocab, nbuckets, output,
-     ngram_min = ngram[[1]], ngram_max = ngram[[2]])
+  tm(C_dtm, corpus, vocab, ngram, nbuckets, output)
 }
 
 ##' @name term_matrices
@@ -29,8 +28,7 @@ tdm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
                 nbuckets = attr(vocab, "nbuckets"),
                 output = c("triplet", "column", "row", "df")) {
-  tm(C_tdm, corpus, vocab, nbuckets, output,
-     ngram_min = ngram[[1]], ngram_max = ngram[[2]])
+  tm(C_tdm, corpus, vocab, ngram, nbuckets, output)
 }
 
 ##'
@@ -95,12 +93,12 @@ tcm <- function(corpus, vocab = NULL,
   ## term_weights <- retrive_weights(term_weights, vocab)
   ## if (!is.null(term_weights))
   ##   term_weights <- sqrt(term_weights)
-  tm(C_tcm, corpus, vocab, nbuckets, output,
+  tm(C_tcm, corpus, vocab, ngram, nbuckets, output,
      window_size = window_size, window_weights = window_weights,
-     ngram_min = ngram[[1]], ngram_max = ngram[[2]], context = context)
+     context = context)
 }
 
-tm <- function(cfun, corpus, vocab, nbuckets, output, ...) {
+tm <- function(cfun, corpus, vocab, ngram, nbuckets, output, ...) {
   output <- match.arg(output, c("triplet", "column", "row", "df"))
   if (is.null(vocab)) {
     if (is.null(nbuckets) || nbuckets == 0) {
@@ -110,8 +108,11 @@ tm <- function(cfun, corpus, vocab, nbuckets, output, ...) {
     }
   }
   if (is.null(nbuckets))
-    nbuckets <- 0L
-  do.call(cfun, list(corpus, vocab, NULL, nbuckets, output, ...))
+    nbuckets <- attr(vocab, "nbuckets")
+  if (is.null(ngram))
+    ngram <- attr(vocab, "ngram")
+  do.call(cfun, list(corpus, vocab, NULL, nbuckets, output, ...,
+                     ngram_min = ngram[[1]], ngram_max = ngram[[2]]))
 }
 
 ngram_weights <- function(weights = 1/seq_len(5), ngram_min = 1, ngram_max = 3) {

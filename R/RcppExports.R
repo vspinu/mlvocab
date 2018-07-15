@@ -37,8 +37,8 @@ C_tdm <- function(corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, n
     .Call(`_mlvocab_C_tdm`, corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max)
 }
 
-C_tcm <- function(corpus0, vocabdf, term_weights, nbuckets, output, window_size, window_weights, ngram_min, ngram_max, context) {
-    .Call(`_mlvocab_C_tcm`, corpus0, vocabdf, term_weights, nbuckets, output, window_size, window_weights, ngram_min, ngram_max, context)
+C_tcm <- function(corpus0, vocabdf, term_weights, nbuckets, output, window_size, window_weights, context, ngram_min, ngram_max) {
+    .Call(`_mlvocab_C_tcm`, corpus0, vocabdf, term_weights, nbuckets, output, window_size, window_weights, context, ngram_min, ngram_max)
 }
 
 C_is_ascii <- function(vec) {

@@ -12,7 +12,7 @@ if [ "${COMPILER}" = "gcc" ]; then
 	echo "FC=gfortran-${VER}"          >> ~/.R/Makevars
     echo "SHLIB_CXXLD=g++-${VER}"      >> ~/.R/Makevars
 	echo "F77=gfortran-${VER}"         >> ~/.R/Makevars
-	echo "MAKE=make -j4"                  >> ~/.R/Makevars
+	echo "MAKE=make -j4"               >> ~/.R/Makevars
 fi
 
 if [ "${COMPILER}" = "clang" ]; then

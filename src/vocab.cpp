@@ -51,9 +51,11 @@ IntegerMatrix C_corpus2ixmat(SEXP corpus0, const DataFrame& vocabdf,
  
 // [[Rcpp::export]]
 SEXP C_dtm(SEXP corpus0, const DataFrame& vocabdf,
-           const Nullable<NumericVector>& term_weights, const int nbuckets,
-           const std::string output,
-           const int ngram_min, const int ngram_max) {
+           const Nullable<NumericVector>& term_weights,
+           const int nbuckets,
+           const std::string& output,
+           const int ngram_min,
+           const int ngram_max) {
   Vocab* v = new Vocab(vocabdf);
   Corpus corpus(corpus0, v->separators());
   if (output == "triplet") {
@@ -69,9 +71,11 @@ SEXP C_dtm(SEXP corpus0, const DataFrame& vocabdf,
 
 // [[Rcpp::export]]
 SEXP C_tdm(SEXP corpus0, const DataFrame& vocabdf,
-           const Nullable<NumericVector>& term_weights, const int nbuckets,
-           std::string output,
-           const int ngram_min, const int ngram_max) {
+           const Nullable<NumericVector>& term_weights,
+           const int nbuckets,
+           const std::string& output,
+           const int ngram_min,
+           const int ngram_max) {
   Vocab* v = new Vocab(vocabdf);
   Corpus corpus(corpus0, v->separators());
   if (output == "triplet") {
@@ -87,10 +91,14 @@ SEXP C_tdm(SEXP corpus0, const DataFrame& vocabdf,
 
 // [[Rcpp::export]]
 SEXP C_tcm(SEXP corpus0, const DataFrame& vocabdf,
-         const Nullable<NumericVector>& term_weights, const int nbuckets,
-         const std::string& output,
-         const size_t window_size, const std::vector<double>& window_weights,
-         int ngram_min, int ngram_max, const std::string& context) {
+           const Nullable<NumericVector>& term_weights,
+           const int nbuckets,
+           const std::string& output,
+           const size_t window_size,
+           const std::vector<double>& window_weights,
+           const std::string& context,
+           const int ngram_min,
+           const int ngram_max) {
   
   Vocab* v = new Vocab(vocabdf);
   Corpus corpus(corpus0, v->separators());

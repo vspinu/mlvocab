@@ -205,3 +205,9 @@ test_that("tdm works with NULL names", {
   
 })
 
+test_that("tdm, dtm and tcm work with vocab=NULL", {
+  expect_equal(tdm(corpus, v, output = "triplet"), tdm(corpus, output = "triplet"))
+  expect_equal(tdm(corpus, v, output = "column"), tdm(corpus, output = "column"))
+  expect_equal(dtm(corpus, v, output = "column"), dtm(corpus, output = "column"))
+  expect_equal(tcm(corpus, v, output = "column"), tcm(corpus, output = "column"))
+})
