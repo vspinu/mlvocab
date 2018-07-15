@@ -8,12 +8,25 @@
 
 class TripletMatrix {
 
+  // FIXME: remove once CRAN is updated (https://github.com/dselivanov/r-sparsepp/issues/3)
+  struct Hash64 {
+    inline size_t operator()(uint_fast64_t a) const {
+      a = (~a) + (a << 21); // a = (a << 21) - a - 1;
+      a = a ^ (a >> 24);
+      a = (a + (a << 3)) + (a << 8); // a * 265
+      a = a ^ (a >> 14);
+      a = (a + (a << 2)) + (a << 4); // a * 21
+      a = a ^ (a >> 28);
+      a = a + (a << 31);
+      return a;
+    }
+  };
+
  public:
 
-  // for Matrix compatibility 
   int nrow;
   int ncol;
-  sparse_hash_map<uint_fast64_t, double>  vals;
+  sparse_hash_map<uint_fast64_t, double, Hash64> vals;
 
   TripletMatrix():
     nrow(0), ncol(0) {};
