@@ -62,7 +62,6 @@ class TripletMatrix {
            Nullable<const CharacterVector&> inames,
            Nullable<const CharacterVector&> jnames,
            bool symmetric = false) {
-
     switch(mattype) {
      case MatrixType::DGT:
        return dTMatrix(inames, jnames, symmetric);
@@ -77,21 +76,21 @@ class TripletMatrix {
 
   // col/row-wise multiplication
   void apply_weight(const NumericVector& weights, const MatrixDimType across) {
-    if (across == MatrixDimType::COL || across == MatrixDimType::BOTH) {
-      if (ncol > static_cast<int>(weights.size()))
-        Rf_error("Insufficient weights size (%d); ncol = %d", weights.size(), ncol);
-    }
-    if (across == MatrixDimType::ROW || across == MatrixDimType::BOTH) {
+    if (across == MatrixDimType::PRIMARY || across == MatrixDimType::BOTH) {
       if (nrow > static_cast<int>(weights.size()))
         Rf_error("Insufficient weights size (%d); nrow = %d", weights.size(), nrow);
     }
+    if (across == MatrixDimType::SECONDARY || across == MatrixDimType::BOTH) {
+      if (ncol > static_cast<int>(weights.size()))
+        Rf_error("Insufficient weights size (%d); nrow = %d", weights.size(), ncol);
+    }
     
-    if (across == MatrixDimType::ROW)
+    if (across == MatrixDimType::PRIMARY)
       for (auto& v : vals) {
         int rix = first32(v.first);
         v.second *= weights[rix];
       }
-    else if (across == MatrixDimType::COL)
+    else if (across == MatrixDimType::SECONDARY)
       for (auto& v : vals) {
         int cix = second32(v.first);
         v.second *= weights[cix];
@@ -208,26 +207,6 @@ class TripletMatrix {
     out.slot("Dim") = IntegerVector::create(nrow, ncol);
     out.slot("Dimnames") = List::create(rownames.get(), colnames.get());
     return out;
-  }
-
-  
-  // SORT TWO VECTORS SIMULTANEOUSLY
-  // adapted from http://stackoverflow.com/a/17074810/453735
-  template <typename T>
-  std::vector<size_t> sorting_permutation(const vector<T>& v) {
-    std::vector<size_t> p(v.size());
-    std::iota(p.begin(), p.end(), 0);
-    std::sort(p.begin(), p.end(),
-              [&](size_t i, size_t j){ return v[i] < v[j]; });
-    return p;
-  }
-
-  template <typename T>
-  std::vector<T> apply_permutation(const std::vector<T>& vec, const std::vector<std::size_t>& p) {
-    std::vector<T> sorted_vec(vec.size());
-    std::transform(p.begin(), p.end(), sorted_vec.begin(),
-                   [&](std::size_t i){ return vec[i]; });
-    return sorted_vec;
   }
   
 };

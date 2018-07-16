@@ -7,7 +7,7 @@ corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "la
 test_that("tfidf works with tdm and dtm matrices", {
 
   v <- vocab(corpus, c(1, 2), " ")
-  dtm <- dtm(corpus, v)
+  dtm <- dtm(corpus, v, output = "col")
   tdm <- tdm(corpus, v)
 
   ## tt <- text2vec::TfIdf$new()
@@ -34,8 +34,11 @@ test_that("tfidf works with tdm and dtm matrices", {
                    -0.023850888712245, -0.023169434749038, -0.023850888712245, -0.023169434749038, 
                    0, 0),
              factors = list())
+  attr(out, "mlvocab_dtm") <- TRUE
   expect_equal(out, tfidf(dtm, v))
-  expect_equal(t(out), tfidf(tdm, v))
+  tout <- t(out)
+  attr(tout, "mlvocab_dtm") <- FALSE
+  expect_equal(tout, tfidf(tdm, v))
 
   ## tt <- text2vec::TfIdf$new(sublinear_tf = T)
   ## dput(out <- tt$fit_transform(dtm))
@@ -58,8 +61,11 @@ test_that("tfidf works with tdm and dtm matrices", {
                    -0.023850888712245, -0.023850888712245, -0.023850888712245, -0.023850888712245, 
                    0, 0),
              factors = list())
+  attr(out, "mlvocab_dtm") <- TRUE
   expect_equal(out, tfidf(dtm, v, sublinear_tf = T))
-  expect_equal(t(out), tfidf(tdm, v, sublinear_tf = T))
+  tout <- t(out)
+  attr(tout, "mlvocab_dtm") <- FALSE
+  expect_equal(tout, tfidf(tdm, v, sublinear_tf = T))
 
   ## tt <- text2vec::TfIdf$new(sublinear_tf = T, smooth_idf = F)
   ## dput(out <- tt$fit_transform(dtm))
@@ -73,8 +79,11 @@ test_that("tfidf works with tdm and dtm matrices", {
                              c("The", "The quick", "quick", "quick brown", "brown", "brown fox", "fox", "fox jumps", "jumps", "jumps over", "over", "over the", "the", "the lazy", "lazy", "lazy dog", "dog", "the quick", "dog the")),
              x = c(0.0407733635623497, 0.0407733635623497, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0407733635623497, 0.0240814053441387),
              factors = list())
+  attr(out, "mlvocab_dtm") <- TRUE
   expect_equal(out, tfidf(dtm, v, sublinear_tf = T, extra_df_count = 0))
-  expect_equal(t(out), tfidf(tdm, v, sublinear_tf = T, extra_df_count = 0))
+  tout <- t(out)
+  attr(tout, "mlvocab_dtm") <- FALSE
+  expect_equal(tout, tfidf(tdm, v, sublinear_tf = T, extra_df_count = 0))
 
 })
 
@@ -84,7 +93,7 @@ test_that("tfidf works when dtm is constructed with explicit ngram", {
   library(Matrix)
   v <- vocab(corpus, c(1, 2), " ")
 
-  dtm <- dtm(corpus, v, c(1, 1))
+  dtm <- dtm(corpus, v, c(1, 1), output = "col")
   tdm <- tdm(corpus, v, c(1, 1))
 
   ## tt <- text2vec::TfIdf$new()
@@ -106,16 +115,19 @@ test_that("tfidf works when dtm is constructed with explicit ngram", {
                    -0.0450516786786849, -0.0450516786786849, -0.0450516786786849, 
                    -0.0450516786786849),
              factors = list())
-  
+
+  attr(out, "mlvocab_dtm") <- TRUE
   expect_equal(out, tfidf(dtm, v))
-  expect_equal(t(out), tfidf(tdm, v))
+  tout <- t(out)
+  attr(tout, "mlvocab_dtm") <- FALSE
+  expect_equal(tout, tfidf(tdm, v))
   
 })
 
 test_that("tfidf works when names don't match", {
   
   v <- vocab(corpus, c(1, 2), " ")
-  dtm <- dtm(corpus, v)
+  dtm <- dtm(corpus, v, out = "col")
   tdm <- tdm(corpus, v)
   v <- rbind(v, data.frame(term = "blabla", term_count = 0, doc_count = 0))
 
@@ -143,7 +155,11 @@ test_that("tfidf works when names don't match", {
                    -0.023850888712245, -0.023169434749038, -0.023850888712245, -0.023169434749038, 
                    0, 0),
              factors = list())
+
+  attr(out, "mlvocab_dtm") <- TRUE
   expect_equal(out, tfidf(dtm, v))
-  expect_equal(t(out), tfidf(tdm, v))
+  tout <- t(out)
+  attr(tout, "mlvocab_dtm") <- FALSE
+  expect_equal(tout, tfidf(tdm, v))
   
 })

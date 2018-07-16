@@ -1,15 +1,16 @@
 context("term_matrices")
-
 corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
                      "dog", "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
                      "dog"))
 v <- vocab(corpus)
+vocab <- vocab(corpus)
 mat <- structure(c(1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 4, 1, 2, 1, 2),
                  .Dim = c(2L, 9L),
                  .Dimnames = list(c("a", "b"),
                                   c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog")))
 library(Matrix)
+
 
 test_that("Basic tcm works", {
 
@@ -21,6 +22,7 @@ test_that("Basic tcm works", {
                               c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog")),
               x = c(1, 1.5, 0.5, 0.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5),
               uplo = "U", factors = list())
+  
   tcm <- tcm(corpus, v, 2)
   ## converting to matrix as order might not be the same depending on internal sparse_map hash
   expect_equal(as.matrix(tcm), as.matrix(tcm0))
@@ -127,14 +129,18 @@ test_that("tcm outputs same matrix irrespetive of output type", {
   
 })
 
-test_that("dtm works", {
-
-  dtm <- dtm(corpus, v)
+test_that("dtm output type is correct", {
+  
+  dtm <- dtm(corpus, vocab, output = "tri")
   expect_s4_class(dtm, "dgTMatrix")
   expect_equal(as.matrix(dtm), mat)
 
   dtm <- dtm(corpus, v, output = "column")
   expect_s4_class(dtm, "dgCMatrix")
+  expect_equal(as.matrix(dtm), mat)
+
+  dtm <- dtm(corpus, v)
+  expect_s4_class(dtm, "dgRMatrix")
   expect_equal(as.matrix(dtm), mat)
 
   dtm <- dtm(corpus, v, output = "row")
@@ -169,8 +175,12 @@ test_that("dtm works with NULL names", {
 test_that("tdm works", {
 
   mat <- t(mat)
-  tdm <- tdm(corpus, v)
+  tdm <- tdm(corpus, v, output = "tri")
   expect_s4_class(tdm, "dgTMatrix")
+  expect_equal(as.matrix(tdm), mat)
+  
+  tdm <- tdm(corpus, v)
+  expect_s4_class(tdm, "dgCMatrix")
   expect_equal(as.matrix(tdm), mat)
 
   tdm <- tdm(corpus, v, output = "column")
@@ -182,7 +192,6 @@ test_that("tdm works", {
   expect_equal(as.matrix(tdm), mat)
   
 })
-
 
 test_that("tdm works with NULL names", {
 
@@ -212,4 +221,16 @@ test_that("tdm, dtm and tcm work with vocab=NULL", {
   expect_equal(tdm(corpus, v, output = "column"), tdm(corpus, output = "column"))
   expect_equal(dtm(corpus, v, output = "column"), dtm(corpus, output = "column"))
   expect_equal(tcm(corpus, v, output = "column"), tcm(corpus, output = "column"))
+})
+
+
+test_that("tdm/dtm work with empty docs", {
+  expect_equal(as.matrix(dtm(c(corpus, list(c = character())), v)),
+               rbind(mat, c = 0))
+  expect_equal(as.matrix(dtm(c(list(c = character()), corpus), v)),
+               rbind(c = 0, mat))
+  expect_equal(as.matrix(tdm(c(corpus, list(c = character())), v)),
+               cbind(t(mat), c = 0))
+  expect_equal(as.matrix(tdm(c(list(c = character()), corpus), v)),
+               cbind(c = 0, t(mat)))
 })

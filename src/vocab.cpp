@@ -3,50 +3,50 @@
  
 // [[Rcpp::export]]
 DataFrame C_vocab(SEXP corpus0, const DataFrame& oldvocab) {
-  Vocab* vocab = new Vocab(oldvocab);
-  Corpus corpus(corpus0, vocab->separators());
-  vocab->insert_corpus(corpus);
-  return vocab->df();
+  Vocab vocab(oldvocab);
+  Corpus corpus(corpus0, vocab.separators());
+  vocab.insert_corpus(corpus);
+  return vocab.df();
 }
  
 // [[Rcpp::export]]
 NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row,
                             int nbuckets, int min_to_average) {
-  Vocab* v = new Vocab(vocabdf);
-  return(v->embed_vocab(embeddings, by_row, nbuckets, min_to_average));
+  Vocab v(vocabdf);
+  return(v.embed_vocab(embeddings, by_row, nbuckets, min_to_average));
 }
 
 // [[Rcpp::export]]
 DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& vocabdf, const int nbuckets) {
-  Vocab* v = new Vocab(pruned_vocabdf);
-  v->rebucket_unknowns(vocabdf, nbuckets);
-  return v->df();
+  Vocab v(pruned_vocabdf);
+  v.rebucket_unknowns(vocabdf, nbuckets);
+  return v.df();
 }
 
 // [[Rcpp::export]]
 SEXP C_corpus2ixseq(SEXP corpus0, const DataFrame& vocabdf,
                     bool keep_unknown, int nbuckets, bool reverse) {
-  Vocab* v = new Vocab(vocabdf);
-  Corpus corpus(corpus0, v->separators());
-  return(v->corpus2ixseq(corpus, keep_unknown, nbuckets, reverse));
+  Vocab v(vocabdf);
+  Corpus corpus(corpus0, v.separators());
+  return(v.corpus2ixseq(corpus, keep_unknown, nbuckets, reverse));
 }
 
 // [[Rcpp::export]]
 DataFrame C_corpus2ixdf(SEXP corpus0, const DataFrame& vocabdf,
                         bool keep_unknown, int nbuckets,
                         bool reverse, bool asfactor) {
-  Vocab* v = new Vocab(vocabdf);
-  Corpus corpus(corpus0, v->separators());
-  return(v->corpus2ixdf(corpus, keep_unknown, nbuckets, reverse, asfactor));
+  Vocab v(vocabdf);
+  Corpus corpus(corpus0, v.separators());
+  return(v.corpus2ixdf(corpus, keep_unknown, nbuckets, reverse, asfactor));
 }
 
 // [[Rcpp::export]]
 IntegerMatrix C_corpus2ixmat(SEXP corpus0, const DataFrame& vocabdf,
                              int maxlen, bool pad_right, bool trunc_right,
                              bool keep_unknown, int nbuckets, bool reverse) {
-  Vocab* v = new Vocab(vocabdf);
-  const Corpus corpus(corpus0, v->separators());
-  return v->corpus2ixmat(corpus, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse);
+  Vocab v(vocabdf);
+  const Corpus corpus(corpus0, v.separators());
+  return v.corpus2ixmat(corpus, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse);
 }
  
 // [[Rcpp::export]]
@@ -56,14 +56,14 @@ SEXP C_dtm(SEXP corpus0, const DataFrame& vocabdf,
            const std::string& output,
            const int ngram_min,
            const int ngram_max) {
-  Vocab* v = new Vocab(vocabdf);
-  Corpus corpus(corpus0, v->separators());
+  Vocab v(vocabdf);
+  Corpus corpus(corpus0, v.separators());
   if (output == "triplet") {
-    return v->term_matrix<MatrixType::DGT>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGT>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
   } else if (output == "column") {
-    return v->term_matrix<MatrixType::DGC>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGC>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
   } else if (output == "row") {
-    return v->term_matrix<MatrixType::DGR>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGR>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());
   }
@@ -76,14 +76,14 @@ SEXP C_tdm(SEXP corpus0, const DataFrame& vocabdf,
            const std::string& output,
            const int ngram_min,
            const int ngram_max) {
-  Vocab* v = new Vocab(vocabdf);
-  Corpus corpus(corpus0, v->separators());
+  Vocab v(vocabdf);
+  Corpus corpus(corpus0, v.separators());
   if (output == "triplet") {
-    return v->term_matrix<MatrixType::DGT>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGT>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
   } else if (output == "column") {
-    return v->term_matrix<MatrixType::DGC>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGC>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
   } else if (output == "row") {
-    return v->term_matrix<MatrixType::DGR>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGR>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());
   }
@@ -100,8 +100,8 @@ SEXP C_tcm(SEXP corpus0, const DataFrame& vocabdf,
            const int ngram_min,
            const int ngram_max) {
   
-  Vocab* v = new Vocab(vocabdf);
-  Corpus corpus(corpus0, v->separators());
+  Vocab v(vocabdf);
+  Corpus corpus(corpus0, v.separators());
 
   ContextType context_type;
   if (context == "symmetric") {
@@ -115,13 +115,13 @@ SEXP C_tcm(SEXP corpus0, const DataFrame& vocabdf,
   }
   
   if (output == "triplet") {
-    return v->term_cooccurrence_matrix<MatrixType::DGT>(
+    return v.term_cooccurrence_matrix<MatrixType::DGT>(
       corpus, nbuckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
   } else if (output == "column") {
-    return v->term_cooccurrence_matrix<MatrixType::DGC>(
+    return v.term_cooccurrence_matrix<MatrixType::DGC>(
       corpus, nbuckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
   } else if (output == "row") {
-    return v->term_cooccurrence_matrix<MatrixType::DGR>(
+    return v.term_cooccurrence_matrix<MatrixType::DGR>(
       corpus, nbuckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());

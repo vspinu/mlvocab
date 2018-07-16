@@ -18,7 +18,7 @@
 dtm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
                 nbuckets = attr(vocab, "nbuckets"),
-                output = c("triplet", "column", "row", "df")) {
+                output = c("row", "triplet", "column", "df")) {
   tm(C_dtm, corpus, vocab, ngram, nbuckets, output)
 }
 
@@ -27,7 +27,7 @@ dtm <- function(corpus, vocab = NULL,
 tdm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
                 nbuckets = attr(vocab, "nbuckets"),
-                output = c("triplet", "column", "row", "df")) {
+                output = c("column", "triplet", "row", "df")) {
   tm(C_tdm, corpus, vocab, ngram, nbuckets, output)
 }
 
@@ -94,12 +94,11 @@ tcm <- function(corpus, vocab = NULL,
   ## if (!is.null(term_weights))
   ##   term_weights <- sqrt(term_weights)
   tm(C_tcm, corpus, vocab, ngram, nbuckets, output,
-     window_size = window_size, window_weights = window_weights,
-     context = context)
+     window_size, window_weights, context)
 }
 
 tm <- function(cfun, corpus, vocab, ngram, nbuckets, output, ...) {
-  output <- match.arg(output, c("triplet", "column", "row", "df"))
+  output <- match.arg(output[[1]], c("triplet", "column", "row", "df"))
   if (is.null(vocab)) {
     if (is.null(nbuckets) || nbuckets == 0) {
       vocab <- vocab(corpus)

@@ -22,10 +22,11 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+
 /* #define USE_RINTERNALS 1 // slight increase in speed */
 
-using namespace std;
 using namespace Rcpp;
+using namespace std;
 
 inline bool is_ascii(const char *str) {
   const char *p;
@@ -87,10 +88,71 @@ enum class ContextType
 /// DIMMENSION TYPE
 enum class MatrixDimType
   {
-   ROW,
-   COL,
+   PRIMARY,
+   SECONDARY,
    BOTH             
   };
+
+ 
+  
+// SORT TWO VECTORS SIMULTANEOUSLY
+// adapted from http://stackoverflow.com/a/17074810/453735
+template <typename T>
+std::vector<size_t> sorting_permutation(const vector<T>& v) {
+  std::vector<size_t> p(v.size());
+  std::iota(p.begin(), p.end(), 0);
+  std::sort(p.begin(), p.end(),
+            [&](size_t i, size_t j){ return v[i] < v[j]; });
+  return p;
+}
+
+template <typename T>
+std::vector<T> apply_permutation(const std::vector<T>& vec, const std::vector<std::size_t>& p) {
+  std::vector<T> sorted_vec(vec.size());
+  std::transform(p.begin(), p.end(), sorted_vec.begin(),
+                 [&](std::size_t i){ return vec[i]; });
+  return sorted_vec;
+}
+  
+template <typename T>
+void apply_permutation_in_place(std::vector<T>& vec, const std::vector<std::size_t>& p) {
+  std::vector<bool> done(vec.size());
+  for (std::size_t i = 0; i < vec.size(); ++i) {
+    if (done[i])
+      continue;
+    done[i] = true;
+    std::size_t prev_j = i;
+    std::size_t j = p[i];
+    while (i != j) {
+      std::swap(vec[prev_j], vec[j]);
+      done[j] = true;
+      prev_j = j;
+      j = p[j];
+    }
+  }
+}
+
+template <typename T>
+void compact_sorted(vector<T>& vec, vector<int>& ixs) {
+  if (vec.size() != ixs.size())
+    throw std::runtime_error("vec and ixs sizes must agree");
+  int prev_ix = -1, real_i = -1;
+  for (size_t i = 0; i < ixs.size(); ++i) {
+    // real_i is always <= i
+    if (prev_ix == ixs[i]) {
+      vec[real_i] += vec[i];
+    } else {
+      real_i++;
+      vec[real_i] = vec[i];
+      ixs[real_i] = ixs[i];
+      prev_ix = ixs[i];
+    }
+  }
+  real_i++;
+  vec.resize(real_i);
+  ixs.resize(real_i);    
+}
+
 
 
 /// DBG

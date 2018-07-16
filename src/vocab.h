@@ -21,10 +21,12 @@
 #include "common.h"
 #include "corpus.h"
 #include "TripletMatrix.h"
+#include "PriSecMatrix.h"
 #include "hash.h"
 #include "ngram.h"
 #include <algorithm>
 #include <unordered_set>
+#include <omp.h>
 
 
 /// VOCAB CODE
@@ -65,10 +67,7 @@ class Vocab {
     this->ndocs = ndocs[0];
     const IntegerVector& ubuckets = df.attr("nbuckets");
     this->nbuckets = ubuckets[0];
-    /* const LogicalVector& chargram = df.attr("chargram"); */
-    /* this->chargram = chargram[0]; */
     const CharacterVector& ngram_sep = df.attr("ngram_sep");
-    // FIXME: remove this nullable. It's always there.
     this->regex = translate_separators(df.attr("regex"));
     this->ngram_sep = as<string>(ngram_sep[0]);
 
@@ -391,60 +390,79 @@ class Vocab {
   /// DTM/TCM
 
   template <MatrixType mattype>
-  SEXP term_matrix(const Corpus& corpus, int nbuckets, bool dtm,
-                   const int ngram_min, const int ngram_max,
+  SEXP term_matrix(const Corpus& corpus,
+                   const int nbuckets,
+                   const bool dtm,
+                   const int ngram_min,
+                   const int ngram_max,
                    const Nullable<NumericVector>& term_weights) {
 
     check_ngram_limits(ngram_min, ngram_max);
 
-    TripletMatrix* tm = new TripletMatrix();
-    int& doc_dim = dtm ? tm->nrow : tm->ncol;
-
     size_t CN = corpus.size();
     shm_string_iter vit;
 
+    Rprintf("max threads:%d\n", omp_get_max_threads());
+
+    PriSecMatrix mat(CN);
+
+#pragma omp parallel for
     for (size_t i = 0; i < CN; i++) {
       const vector<string> doc = wordgrams(corpus[i], ngram_min, ngram_max, ngram_sep);
+      mat.alloc(i, doc.size());
       for (const string& term : doc) {
         vit = vocabix.find(term);
         // Matrix classes are 0-based indexed
         if (vit == vocabix.end()) {
           if (nbuckets > 0) {
-            tm->add(doc_dim, murmur3hash(term) % nbuckets + vocab.size(), 1.0, dtm);
+            mat.set(i, murmur3hash(term) % nbuckets + vocab.size(), 1.0);
           }
         } else {
-          tm->add(doc_dim, vit->second, 1.0, dtm);
+          mat.set(i, vit->second, 1.0);
         }
       }
-      doc_dim++;
+      mat.sort_and_compact(i);
     }
 
+    // term_weights is currently not used
+    if (term_weights.isNotNull())
+      mat.apply_weight(term_weights.get(), MatrixDimType::SECONDARY);
+
+    SEXP out;
     if (dtm) {
-      if (term_weights.isNotNull())
-        tm->apply_weight(term_weights.get(), MatrixDimType::COL);
-      SEXP out = tm->get(mattype, corpus.names(), vocab_names(nbuckets));
-      Rf_setAttrib(out, Rf_mkString("mlvocab_dtm"), Rf_ScalarLogical(1));
-      return out;
+      if (mattype == MatrixType::DGC) {
+        mat.transpose();
+        out = mat.get(mattype, vocab_names(nbuckets), corpus.names(), false, false);
+      } else {
+        out = mat.get(mattype, corpus.names(), vocab_names(nbuckets), false, true);
+      }
     } else {
-      if (term_weights.isNotNull())
-        tm->apply_weight(term_weights.get(), MatrixDimType::ROW);
-      SEXP out = tm->get(mattype, vocab_names(nbuckets), corpus.names());
-      Rf_setAttrib(out, Rf_mkString("mlvocab_dtm"), Rf_ScalarLogical(0));
-      return out;
+      if (mattype == MatrixType::DGR) {
+        mat.transpose();
+        out = mat.get(mattype, vocab_names(nbuckets), corpus.names(), false, true);
+      } else {
+        out = mat.get(mattype, corpus.names(), vocab_names(nbuckets), false, false);
+      }
     }
+    Rf_setAttrib(out, Rf_mkString("mlvocab_dtm"), Rf_ScalarLogical(dtm));
+    return out;
   }
 
   template <MatrixType mattype>
-  SEXP term_cooccurrence_matrix(const Corpus& corpus, const int nbuckets,
-                                const size_t window_size, const vector<double>& window_weights,
-                                const int ngram_min, const int ngram_max,
+  SEXP term_cooccurrence_matrix(const Corpus& corpus,
+                                const int nbuckets,
+                                const size_t window_size,
+                                const vector<double>& window_weights,
+                                const int ngram_min,
+                                const int ngram_max,
                                 const ContextType context,
                                 const Nullable<NumericVector>& term_weights) {
 
     check_ngram_limits(ngram_min, ngram_max);
 
-    TripletMatrix* tm = new TripletMatrix();
     size_t CN = corpus.size();
+    size_t TN = vocab.size() + nbuckets;
+    TripletMatrix* tm = new TripletMatrix(TN, TN);
     shm_string_iter vit;
     string term;
     vector<double> weights = ngram_weights(window_weights, ngram_min, ngram_max);
@@ -502,7 +520,6 @@ class Vocab {
     }
     const CharacterVector& names = vocab_names(nbuckets);
     return tm->get(mattype, names, names, context == ContextType::SYMMETRIC);
-
   }
 
   CharacterVector vocab_names(uint32_t nbuckets) {
