@@ -12,6 +12,7 @@ mat <- structure(c(1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 4, 1, 2, 1, 2),
 library(Matrix)
 
 test_that("Basic tcm works", {
+
   tcm0 <- new("dsTMatrix",
               i = c(1L, 7L, 6L, 0L, 1L, 2L, 3L, 4L, 5L, 6L),
               j = c(6L, 8L, 8L, 1L, 2L, 3L, 4L, 5L, 6L, 7L),
@@ -21,7 +22,8 @@ test_that("Basic tcm works", {
               x = c(1, 1.5, 0.5, 0.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5),
               uplo = "U", factors = list())
   tcm <- tcm(corpus, v, 2)
-  expect_equal(tcm, tcm0)
+  ## converting to matrix as order might not be the same depending on internal sparse_map hash
+  expect_equal(as.matrix(tcm), as.matrix(tcm0))
 
   tcm <- tcm(corpus, v, 3)
   expect_equal(tcm["The", "brown"], 1/3)
@@ -35,7 +37,7 @@ test_that("Basic tcm works", {
                x = c(1, 0.5, 0.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5),
                factors = list())
   ltcm <- tcm(corpus, v, 2, context = "left")
-  expect_equal(ltcm, ltcm0)
+  expect_equal(as.matrix(ltcm), as.matrix(ltcm0))
   ltcm <- tcm(corpus, v, 3, context = "left")
   expect_equal(ltcm["fox", "brown"], 1.5)
   expect_equal(ltcm["dog", "the"], 1)
@@ -48,7 +50,7 @@ test_that("Basic tcm works", {
                x = c(0.5, 1, 1.5, 0.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5),
                factors = list())
   rtcm <- tcm(corpus, v, 2, context = "right")
-  expect_equal(rtcm, rtcm0)
+  expect_equal(as.matrix(rtcm), as.matrix(rtcm0))
   rtcm <- tcm(corpus, v, 3, context = "right")
   expect_equal(rtcm["The", "brown"], 1/3)
   expect_equal(rtcm["the", "brown"], 2/3)
