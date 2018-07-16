@@ -462,7 +462,7 @@ class Vocab {
 
     size_t CN = corpus.size();
     size_t TN = vocab.size() + nbuckets;
-    TripletMatrix* tm = new TripletMatrix(TN, TN);
+    TripletMatrix tm(TN, TN);
     shm_string_iter vit;
     string term;
     vector<double> weights = ngram_weights(window_weights, ngram_min, ngram_max);
@@ -503,23 +503,23 @@ class Vocab {
           switch(context) {
            case ContextType::SYMMETRIC:
              // populating upper triangle
-             if (iix < jix) tm->add(iix, jix, weights[w]);
-             else tm->add(jix, iix, weights[w]);
+             if (iix < jix) tm.add(iix, jix, weights[w]);
+             else tm.add(jix, iix, weights[w]);
              break;
            case ContextType::RIGHT:
-             tm->add(iix, jix, weights[w]); break;
+             tm.add(iix, jix, weights[w]); break;
            case ContextType::LEFT:
-             tm->add(jix, iix, weights[w]); break;
+             tm.add(jix, iix, weights[w]); break;
           }
         }
       }
     }
 
     if (term_weights.isNotNull()) {
-      tm->apply_weight(term_weights.get(), MatrixDimType::BOTH);
+      tm.apply_weight(term_weights.get(), MatrixDimType::BOTH);
     }
     const CharacterVector& names = vocab_names(nbuckets);
-    return tm->get(mattype, names, names, context == ContextType::SYMMETRIC);
+    return tm.get(mattype, names, names, context == ContextType::SYMMETRIC);
   }
 
   CharacterVector vocab_names(uint32_t nbuckets) {
