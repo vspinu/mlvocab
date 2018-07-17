@@ -3,16 +3,16 @@
 \name{vocab}
 \alias{vocab}
 \alias{vocab}
-\alias{vocab_update}
+\alias{update_vocab}
 \alias{vocab}
-\alias{vocab_prune}
+\alias{prune_vocab}
 \title{Build and manipulate vocabularies}
 \usage{
 vocab(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+")
 
-vocab_update(vocab, corpus)
+update_vocab(vocab, corpus)
 
-vocab_prune(vocab, max_terms = Inf, term_count_min = 1L,
+prune_vocab(vocab, max_terms = Inf, term_count_min = 1L,
   term_count_max = Inf, doc_proportion_min = 0, doc_proportion_max = 1,
   doc_count_min = 1L, doc_count_max = Inf, nbuckets = attr(vocab,
   "nbuckets"))
@@ -54,8 +54,8 @@ buckets and the corresponding statistics (\code{term_count} and \code{doc_count}
 updated.}
 }
 \description{
-\code{\link[=vocab]{vocab()}} creates a vocabulary from a text corpus; \code{\link[=vocab_update]{vocab_update()}} and
-\code{\link[=vocab_prune]{vocab_prune()}} update and prune an existing vocabulary respectively.
+\code{\link[=vocab]{vocab()}} creates a vocabulary from a text corpus; \code{\link[=update_vocab]{update_vocab()}} and
+\code{\link[=prune_vocab]{prune_vocab()}} update and prune an existing vocabulary respectively.
 }
 \details{
 When \code{corpus} is a character vector each string is tokenized with \code{regex}
@@ -81,12 +81,12 @@ vocab(corpus, ngram = c(2, 3))
 v <- vocab(corpus)
 
 extra_corpus <- list(extras = c("apples", "oranges"))
-v <- vocab_update(v, extra_corpus)
+v <- update_vocab(v, extra_corpus)
 v
 
-vocab_prune(v, max_terms = 7)
-vocab_prune(v, term_count_min = 2)
-vocab_prune(v, max_terms = 7, nbuckets = 2)
+prune_vocab(v, max_terms = 7)
+prune_vocab(v, term_count_min = 2)
+prune_vocab(v, max_terms = 7, nbuckets = 2)
 
 }
 \references{

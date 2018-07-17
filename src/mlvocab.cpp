@@ -10,10 +10,10 @@ DataFrame C_vocab(SEXP corpus0, const DataFrame& oldvocab) {
 }
  
 // [[Rcpp::export]]
-NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row,
+NumericMatrix C_prune_embeddings(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row,
                             int nbuckets, int min_to_average) {
   Vocab v(vocabdf);
-  return(v.embed_vocab(embeddings, by_row, nbuckets, min_to_average));
+  return(v.prune_embeddings(embeddings, by_row, nbuckets, min_to_average));
 }
 
 // [[Rcpp::export]]

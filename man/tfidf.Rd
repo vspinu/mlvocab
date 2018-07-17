@@ -10,7 +10,7 @@ tfidf(mat, vocab, norm = c("l1", "l2", "none"), sublinear_tf = FALSE,
 \arguments{
 \item{mat}{output of \code{\link[=dtm]{dtm()}} or \code{\link[=tdm]{tdm()}} function}
 
-\item{vocab}{output of \code{\link[=vocab]{vocab()}} or \code{\link[=vocab_update]{vocab_update()}}}
+\item{vocab}{output of \code{\link[=vocab]{vocab()}} or \code{\link[=update_vocab]{update_vocab()}}}
 
 \item{norm}{normalization to apply for each document. Either "l1", "l2" or
 "none"}

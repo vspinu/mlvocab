@@ -2,7 +2,7 @@
 ##' Tfidf re-weighting of `dtm` and `tdm` matrices
 ##'
 ##' @param mat output of [dtm()] or [tdm()] function
-##' @param vocab output of [vocab()] or [vocab_update()]
+##' @param vocab output of [vocab()] or [update_vocab()]
 ##' @param norm normalization to apply for each document. Either "l1", "l2" or
 ##'   "none"
 ##' @param sublinear_tf when `TRUE` use `1 + log(tf)` instead of the raw `tf`

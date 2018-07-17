@@ -2,7 +2,7 @@
 ##' Term Indices: Convert text to integer indices
 ##'
 ##' @param corpus text corpus; see `[vocab()]`.
-##' @param vocab data frame produced by [vocab()] or [vocab_update()]
+##' @param vocab data frame produced by [vocab()] or [update_vocab()]
 ##' @param keep_unknown logical. If `TRUE`, preserve unknowns in the output
 ##'   sequences. When `nbuckets` == 0 then unknowns are indexed with 0.
 ##' @param nbuckets integer. How many buckets to hash unknowns into.

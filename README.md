@@ -4,14 +4,14 @@
 
 The following two-step abstraction is provided by the package:
 
-  1. The vocabulary object is first built from the entire corpus with the help of `vocab()`, `vocab_update()` and `vocab_prune()` functions. 
+  1. The vocabulary object is first built from the entire corpus with the help of `vocab()`, `update_vocab()` and `prune_vocab()` functions. 
   2. Then, the vocabulary is passed alongside the corpus to a variety of corpus pre-processing functions. Most of the `mlvocab` functions accept `nbuckets` argument for partial or full hashing of the corpus.
 
 Current functionality includes:
 
  - __term index sequences__: `tix_seq()`, `tix_mat()` and `tix_df()` produce integer sequences suitable for direct consumption by various sequence models.
  - __term matrices__: `dtm()`, `tdm()` and `tcm()` create document-term term-document and term-co-occurrence matrices respectively.
- - __subseting embedding matrices__: given pre-trained word-vectors `subembed()` creates smaller embedding matrices treating missing and unknown vocabulary terms with grace.
+ - __subseting embedding matrices__: given pre-trained word-vectors `prune_embeddings()` creates smaller embedding matrices treating missing and unknown vocabulary terms with grace.
  - __tfidf weighting__: `tfidf()` computes various versions of term frequency, inverse document frequency weighting of `dtm` and `tdm` matrices.
  
  

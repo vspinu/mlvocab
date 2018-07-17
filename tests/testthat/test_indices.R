@@ -141,7 +141,7 @@ test_that("text2ixdf works with return_factor=T", {
   df$corpus_term <- structure(df$corpus_term, levels = vocab$term, class = "factor")
   expect_equal(tix_df(dcorpus, vocab, as_factor = T), df)
 
-  tvocab <- vocab_prune(vocab(corpus), max_terms = 3, nbuckets = 3)
+  tvocab <- prune_vocab(vocab(corpus), max_terms = 3, nbuckets = 3)
   df <- tix_df(dcorpus, tvocab)
   df$corpus_term <- structure(df$corpus_term, levels = tvocab$term, class = "factor")
   expect_equal(tix_df(dcorpus, tvocab, as_factor = T), df)

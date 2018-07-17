@@ -28,9 +28,6 @@
 #include <unordered_set>
 #include <omp.h>
 
-
-/// VOCAB CODE
-
 class VocabEntry {
  public:
   VocabEntry(string term, size_t n = 1, size_t ndocs = 1):
@@ -211,7 +208,7 @@ class Vocab {
   
   /// EMBEDDING
 
-  NumericMatrix embed_vocab(NumericMatrix& embeddings, bool by_row,
+  NumericMatrix prune_embeddings(NumericMatrix& embeddings, bool by_row,
                             int nbuckets, int max_per_bucket) {
     // embedding as columns for efficiency
     size_t nembs = vocabix.size() + nbuckets;
@@ -474,6 +471,7 @@ class Vocab {
       size_t dsize = doc.size();
       uint32_t iix, jix;
       for (size_t i = 0; i < dsize; i++) {
+
         // (i)-term outer loop
         term = doc[i];
         vit = vocabix.find(term);
@@ -679,7 +677,7 @@ class Vocab {
     }
   }
 
-  inline string bkt_name(uint32_t bkt) {
+ inline string bkt_name(uint32_t bkt) {
     return "__" + to_string(bkt);
   }
 

@@ -28,9 +28,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// C_embed_vocab
-NumericMatrix C_embed_vocab(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row, int nbuckets, int min_to_average);
-RcppExport SEXP _mlvocab_C_embed_vocab(SEXP vocabdfSEXP, SEXP embeddingsSEXP, SEXP by_rowSEXP, SEXP nbucketsSEXP, SEXP min_to_averageSEXP) {
+// C_prune_embeddings
+NumericMatrix C_prune_embeddings(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row, int nbuckets, int min_to_average);
+RcppExport SEXP _mlvocab_C_prune_embeddings(SEXP vocabdfSEXP, SEXP embeddingsSEXP, SEXP by_rowSEXP, SEXP nbucketsSEXP, SEXP min_to_averageSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -39,7 +39,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type by_row(by_rowSEXP);
     Rcpp::traits::input_parameter< int >::type nbuckets(nbucketsSEXP);
     Rcpp::traits::input_parameter< int >::type min_to_average(min_to_averageSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_embed_vocab(vocabdf, embeddings, by_row, nbuckets, min_to_average));
+    rcpp_result_gen = Rcpp::wrap(C_prune_embeddings(vocabdf, embeddings, by_row, nbuckets, min_to_average));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -213,7 +213,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_mlvocab_murmur3hash", (DL_FUNC) &_mlvocab_murmur3hash, 1},
     {"_mlvocab_C_vocab", (DL_FUNC) &_mlvocab_C_vocab, 2},
-    {"_mlvocab_C_embed_vocab", (DL_FUNC) &_mlvocab_C_embed_vocab, 5},
+    {"_mlvocab_C_prune_embeddings", (DL_FUNC) &_mlvocab_C_prune_embeddings, 5},
     {"_mlvocab_C_rehash_vocab", (DL_FUNC) &_mlvocab_C_rehash_vocab, 3},
     {"_mlvocab_C_corpus2ixseq", (DL_FUNC) &_mlvocab_C_corpus2ixseq, 5},
     {"_mlvocab_C_corpus2ixdf", (DL_FUNC) &_mlvocab_C_corpus2ixdf, 6},

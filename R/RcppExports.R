@@ -9,8 +9,8 @@ C_vocab <- function(corpus0, oldvocab) {
     .Call(`_mlvocab_C_vocab`, corpus0, oldvocab)
 }
 
-C_embed_vocab <- function(vocabdf, embeddings, by_row, nbuckets, min_to_average) {
-    .Call(`_mlvocab_C_embed_vocab`, vocabdf, embeddings, by_row, nbuckets, min_to_average)
+C_prune_embeddings <- function(vocabdf, embeddings, by_row, nbuckets, min_to_average) {
+    .Call(`_mlvocab_C_prune_embeddings`, vocabdf, embeddings, by_row, nbuckets, min_to_average)
 }
 
 C_rehash_vocab <- function(pruned_vocabdf, vocabdf, nbuckets) {

@@ -8,7 +8,7 @@
 \description{
 The following two-step abstraction is provided by the \code{mlvocab}
 package. First, the vocabulary object is built from the entire corpus with
-the help of \code{\link[=vocab]{vocab()}}, \code{\link[=vocab_update]{vocab_update()}} and \code{\link[=vocab_prune]{vocab_prune()}}
+the help of \code{\link[=vocab]{vocab()}}, \code{\link[=update_vocab]{update_vocab()}} and \code{\link[=prune_vocab]{prune_vocab()}}
 functions. Second, the vocabulary is passed alongside the corpus to a
 variety of corpus pre-processing functions.
 }
@@ -26,7 +26,7 @@ sequences suitable for direct consumption by various sequence models.}
 \item{term matrices}{\code{\link[=dtm]{dtm()}}, \code{\link[=tdm]{tdm()}} and \code{\link[=tcm]{tcm()}} create document-term,
 term-document and term-co-occurrence matrices respectively.}
 
-\item{vocabulary embedding}{given pre-trained word-vectors \code{\link[=subembed]{subembed()}}
+\item{vocabulary embedding}{given pre-trained word-vectors \code{\link[=prune_embeddings]{prune_embeddings()}}
 creates smaller embedding matrices treating missing and unknown vocabulary
 terms with grace.}
 

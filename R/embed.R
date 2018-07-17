@@ -1,9 +1,9 @@
 ##' Subset embedding matrix using vocab terms
 ##'
-##' [subembed()] subsets a (commonly large) pre-trained word-vector matrix
+##' [prune_embeddings()] subsets a (commonly large) pre-trained word-vector matrix
 ##' into a smaller, one vector per term, embedding matrix.
 ##'
-##' [subembed()] is commonly used in conjunction with sequence generators
+##' [prune_embeddings()] is commonly used in conjunction with sequence generators
 ##' ([tix_mat()], [tix_seq()] and [tix_df()]). When a term in a corpus is not
 ##' present in a vocabulary (unknown), it is hashed into one of the `nbuckets`
 ##' buckets. Embeddings which are hashed into same bucket are averaged to
@@ -36,17 +36,17 @@
 ##'               "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 ##'
 ##' v <- vocab(corpus)
-##' v2 <- vocab_prune(v, max_terms = 7, nbuckets = 2)
+##' v2 <- prune_vocab(v, max_terms = 7, nbuckets = 2)
 ##' enames <- c("the", "quick", "brown", "fox", "jumps")
 ##' emat <- matrix(rnorm(50), nrow = 5, dimnames = list(enames, NULL))
-##' subembed(v2, emat)
-##' subembed(v2, t(emat)) # automatic detection of the orientation
+##' prune_embeddings(v2, emat)
+##' prune_embeddings(v2, t(emat)) # automatic detection of the orientation
 ##'
-##' vembs <- subembed(v2, emat)
+##' vembs <- prune_embeddings(v2, emat)
 ##' all(vembs[enames, ] == emat[enames, ])
 ##'
 ##' @export
-subembed <- function(vocab, embeddings,
+prune_embeddings <- function(vocab, embeddings,
                      nbuckets = attr(vocab, "nbuckets"),
                      max_in_bucket = 30) {
   if (is.null(colnames(embeddings)) && is.null(rownames(embeddings)))
@@ -55,6 +55,6 @@ subembed <- function(vocab, embeddings,
     if (!is.null(rownames(embeddings)))
       is.null(colnames(embeddings)) || nrow(embeddings) > ncol(embeddings)
     else FALSE
-  out <- C_embed_vocab(vocab, embeddings, by_row, nbuckets, max_in_bucket)
+  out <- C_prune_embeddings(vocab, embeddings, by_row, nbuckets, max_in_bucket)
   out
 }

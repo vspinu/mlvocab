@@ -12,8 +12,8 @@
 
 ##' Build and manipulate vocabularies
 ##'
-##' [vocab()] creates a vocabulary from a text corpus; [vocab_update()] and
-##' [vocab_prune()] update and prune an existing vocabulary respectively.
+##' [vocab()] creates a vocabulary from a text corpus; [update_vocab()] and
+##' [prune_vocab()] update and prune an existing vocabulary respectively.
 ##'
 ##' When `corpus` is a character vector each string is tokenized with `regex`
 ##' with the internal tokenizer. When `corpus` has names, names will be used to
@@ -53,12 +53,12 @@
 ##' v <- vocab(corpus)
 ##'
 ##' extra_corpus <- list(extras = c("apples", "oranges"))
-##' v <- vocab_update(v, extra_corpus)
+##' v <- update_vocab(v, extra_corpus)
 ##' v
 ##'
-##' vocab_prune(v, max_terms = 7)
-##' vocab_prune(v, term_count_min = 2)
-##' vocab_prune(v, max_terms = 7, nbuckets = 2)
+##' prune_vocab(v, max_terms = 7)
+##' prune_vocab(v, term_count_min = 2)
+##' prune_vocab(v, max_terms = 7, nbuckets = 2)
 ##'
 ##' @export
 vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+") {
@@ -72,7 +72,7 @@ vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]
 ##' @param vocab `data.frame` obtained from a call to [vocab()].
 ##' @name vocab
 ##' @export
-vocab_update <- function(vocab, corpus) {
+update_vocab <- function(vocab, corpus) {
   if (!inherits(vocab, "mlvocab_vocab"))
     stop("'vocab' must be of class 'mlvocab_vocab'")
   pruned <- attr(vocab, "pruned")
@@ -99,7 +99,7 @@ vocab_update <- function(vocab, corpus) {
 ##'   updated.
 ##' @name vocab
 ##' @export
-vocab_prune <- function(vocab,
+prune_vocab <- function(vocab,
                         max_terms = Inf, 
                         term_count_min = 1L,
                         term_count_max = Inf,
@@ -109,7 +109,7 @@ vocab_prune <- function(vocab,
                         doc_count_max = Inf,
                         nbuckets = attr(vocab, "nbuckets")) {
 
-  ## adapted from [text2vec::vocab_pruneulary()]
+  ## adapted from [text2vec::prune_vocabulary()]
   
   if (!inherits(vocab, "mlvocab_vocab"))
     stop("'vocab' must be an object of class `mlvocab_vocab`")
@@ -183,7 +183,7 @@ vocab_prune <- function(vocab,
 ##                         if (is.null(old_vocab))
 ##                           vocab(corpus = corpus, ngram = ngram)
 ##                         else
-##                           vocab_update(old_vocab, corpus)
+##                           update_vocab(old_vocab, corpus)
 ##                       }), 
 ##                     x))
 ## }

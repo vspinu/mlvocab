@@ -22,7 +22,7 @@ tix_mat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
 \arguments{
 \item{corpus}{text corpus; see \code{[vocab()]}.}
 
-\item{vocab}{data frame produced by \code{\link[=vocab]{vocab()}} or \code{\link[=vocab_update]{vocab_update()}}}
+\item{vocab}{data frame produced by \code{\link[=vocab]{vocab()}} or \code{\link[=update_vocab]{update_vocab()}}}
 
 \item{keep_unknown}{logical. If \code{TRUE}, preserve unknowns in the output
 sequences. When \code{nbuckets} == 0 then unknowns are indexed with 0.}
