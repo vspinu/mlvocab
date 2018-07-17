@@ -35,6 +35,10 @@ class VocabEntry {
   string term;
   size_t n;      // total count in corpus
   size_t ndocs;  // total count of docs
+
+  bool operator < (const VocabEntry& other) const {
+    return (n > other.n);
+  }
 };
 
 class Vocab {
@@ -77,56 +81,16 @@ class Vocab {
     for (size_t i = 0; i < N; i++) {
       const char* termc = terms[i];
       if (!is_bkt_name(termc)) {
-        // core terms only
+        // Core terms only. Unknown buckets are generated on the fly when needed
+        // and we don't allow updating of pruned vocabs.
         insert_entry(string(termc), term_count[i], doc_count[i]);
       }
     }
 
   };
 
-  const char* separators() {
-    return this->regex.c_str();
-  }
-
-  void rebucket_unknowns(const DataFrame& df, size_t nbuckets) {
-    const IntegerVector& rubuckets = df.attr("nbuckets");
-    size_t ubuckets = rubuckets[0];
-
-    if (ubuckets > 0 && ubuckets != nbuckets)
-      Rf_error("Trying to rehash a vocab with a different number of buckets");
-
-    if (nbuckets > 0) {
-
-      const CharacterVector& terms = df["term"];
-      const IntegerVector& term_count = df["term_count"];
-      const IntegerVector& doc_count = df["doc_count"];
-      size_t N = df.nrow();
-
-      for (size_t bkt = 1; bkt <= nbuckets; bkt++) {
-        insert_entry(bkt_name(bkt), 0, 0);
-      }
-
-      // 2) rehash all "new" unknowns
-      shm_string_iter vit;
-      for (size_t i = 0; i < N; i++) {
-        const char* termc = terms[i];
-        string term(termc);
-        if (is_bkt_name(termc)) {
-          // insert unknown counts
-          insert_entry(term, term_count[i], doc_count[i]);
-        } else {
-          // rehash new unknowns
-          vit = vocabix.find(term);
-          if (vit == vocabix.end()) {
-            uint_fast32_t bkt = murmur3hash(term) % nbuckets + 1;
-            insert_entry(bkt_name(bkt), term_count[i], doc_count[i]);
-          }
-        }
-      }
-
-      this->nbuckets = nbuckets;
-    }
-  }
+  
+  // Retrieve in DF form
 
   DataFrame df() {
     size_t N = vocab.size();
@@ -157,6 +121,60 @@ class Vocab {
     out.attr("class") = CharacterVector::create("mlvocab_vocab", "data.frame");
 
     return out;
+  }
+
+  
+  /// INTERNAL UTILITIES
+
+  const char* separators() {
+    return this->regex.c_str();
+  }
+
+  void sort() {
+    vector<size_t> perm = sorting_permutation(vocab);
+    apply_permutation_in_place(vocab, perm);
+  }
+
+  void rehash_unknowns(const DataFrame& orig_vocabdf, size_t nbuckets) {
+
+    const IntegerVector& rubuckets = orig_vocabdf.attr("nbuckets");
+    size_t ubuckets = rubuckets[0];
+
+    if (ubuckets > 0 && ubuckets != nbuckets)
+      Rf_error("Cannot rehash the vocab with a different number of buckets");
+
+    if (nbuckets > 0) {
+
+      const CharacterVector& terms = orig_vocabdf["term"];
+      const IntegerVector& term_count = orig_vocabdf["term_count"];
+      const IntegerVector& doc_count = orig_vocabdf["doc_count"];
+      size_t N = orig_vocabdf.nrow();
+
+      // 1) put all bkt names at the end of the vocab first
+      for (size_t bkt = 1; bkt <= nbuckets; bkt++) {
+        insert_entry(bkt_name(bkt), 0, 0);
+      }
+
+      // 2) add all unknowns at the end
+      shm_string_iter vit;
+      for (size_t i = 0; i < N; i++) {
+        const char* termc = terms[i];
+        string term(termc);
+        if (is_bkt_name(termc)) {
+          // 2.a) existing unknowns
+          insert_entry(term, term_count[i], doc_count[i]);
+        } else {
+          // 2.b) new unknowns
+          vit = vocabix.find(term);
+          if (vit == vocabix.end()) {
+            uint_fast32_t bkt = murmur3hash(term) % nbuckets + 1;
+            insert_entry(bkt_name(bkt), term_count[i], doc_count[i]);
+          }
+        }
+      }
+
+      this->nbuckets = nbuckets;
+    }
   }
 
   
@@ -398,8 +416,6 @@ class Vocab {
 
     size_t CN = corpus.size();
     shm_string_iter vit;
-
-    Rprintf("max threads:%d\n", omp_get_max_threads());
 
     PriSecMatrix mat(CN);
 

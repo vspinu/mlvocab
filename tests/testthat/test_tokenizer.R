@@ -28,7 +28,7 @@ test_that("Tokenizer handles missing values", {
 test_that("utf8 string corpus is correctly tokenized", {
   corpus <- c("a α b β", "aℵb aβb α β", "ASCII string")
   v <- vocab(corpus, regex = " ")
-  expect_equal(v$term, c("a", "α", "b", "β", "aℵb", "aβb", "ASCII", "string"))
+  expect_equal(v$term, c("α", "β", "a",  "b", "aℵb", "aβb", "ASCII", "string"))
   v <- vocab(corpus, regex = "[ abβ]")
   expect_equal(v$term, c("α", "ℵ", "ASCII", "string"))
   ## str(vocab(c(NA, "aℵb aβb α β", NA, "abcdssfdsffsfsd"), regex = "[ b β]"))

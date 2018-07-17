@@ -22,7 +22,7 @@ test_that("text2seq works",  {
   expect_equal(ixs, tix_seq(tdscorpus, vocab, keep_unknown = T))
 
   ixs <- tix_seq(tcorpus, vocab, keep_unknown = F)
-  expect_equal(ixs$c, c(9L, 9L))
+  expect_equal(ixs$c, c(8L, 8L))
 
   dogix <- which(vocab$term == "dog")
 

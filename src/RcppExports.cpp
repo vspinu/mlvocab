@@ -44,15 +44,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_rehash_vocab
-DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& vocabdf, const int nbuckets);
-RcppExport SEXP _mlvocab_C_rehash_vocab(SEXP pruned_vocabdfSEXP, SEXP vocabdfSEXP, SEXP nbucketsSEXP) {
+DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& orig_vocabdf, const int nbuckets);
+RcppExport SEXP _mlvocab_C_rehash_vocab(SEXP pruned_vocabdfSEXP, SEXP orig_vocabdfSEXP, SEXP nbucketsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const DataFrame& >::type pruned_vocabdf(pruned_vocabdfSEXP);
-    Rcpp::traits::input_parameter< const DataFrame& >::type vocabdf(vocabdfSEXP);
+    Rcpp::traits::input_parameter< const DataFrame& >::type orig_vocabdf(orig_vocabdfSEXP);
     Rcpp::traits::input_parameter< const int >::type nbuckets(nbucketsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_rehash_vocab(pruned_vocabdf, vocabdf, nbuckets));
+    rcpp_result_gen = Rcpp::wrap(C_rehash_vocab(pruned_vocabdf, orig_vocabdf, nbuckets));
     return rcpp_result_gen;
 END_RCPP
 }

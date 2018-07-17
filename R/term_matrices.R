@@ -59,9 +59,9 @@ tdm <- function(corpus, vocab = NULL,
 ##'   of `ngram_min` and `ngram_max`.
 ##' @param window_weights vector of weights which are superimposed on the
 ##'   sliding `window`. First element is a weight for distance 0 (aka context
-##'   word itself),  second for distance 1 etc. First weight doesn't play any
-##'   role for `ngram_max` == 1, see details. `window_weights` is recycled to
-##'   length `window_size` if needed. It can be a string naming a function or a
+##'   word itself),  second for distance 1 etc. First weight is ignored for
+##'   `ngram_max` == 1, see details. `window_weights` is recycled to length
+##'   `window_size` if needed. It can be a string naming a function or a
 ##'   function which accepts one argument, `window_size`,  and returns a
 ##'   `window_weights` vector. Defaults to `[1, 1/2, ..., 1/window_size]`.
 ##' @param context when "symmetric", matrix entries `(i, j)` and `(j, i)` are

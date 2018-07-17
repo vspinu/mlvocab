@@ -10,11 +10,11 @@
 \title{Term-document and term-cooccurrence matrices}
 \usage{
 dtm(corpus, vocab = NULL, ngram = attr(vocab, "ngram"),
-  nbuckets = attr(vocab, "nbuckets"), output = c("triplet", "column", "row",
+  nbuckets = attr(vocab, "nbuckets"), output = c("row", "triplet", "column",
   "df"))
 
 tdm(corpus, vocab = NULL, ngram = attr(vocab, "ngram"),
-  nbuckets = attr(vocab, "nbuckets"), output = c("triplet", "column", "row",
+  nbuckets = attr(vocab, "nbuckets"), output = c("column", "triplet", "row",
   "df"))
 
 tcm(corpus, vocab = NULL, window_size = 5,

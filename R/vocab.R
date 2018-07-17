@@ -1,7 +1,7 @@
 
 `_empty_vocab` <- structure(data.frame(term = character(), term_count = integer(), doc_count = integer(), stringsAsFactors = F),
                             document_count = 0L,
-                            nbuckets = 0L, 
+                            nbuckets = 0L,
                             ngram_sep = "_",
                             ngram = c(1L, 1L))
 
@@ -38,11 +38,11 @@
 ##' @references
 ##'
 ##' https://en.cppreference.com/w/cpp/regex/ecmascript
-##' 
+##'
 ##' @examples
 ##'
 ##' corpus <-
-##'    list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+##'    list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"),
 ##'         b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
 ##'               "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 ##'
@@ -61,7 +61,8 @@
 ##' prune_vocab(v, max_terms = 7, nbuckets = 2)
 ##'
 ##' @export
-vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+") {
+vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_",
+                  regex = "[[:space:]]+", sort = TRUE) {
   old_vocab <- structure(`_empty_vocab`,
                          ngram = .normalize_ngram(ngram),
                          ngram_sep = ngram_sep,
@@ -75,12 +76,11 @@ vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]
 update_vocab <- function(vocab, corpus) {
   if (!inherits(vocab, "mlvocab_vocab"))
     stop("'vocab' must be of class 'mlvocab_vocab'")
-  pruned <- attr(vocab, "pruned")
   if (isTRUE(attr(vocab, "pruned"))) {
+    ## Updating would makes sense if nbuckets > 0 but original prune criteria
+    ## will be violated. So it doesn't seem worth supporting.
     stop("Cannot update pruned vocabulary")
   }
-  ## if (isTRUE(attr(vocab, "chargram", F)))
-  ##     attr(vocab, "chargram") <- FALSE
   C_vocab(corpus, vocab)
 }
 
@@ -100,7 +100,7 @@ update_vocab <- function(vocab, corpus) {
 ##' @name vocab
 ##' @export
 prune_vocab <- function(vocab,
-                        max_terms = Inf, 
+                        max_terms = Inf,
                         term_count_min = 1L,
                         term_count_max = Inf,
                         doc_proportion_min = 0.0,
@@ -110,7 +110,7 @@ prune_vocab <- function(vocab,
                         nbuckets = attr(vocab, "nbuckets")) {
 
   ## adapted from [text2vec::prune_vocabulary()]
-  
+
   if (!inherits(vocab, "mlvocab_vocab"))
     stop("'vocab' must be an object of class `mlvocab_vocab`")
 
@@ -168,14 +168,14 @@ prune_vocab <- function(vocab,
 
 ### OTHER STUFF
 
-## mlvocab <- function(x = identity, corpus_var, ngram = c(1, 1), 
+## mlvocab <- function(x = identity, corpus_var, ngram = c(1, 1),
 ##                     vocab_name = corpus_var, ...) {
 ##   if (is.function(x))
 ##     return(mlfunction("mlvocab"))
 ##   mlcontinue(switch(x$op,
 ##                     describe = assoc(x, c("describe", "mlvocab"),
-##                                      ll(doc = "Compute vocabulary from `vocab_corpus`.", 
-##                                         handles = c("run", "describe"))), 
+##                                      ll(doc = "Compute vocabulary from `vocab_corpus`.",
+##                                         handles = c("run", "describe"))),
 ##                     run =
 ##                       assoc(x, c("vocab", vocab_name), {
 ##                         old_vocab <- x[["vocab"]][[vocab_name]]
@@ -184,7 +184,7 @@ prune_vocab <- function(vocab,
 ##                           vocab(corpus = corpus, ngram = ngram)
 ##                         else
 ##                           update_vocab(old_vocab, corpus)
-##                       }), 
+##                       }),
 ##                     x))
 ## }
 
@@ -193,7 +193,7 @@ prune_vocab <- function(vocab,
 print.mlvocab_vocab <- function(x, ...) {
   cat("Number of docs: ", attr(x, "document_count", TRUE), "\n",
       "Ngrams: ", paste(attr(x, "ngram", TRUE), collapse = " "), "\n",
-      "Buckets: ", attr(x, "nbuckets"), "\n", 
+      "Buckets: ", attr(x, "nbuckets"), "\n",
       if (isTRUE(attr(x, "pruned", TRUE))) "Pruned vocabulary:" else "Vocabulary", "\n",
       sep = "")
   newx <- x

@@ -13,8 +13,8 @@ C_prune_embeddings <- function(vocabdf, embeddings, by_row, nbuckets, min_to_ave
     .Call(`_mlvocab_C_prune_embeddings`, vocabdf, embeddings, by_row, nbuckets, min_to_average)
 }
 
-C_rehash_vocab <- function(pruned_vocabdf, vocabdf, nbuckets) {
-    .Call(`_mlvocab_C_rehash_vocab`, pruned_vocabdf, vocabdf, nbuckets)
+C_rehash_vocab <- function(pruned_vocabdf, orig_vocabdf, nbuckets) {
+    .Call(`_mlvocab_C_rehash_vocab`, pruned_vocabdf, orig_vocabdf, nbuckets)
 }
 
 C_corpus2ixseq <- function(corpus0, vocabdf, keep_unknown, nbuckets, reverse) {

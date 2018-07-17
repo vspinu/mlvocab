@@ -1,14 +1,16 @@
- 
+
 #include "vocab.h"
- 
+
 // [[Rcpp::export]]
 DataFrame C_vocab(SEXP corpus0, const DataFrame& oldvocab) {
   Vocab vocab(oldvocab);
   Corpus corpus(corpus0, vocab.separators());
   vocab.insert_corpus(corpus);
+  // this takes a fraction of a second even for big vocabs
+  vocab.sort();
   return vocab.df();
 }
- 
+
 // [[Rcpp::export]]
 NumericMatrix C_prune_embeddings(const DataFrame& vocabdf, NumericMatrix& embeddings, bool by_row,
                             int nbuckets, int min_to_average) {
@@ -17,9 +19,10 @@ NumericMatrix C_prune_embeddings(const DataFrame& vocabdf, NumericMatrix& embedd
 }
 
 // [[Rcpp::export]]
-DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& vocabdf, const int nbuckets) {
+DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& orig_vocabdf, const int nbuckets) {
   Vocab v(pruned_vocabdf);
-  v.rebucket_unknowns(vocabdf, nbuckets);
+  v.sort();
+  v.rehash_unknowns(orig_vocabdf, nbuckets);
   return v.df();
 }
 
@@ -48,7 +51,7 @@ IntegerMatrix C_corpus2ixmat(SEXP corpus0, const DataFrame& vocabdf,
   const Corpus corpus(corpus0, v.separators());
   return v.corpus2ixmat(corpus, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse);
 }
- 
+
 // [[Rcpp::export]]
 SEXP C_dtm(SEXP corpus0, const DataFrame& vocabdf,
            const Nullable<NumericVector>& term_weights,
@@ -99,7 +102,7 @@ SEXP C_tcm(SEXP corpus0, const DataFrame& vocabdf,
            const std::string& context,
            const int ngram_min,
            const int ngram_max) {
-  
+
   Vocab v(vocabdf);
   Corpus corpus(corpus0, v.separators());
 
@@ -113,7 +116,7 @@ SEXP C_tcm(SEXP corpus0, const DataFrame& vocabdf,
   } else {
     Rf_error("Invalid `context` (%s)", context.c_str());
   }
-  
+
   if (output == "triplet") {
     return v.term_cooccurrence_matrix<MatrixType::DGT>(
       corpus, nbuckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
@@ -125,7 +128,7 @@ SEXP C_tcm(SEXP corpus0, const DataFrame& vocabdf,
       corpus, nbuckets, window_size, window_weights, ngram_min, ngram_max, context_type, term_weights);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());
-  }  
+  }
 }
 
 // [[Rcpp::export]]
@@ -182,3 +185,13 @@ SEXP C_tokenize(SEXP input, SEXP rx) {
   UNPROTECT(1);
   return out;
 }
+
+
+/* // does not sort unknowns at the end; for speed test only */
+/* // [[Rcpp::export]] */
+/* DataFrame C_sort_vocab(const DataFrame& vocabdf, bool sort = true) { */
+/*   Vocab vocab(vocabdf); */
+/*   if (sort) */
+/*     vocab.sort(); */
+/*   return vocab.df(); */
+/* } */
