@@ -9,7 +9,7 @@
 ##' @param extra_df_count add this number to the document count; as if all terms
 ##'   in the vocabulary have been seen at least in this many documents.
 ##' @examples
-##' corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+##' corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"),
 ##'                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
 ##'                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 ##' v <- vocab(corpus, c(1, 2), " ")
@@ -40,7 +40,7 @@ tfidf <- function(mat, vocab, norm = c("l1", "l2", "none"), sublinear_tf = FALSE
 }
 
 normalize <- function(mat, norm, idf, byrow) {
-  
+
   stopifnot(inherits(mat, "sparseMatrix"))
   if (norm == "none")
     return(mat)
@@ -58,7 +58,7 @@ normalize <- function(mat, norm, idf, byrow) {
     ## without copying i.
     matc <- new("dgCMatrix", i = mat@j, p = mat@p,
                 Dim = rev(mat@Dim), Dimnames = rev(mat@Dimnames),
-                x = mat@x, 
+                x = mat@x,
                 factors = list())
     byrow <- !byrow
     out <-
@@ -66,12 +66,10 @@ normalize <- function(mat, norm, idf, byrow) {
       else Diagonal(x = idf) %*% (matc %*% Diagonal(x = tfnorm))
     return(new("dgRMatrix", j = mat@j, p = mat@p,
                Dim = mat@Dim, Dimnames = mat@Dimnames,
-               x = out@x, 
+               x = out@x,
                factors = list()))
   } else {
     if (byrow) (Diagonal(x = tfnorm) %*% mat) %*% Diagonal(x = idf)
     else Diagonal(x = idf) %*% (mat %*% Diagonal(x = tfnorm))
   }
 }
-
-

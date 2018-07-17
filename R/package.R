@@ -34,6 +34,7 @@
 ##' @importFrom digest digest
 ##' @importFrom Rcpp sourceCpp
 ##' @importFrom Matrix Diagonal t rowSums colSums
+##' @importFrom methods new
 ##' @importFrom utils head tail
 ##' @useDynLib mlvocab, .registration=TRUE
 "_PACKAGE"

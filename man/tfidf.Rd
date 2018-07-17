@@ -24,7 +24,7 @@ in the vocabulary have been seen at least in this many documents.}
 Tfidf re-weighting of \code{dtm} and \code{tdm} matrices
 }
 \examples{
-corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"),
                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 v <- vocab(corpus, c(1, 2), " ")

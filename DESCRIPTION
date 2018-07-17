@@ -7,14 +7,15 @@ Description: Utilities for preprocessing of text corpora into data structures
   vocabulary embedding matrices, term-doc, doc-term, term co-occurrence matrices
   etc. All functions allow for full or partial hashing of the terms in the
   vocabulary.
-Depends: R (>= 3.4.0)
-License: GPL-3
-Encoding: UTF-8
-Imports:
+Depends:
+  methods,
   Rcpp (>= 0.12),
   Matrix,
   digest (>= 0.6.8),
-  sparsepp (>= 0.2.0)
+  sparsepp (>= 0.2.0),
+  R (>= 3.4.0)
+License: GPL-3
+Encoding: UTF-8
 LinkingTo:
   Rcpp (>= 0.12.9),
   digest (>= 0.6.8),

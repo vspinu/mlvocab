@@ -8,8 +8,7 @@
 \alias{prune_vocab}
 \title{Build and manipulate vocabularies}
 \usage{
-vocab(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+",
-  sort = TRUE)
+vocab(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+")
 
 update_vocab(vocab, corpus)
 

@@ -61,8 +61,7 @@
 ##' prune_vocab(v, max_terms = 7, nbuckets = 2)
 ##'
 ##' @export
-vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_",
-                  regex = "[[:space:]]+", sort = TRUE) {
+vocab <- function(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+") {
   old_vocab <- structure(`_empty_vocab`,
                          ngram = .normalize_ngram(ngram),
                          ngram_sep = ngram_sep,
