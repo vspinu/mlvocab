@@ -8,7 +8,8 @@
 \alias{prune_vocab}
 \title{Build and manipulate vocabularies}
 \usage{
-vocab(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+")
+vocab(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+",
+  sort = TRUE)
 
 update_vocab(vocab, corpus)
 
@@ -70,7 +71,7 @@ will use it to name the output.
 \examples{
 
 corpus <-
-   list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+   list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"),
         b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
               "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 

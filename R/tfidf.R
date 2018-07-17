@@ -19,9 +19,9 @@
 ##' tfidf(tdm, v)
 ##' @export
 tfidf <- function(mat, vocab, norm = c("l1", "l2", "none"), sublinear_tf = FALSE, extra_df_count = 1) {
-  if (is.null(dtm <- attr(mat, "mlvocab_dtm", FALSE)))
+  if (is.null(is_dtm <- attr(mat, "mlvocab_dtm", TRUE)))
     stop("Not a mlvocab term matrix")
-  names <- if (dtm) colnames(mat) else rownames(mat)
+  names <- if (is_dtm) colnames(mat) else rownames(mat)
   ## fixme: implement an efficient check for this
   if (identical(names, vocab$term)) {
     doc_count <- vocab$doc_count
@@ -36,14 +36,10 @@ tfidf <- function(mat, vocab, norm = c("l1", "l2", "none"), sublinear_tf = FALSE
   if (sublinear_tf)
     mat@x <- 1 + log(mat@x)
   norm <- match.arg(norm)
-  if (dtm) {
-    normalize(mat, norm, byrow = TRUE) %*% Diagonal(x = idf)
-  } else {
-    Diagonal(x = idf) %*% normalize(mat, norm, byrow = FALSE)
-  }
+  normalize(mat, norm, idf, is_dtm)
 }
 
-normalize <- function(mat, norm, byrow) {
+normalize <- function(mat, norm, idf, byrow) {
   
   stopifnot(inherits(mat, "sparseMatrix"))
   if (norm == "none")
@@ -54,11 +50,28 @@ normalize <- function(mat, norm, byrow) {
            l1 = 1 / if (byrow) rowSums(abs(mat)) else colSums(abs(mat)),
            l2 = 1 / if (byrow) sqrt(rowSums(mat^2)) else sqrt(colSums(mat^2)),
            stop("Invalid norm ", norm))
-  
-  # sum row elements == 0
   tfnorm[is.infinite(tfnorm)] <- 0
-  if (byrow) Diagonal(x = tfnorm) %*% mat
-  else  mat %*% Diagonal(x = tfnorm)
+
+  reverse <- FALSE
+  if (inherits(mat, "dgRMatrix")) {
+    ## Matrix method %*% doesn't work on dgRMatrix. Do a quick conversion trick
+    ## without copying i.
+    matc <- new("dgCMatrix", i = mat@j, p = mat@p,
+                Dim = rev(mat@Dim), Dimnames = rev(mat@Dimnames),
+                x = mat@x, 
+                factors = list())
+    byrow <- !byrow
+    out <-
+      if (byrow) (Diagonal(x = tfnorm) %*% matc) %*% Diagonal(x = idf)
+      else Diagonal(x = idf) %*% (matc %*% Diagonal(x = tfnorm))
+    return(new("dgRMatrix", j = mat@j, p = mat@p,
+               Dim = mat@Dim, Dimnames = mat@Dimnames,
+               x = out@x, 
+               factors = list()))
+  } else {
+    if (byrow) (Diagonal(x = tfnorm) %*% mat) %*% Diagonal(x = idf)
+    else Diagonal(x = idf) %*% (mat %*% Diagonal(x = tfnorm))
+  }
 }
 
 

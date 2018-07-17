@@ -12,6 +12,9 @@ test_that("tfidf works with tdm and dtm matrices", {
   dtm <- dtm(corpus, v, output = "col")
   tdm <- tdm(corpus, v)
 
+  expect_equal(as.matrix(dtm), as.matrix(dtm(corpus, v, output = "row")))
+  expect_equal(as.matrix(dtm), as.matrix(dtm(corpus, v, output = "tri")))
+
   ## tt <- text2vec::TfIdf$new()
   ## dput(out <- tt$fit_transform(dtm))
   out <- new("dgCMatrix",
@@ -93,6 +96,9 @@ test_that("tfidf works when dtm is constructed with explicit ngram", {
   dtm <- dtm(corpus, v, c(1, 1), output = "col")
   tdm <- tdm(corpus, v, c(1, 1))
 
+  expect_equal(as.matrix(dtm), as.matrix(dtm(corpus, v, c(1, 1), output = "row")))
+  expect_equal(as.matrix(dtm), as.matrix(dtm(corpus, v, c(1, 1), output = "tri")))
+
   ## tt <- text2vec::TfIdf$new()
   ## dput(out <- tt$fit_transform(dtm))
   out <- new("dgCMatrix",
@@ -125,6 +131,9 @@ test_that("tfidf works when names don't match", {
   dtm <- dtm(corpus, v, out = "col")
   tdm <- tdm(corpus, v)
   v <- rbind(v, data.frame(term = "blabla", term_count = 0, doc_count = 0))
+
+  expect_equal(as.matrix(dtm(corpus, v, output = "col")), as.matrix(dtm(corpus, v, output = "row")))
+  expect_equal(as.matrix(dtm(corpus, v, output = "col")), as.matrix(dtm(corpus, v, output = "tri")))
 
   ## tt <- text2vec::TfIdf$new()
   ## dput(out <- tt$fit_transform(dtm))

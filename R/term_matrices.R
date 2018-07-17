@@ -12,7 +12,15 @@
 ##' @param nbuckets number of unknown buckets
 ##' @param output one of "triplet", "column", "row", "df" or an unambiguous
 ##'   abbreviation thereof. First three options return the corresponding sparse
-##'   matrices from Matrix package, "df" results in a triplet `data.frame`.
+##'   matrices from Matrix package, "df" results in a triplet
+##'   `data.frame`.
+##'
+##'   The default output type corresponds to the most efficient computation in
+##'   terms of CPU and memory usage ("row" for `dtm`, "column" for `tdm` and
+##'   "triplet" for `tcm`), but benefits are marginal unless your matrices are
+##'   so big that they barely fit into memory. If you plan to further perform
+##'   matrix algebra on these matrices it's a good idea to choose "column" type
+##'   because of the much better support from the Matrix package.
 ##' @name term_matrices
 ##' @export
 dtm <- function(corpus, vocab = NULL,

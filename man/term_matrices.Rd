@@ -37,7 +37,15 @@ result matrix will consist of buckets only.}
 
 \item{output}{one of "triplet", "column", "row", "df" or an unambiguous
 abbreviation thereof. First three options return the corresponding sparse
-matrices from Matrix package, "df" results in a triplet \code{data.frame}.}
+matrices from Matrix package, "df" results in a triplet
+\code{data.frame}.
+
+The default output type corresponds to the most efficient computation in
+terms of CPU and memory usage ("row" for \code{dtm}, "column" for \code{tdm} and
+"triplet" for \code{tcm}), but benefits are marginal unless your matrices are
+so big that they barely fit into memory. If you plan to further perform
+matrix algebra on these matrices it's a good idea to choose "column" type
+because of the much better support from the Matrix package.}
 
 \item{window_size}{sliding window size used for co-occurrence
 computation. In this implementation the window includes the context word;
@@ -47,9 +55,9 @@ of \code{ngram_min} and \code{ngram_max}.}
 
 \item{window_weights}{vector of weights which are superimposed on the
 sliding \code{window}. First element is a weight for distance 0 (aka context
-word itself),  second for distance 1 etc. First weight doesn't play any
-role for \code{ngram_max} == 1, see details. \code{window_weights} is recycled to
-length \code{window_size} if needed. It can be a string naming a function or a
+word itself),  second for distance 1 etc. First weight is ignored for
+\code{ngram_max} == 1, see details. \code{window_weights} is recycled to length
+\code{window_size} if needed. It can be a string naming a function or a
 function which accepts one argument, \code{window_size},  and returns a
 \code{window_weights} vector. Defaults to \code{[1, 1/2, ..., 1/window_size]}.}
 
