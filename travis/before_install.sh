@@ -16,6 +16,8 @@ if [ "${COMPILER}" = "gcc" ]; then
 fi
 
 if [ "${COMPILER}" = "clang" ]; then
+    # https://github.com/travis-ci/travis-ci/issues/8613
+    export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH
     echo "CC=clang -std=gnu99"      >> ~/.R/Makevars
     echo "CXX=clang++"              >> ~/.R/Makevars
     echo "CXX11=clang++ -std=c++11" >> ~/.R/Makevars
