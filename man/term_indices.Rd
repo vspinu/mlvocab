@@ -3,24 +3,23 @@
 \name{term_indices}
 \alias{term_indices}
 \alias{tix_seq}
-\alias{term_indices}
 \alias{tix_df}
-\alias{term_indices}
 \alias{tix_mat}
 \title{Term Indices: Convert text to integer indices}
 \usage{
-tix_seq(corpus, vocab, keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
-  "nbuckets"), reverse = FALSE)
+tix_seq(corpus, vocab, keep_unknown = nbuckets > 0,
+  nbuckets = attr(vocab, "nbuckets"), reverse = FALSE)
 
-tix_df(corpus, vocab, keep_unknown = nbuckets > 0, nbuckets = attr(vocab,
-  "nbuckets"), reverse = FALSE, as_factor = FALSE)
+tix_df(corpus, vocab, keep_unknown = nbuckets > 0,
+  nbuckets = attr(vocab, "nbuckets"), reverse = FALSE,
+  as_factor = FALSE)
 
-tix_mat(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
-  keep_unknown = nbuckets > 0, nbuckets = attr(vocab, "nbuckets"),
-  reverse = FALSE)
+tix_mat(corpus, vocab, maxlen = 100, pad_right = TRUE,
+  trunc_right = TRUE, keep_unknown = nbuckets > 0,
+  nbuckets = attr(vocab, "nbuckets"), reverse = FALSE)
 }
 \arguments{
-\item{corpus}{text corpus; see \code{[vocab()]}.}
+\item{corpus}{text corpus; see \code{\link[=vocab]{vocab()}}.}
 
 \item{vocab}{data frame produced by \code{\link[=vocab]{vocab()}} or \code{\link[=update_vocab]{update_vocab()}}}
 
@@ -55,7 +54,7 @@ Term Indices: Convert text to integer indices
 }
 \examples{
 
-corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"),
                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 v <- vocab(corpus["b"]) # "The" is unknown

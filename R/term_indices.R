@@ -1,7 +1,7 @@
 
 ##' Term Indices: Convert text to integer indices
 ##'
-##' @param corpus text corpus; see `[vocab()]`.
+##' @param corpus text corpus; see [vocab()].
 ##' @param vocab data frame produced by [vocab()] or [update_vocab()]
 ##' @param keep_unknown logical. If `TRUE`, preserve unknowns in the output
 ##'   sequences. When `nbuckets` == 0 then unknowns are indexed with 0.
@@ -11,13 +11,13 @@
 ##'   matrix, one row per sequence.
 ##' @name term_indices
 ##' @examples
-##' 
-##' corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"), 
+##'
+##' corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"),
 ##'                b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
 ##'                      "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
 ##' v <- vocab(corpus["b"]) # "The" is unknown
 ##' v
-##' 
+##'
 ##' tix_seq(corpus, v)
 ##' tix_seq(corpus, v, keep_unknown = TRUE)
 ##' tix_seq(corpus, v, nbuckets = 1)
@@ -37,7 +37,7 @@ tix_seq <- function(corpus, vocab,
   C_corpus2ixseq(corpus, vocab, keep_unknown, nbuckets, reverse)
 }
 
-##' @name term_indices
+##' @rdname term_indices
 ##' @param as_factor if TRUE, the returned index column will be a factor instead
 ##'   of an integer vector. Will throw an error when `keep_unknown` is TRUE and
 ##'   `nbuckets` == 0.
@@ -62,7 +62,7 @@ tix_df <- function(corpus, vocab,
   ##   date <- corpus$date[ix]
   ##   str <- corpus$id[ix]
   ##   cbind(corpus[ix, , drop = F], ix = ixdf$ix,
-  ##         stringsAsFactors = FALSE, row.names = NULL) 
+  ##         stringsAsFactors = FALSE, row.names = NULL)
   ## } else {
   ##   ixdf <- C_corpus2ixdf(corpus, vocab, keep_unknown, nbuckets, reverse, as_factor)
   ##   if (!is.null(names(corpus))) {
@@ -82,7 +82,7 @@ tix_df <- function(corpus, vocab,
 ##' @param reverse logical. Should each sequence be reversed in the final
 ##'   output? Reversion happens after `pad_right` and `trunc_right` have been
 ##'   applied to the original text sequence. Default `FALSE`.
-##' @name term_indices
+##' @rdname term_indices
 ##' @export
 tix_mat <- function(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right = TRUE,
                    keep_unknown = nbuckets > 0,
@@ -91,4 +91,3 @@ tix_mat <- function(corpus, vocab, maxlen = 100, pad_right = TRUE, trunc_right =
   C_corpus2ixmat(corpus, vocab, maxlen, pad_right, trunc_right,
                         keep_unknown, nbuckets, reverse)
 }
-

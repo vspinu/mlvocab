@@ -2,20 +2,19 @@
 % Please edit documentation in R/vocab.R
 \name{vocab}
 \alias{vocab}
-\alias{vocab}
 \alias{update_vocab}
-\alias{vocab}
 \alias{prune_vocab}
 \title{Build and manipulate vocabularies}
 \usage{
-vocab(corpus, ngram = c(1, 1), ngram_sep = "_", regex = "[[:space:]]+")
+vocab(corpus, ngram = c(1, 1), ngram_sep = "_",
+  regex = "[[:space:]]+")
 
 update_vocab(vocab, corpus)
 
 prune_vocab(vocab, max_terms = Inf, term_count_min = 1L,
-  term_count_max = Inf, doc_proportion_min = 0, doc_proportion_max = 1,
-  doc_count_min = 1L, doc_count_max = Inf, nbuckets = attr(vocab,
-  "nbuckets"))
+  term_count_max = Inf, doc_proportion_min = 0,
+  doc_proportion_max = 1, doc_count_min = 1L, doc_count_max = Inf,
+  nbuckets = attr(vocab, "nbuckets"))
 }
 \arguments{
 \item{corpus}{A collection of ASCII or UTF-8 encoded documents. It can be a

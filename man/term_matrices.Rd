@@ -3,24 +3,23 @@
 \name{term_matrices}
 \alias{term_matrices}
 \alias{dtm}
-\alias{term_matrices}
 \alias{tdm}
-\alias{term_matrices}
 \alias{tcm}
 \title{Term-document and term-cooccurrence matrices}
 \usage{
 dtm(corpus, vocab = NULL, ngram = attr(vocab, "ngram"),
-  nbuckets = attr(vocab, "nbuckets"), output = c("row", "triplet", "column",
-  "df"))
+  nbuckets = attr(vocab, "nbuckets"), output = c("row", "triplet",
+  "column", "df"))
 
 tdm(corpus, vocab = NULL, ngram = attr(vocab, "ngram"),
-  nbuckets = attr(vocab, "nbuckets"), output = c("column", "triplet", "row",
-  "df"))
+  nbuckets = attr(vocab, "nbuckets"), output = c("column", "triplet",
+  "row", "df"))
 
 tcm(corpus, vocab = NULL, window_size = 5,
-  window_weights = 1/seq.int(window_size), context = c("symmetric", "right",
-  "left"), ngram = attr(vocab, "ngram"), nbuckets = attr(vocab, "nbuckets"),
-  output = c("triplet", "column", "row", "df"))
+  window_weights = 1/seq.int(window_size), context = c("symmetric",
+  "right", "left"), ngram = attr(vocab, "ngram"),
+  nbuckets = attr(vocab, "nbuckets"), output = c("triplet", "column",
+  "row", "df"))
 }
 \arguments{
 \item{corpus}{text corpus; see \code{[vocab()]}.}
@@ -69,20 +68,31 @@ term \code{j} on the right side of \code{i}. When "left", entry \code{(i, j) rep
 \description{
 These functions compute or update various term-counts of a corpus with flexible output
 specification.
+}
+\details{
+For \code{ngram_max > 1} the weights vectors is automatically extended to match
+the "imaginary" sliding window over the ngrams. A proximity weight attached
+for an n-gram is an average of weights of the constituents of the ngram in
+the original sequence. Such scheme results in a consistent weighting across
+different values of \code{ngram_min} and \code{ngram_max}, and it is the reason why
+first element of \code{window_weights} is the proximity to the context word
+itself (i.e. distance \code{0}). For example:
 
 \itemize{
 \item default weights for the context window \code{["a" "b" "c" "d" "e"]}
-a    b    c    d    e
-1.00 0.50 0.33 0.25 0.20
+\tabular{rrrrr}{
+a\tab b\tab c\tab d\tab e\cr
+1.00\tab 0.50\tab 0.33\tab 0.25\tab 0.20
 }
-}
-\details{
-\itemize{
 \item for \code{ngram=c(1L, 3L)}
-a   a_b a_b_c     b   b_c b_c_d     c   c_d c_d_e     d   d_e     e
-1.00  0.75  0.61  0.50  0.42  0.36  0.33  0.29  0.26  0.25  0.22  0.20
+\tabular{rrrrrrrrrrrr}{
+a \tab a_b \tab a_b_c \tab b \tab b_c \tab b_c_d \tab c \tab c_d \tab c_d_e \tab d \tab d_e \tab e \cr
+1.00\tab 0.75\tab 0.61\tab 0.50\tab 0.42\tab 0.36\tab 0.33\tab 0.29\tab 0.26\tab 0.25\tab 0.22\tab 0.20 \cr
+}
 \item for \code{ngram=c(2L, 3L)}
-a_b a_b_c   b_c b_c_d   c_d c_d_e   d_e
-0.75  0.61  0.42  0.36  0.29  0.26  0.22
+\tabular{rrrrrrr}{
+a_b \tab a_b_c \tab b_c \tab b_c_d \tab c_d \tab c_d_e \tab d_e \cr
+0.75\tab 0.61\tab 0.42\tab 0.36\tab 0.29\tab 0.26\tab 0.22
+}
 }
 }

@@ -1,9 +1,8 @@
-
 ##' Term-document and term-cooccurrence matrices
 ##'
 ##' These functions compute or update various term-counts of a corpus with flexible output
 ##' specification.
-##' 
+##'
 ##' @param corpus text corpus; see `[vocab()]`.
 ##' @param vocab a `data.frame` produced by an early call to [vocab()]. When
 ##'   `vocab` is `NULL` and `nbuckets` is `NULL` or `0`, the vocabulary is first
@@ -30,7 +29,7 @@ dtm <- function(corpus, vocab = NULL,
   tm(C_dtm, corpus, vocab, ngram, nbuckets, output)
 }
 
-##' @name term_matrices
+##' @rdname term_matrices
 ##' @export
 tdm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
@@ -39,7 +38,7 @@ tdm <- function(corpus, vocab = NULL,
   tm(C_tdm, corpus, vocab, ngram, nbuckets, output)
 }
 
-##'
+##' @details
 ##' For `ngram_max > 1` the weights vectors is automatically extended to match
 ##' the "imaginary" sliding window over the ngrams. A proximity weight attached
 ##' for an n-gram is an average of weights of the constituents of the ngram in
@@ -48,17 +47,23 @@ tdm <- function(corpus, vocab = NULL,
 ##' first element of `window_weights` is the proximity to the context word
 ##' itself (i.e. distance `0`). For example:
 ##'
-##'   - default weights for the context window `["a" "b" "c" "d" "e"]`
-##'         a    b    c    d    e 
-##'      1.00 0.50 0.33 0.25 0.20
-##'
-##'   - for `ngram=c(1L, 3L)`
-##'        a   a_b a_b_c     b   b_c b_c_d     c   c_d c_d_e     d   d_e     e 
-##'     1.00  0.75  0.61  0.50  0.42  0.36  0.33  0.29  0.26  0.25  0.22  0.20
-##'
-##'   - for `ngram=c(2L, 3L)`
-##'      a_b a_b_c   b_c b_c_d   c_d c_d_e   d_e 
-##'     0.75  0.61  0.42  0.36  0.29  0.26  0.22
+##' \itemize{
+##'   \item default weights for the context window `["a" "b" "c" "d" "e"]`
+##'      \tabular{rrrrr}{
+##'         a\tab b\tab c\tab d\tab e\cr
+##'      1.00\tab 0.50\tab 0.33\tab 0.25\tab 0.20
+##'      }
+##'   \item for `ngram=c(1L, 3L)`
+##'      \tabular{rrrrrrrrrrrr}{
+##'      a \tab a_b \tab a_b_c \tab b \tab b_c \tab b_c_d \tab c \tab c_d \tab c_d_e \tab d \tab d_e \tab e \cr
+##'      1.00\tab 0.75\tab 0.61\tab 0.50\tab 0.42\tab 0.36\tab 0.33\tab 0.29\tab 0.26\tab 0.25\tab 0.22\tab 0.20 \cr
+##'      }
+##'   \item for `ngram=c(2L, 3L)`
+##'      \tabular{rrrrrrr}{
+##'      a_b \tab a_b_c \tab b_c \tab b_c_d \tab c_d \tab c_d_e \tab d_e \cr
+##'      0.75\tab 0.61\tab 0.42\tab 0.36\tab 0.29\tab 0.26\tab 0.22
+##'      }
+##' }
 ##'
 ##' @param window_size sliding window size used for co-occurrence
 ##'   computation. In this implementation the window includes the context word;
@@ -80,11 +85,11 @@ tdm <- function(corpus, vocab = NULL,
 ##' @param ngram an integer vector of the form `[ngram_min,
 ##'   ngram_max]`. Defaults to the `ngram` settings used during the creation of
 ##'   `vocab`. Explicitly providing this parameter should rarely be needed.
-##' @name term_matrices
+##' @rdname term_matrices
 ##' @export
 tcm <- function(corpus, vocab = NULL,
                 window_size = 5,
-                window_weights = 1/seq.int(window_size), 
+                window_weights = 1/seq.int(window_size),
                 context = c("symmetric", "right", "left"),
                 ngram = attr(vocab, "ngram"),
                 nbuckets = attr(vocab, "nbuckets"),
