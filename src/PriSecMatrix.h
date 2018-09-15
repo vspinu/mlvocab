@@ -1,5 +1,3 @@
-
- 
 #ifndef MLVOCAB_PRISEC_MATRIX_H
 #define MLVOCAB_PRISEC_MATRIX_H
 
@@ -12,7 +10,7 @@ class PriSecMatrix {
   atomic<int> ncompacted {0};
   atomic<int> npri;
   atomic<int> nsec;
-  
+
  public:
 
   vector<vector<double>> vals;
@@ -24,16 +22,16 @@ class PriSecMatrix {
     npri(npri), nsec(nsec), vals(npri), ixes(npri) {
   };
 
-  inline void alloc(int i, int new_size) {
-    vals[i].reserve(new_size);
+  inline void alloc(int i, size_t new_size) {
     ixes[i].reserve(new_size);
+    vals[i].reserve(new_size);
   }
- 
+
   inline void set(size_t i, size_t j, double d) {
     ixes[i].push_back(j);
     vals[i].push_back(d);
   };
- 
+
   void sort(size_t i) {
     vector<size_t> perm = sorting_permutation(ixes[i]);
     vector<double>& vs = vals[i];
@@ -42,12 +40,13 @@ class PriSecMatrix {
     apply_permutation_in_place(ix, perm);
   }
 
+
   // must be called once per doc
   void sort_and_compact(size_t i) {
     vector<double>& vs = vals[i];
     vector<int>& ix = ixes[i];
     if (ix.size() > 0) {
-      vector<size_t> perm = sorting_permutation(ixes[i]);
+      vector<size_t> perm = sorting_permutation(ix);
       apply_permutation_in_place(vs, perm);
       apply_permutation_in_place(ix, perm);
       compact_sorted(vs, ix);
@@ -61,7 +60,7 @@ class PriSecMatrix {
     // atomic add
     ncompacted.fetch_add(1, memory_order_relaxed);
   }
-  
+
   // C++ standard doesn't allow specialization of member function without
   // specializing the containing class. Solution is to either implement a
   // verbose helper struct or a switch style dispatch.
@@ -100,12 +99,13 @@ class PriSecMatrix {
     npri.store(new_npri);
     nsec.store(new_nsec);
     ncompacted.store(new_npri);
+
     vals = new_vals;
     ixes = new_ixes;
     /* Rf_PrintValue(wrap(ixes[0])); */
     /* Rf_PrintValue(wrap(vals[0])); */
   }
-  
+
   // col/row-wise multiplication
   void apply_weight(const NumericVector& weights, const MatrixDimType across) {
     if (across == MatrixDimType::PRIMARY || across == MatrixDimType::BOTH) {
@@ -116,7 +116,7 @@ class PriSecMatrix {
       if (nsec > static_cast<int>(weights.size()))
         Rf_error("Insufficient weights size (%d); required = %d", weights.size(), nsec.load());
     }
-    
+
     if (across == MatrixDimType::SECONDARY)
       for (size_t i = 0; i < vals.size(); i++) {
         vector<int>& ix = ixes[i];
@@ -141,7 +141,7 @@ class PriSecMatrix {
       }
   }
 
-  
+
  private:
 
   void check_compactification() {
@@ -149,10 +149,10 @@ class PriSecMatrix {
       Rf_error("Internal error: Incomplete compactification (ncompacted: %d, npris: %d)",
                ncompacted.load(), npri.load());
   }
-  
+
   
   // LOW/HIGH bits of the hash key
-  
+
   inline uint_fast64_t to64(uint32_t i, uint32_t j) {
     return(static_cast<uint_fast64_t>(i) << 32 | j);
   }
@@ -168,20 +168,20 @@ class PriSecMatrix {
 
   
   // EXPORT FUNCTIONS
-  
+
   S4 dTMatrix(Nullable<const CharacterVector&> prinames,
               Nullable<const CharacterVector&> secnames,
               bool symmetric,
               bool pri_as_rows) {
 
     check_compactification();
-    
+
     int npri = std::max(this->npri.load(), prinames.isNull() ? 0 : LENGTH(prinames.get()));
     int nsec = std::max(this->nsec.load(), secnames.isNull() ? 0 : LENGTH(secnames.get()));
 
     IntegerVector I(nnz), J(nnz);
     NumericVector X(nnz);
-    
+
     size_t oi = 0;
     for(size_t i = 0; i < vals.size(); i++) {
       vector<int> ix = ixes[i];
@@ -209,7 +209,7 @@ class PriSecMatrix {
       out.slot("i") = J;
       out.slot("j") = I;
       out.slot("Dim") = IntegerVector::create(nsec, npri);
-      out.slot("Dimnames") = List::create(secnames.get(), prinames.get());      
+      out.slot("Dimnames") = List::create(secnames.get(), prinames.get());
     }
     return out;
   }
@@ -222,13 +222,13 @@ class PriSecMatrix {
     check_compactification();
 
     // see the doc entry CsparseMatrix for internals of dgCMatrix
-    
-    int npri = std::max(this->npri.load(), prinames.isNull() ? 0 : LENGTH(prinames.get()));
-    int nsec = std::max(this->nsec.load(), secnames.isNull() ? 0 : LENGTH(secnames.get()));
 
-    int psize = npri + 1;
+    size_t npri = std::max(this->npri.load(), prinames.isNull() ? 0 : LENGTH(prinames.get()));
+    size_t nsec = std::max(this->nsec.load(), secnames.isNull() ? 0 : LENGTH(secnames.get()));
+
+    size_t psize = npri + 1;
     IntegerVector P(psize);
-    for (int i = 0; i < npri; i++)
+    for (size_t i = 0; i < npri; i++)
       if (i < vals.size())
         P[i+1] = P[i] + vals[i].size();
       else
@@ -237,7 +237,7 @@ class PriSecMatrix {
     IntegerVector I(nnz);
     NumericVector X(nnz);
 
-    for (int i = 0; i < vals.size(); i++) {
+    for (size_t i = 0; i < vals.size(); i++) {
       int pbeg = P[i];
       copy(ixes[i].begin(), ixes[i].end(), I.begin() + pbeg);
       copy(vals[i].begin(), vals[i].end(), X.begin() + pbeg);
@@ -251,7 +251,7 @@ class PriSecMatrix {
     out.slot("x") = X;
     out.slot("p") = P;
 
-    
+
     if (pri_as_rows) {
       out.slot("j") = I;
       out.slot("Dim") = IntegerVector::create(npri, nsec);
@@ -259,11 +259,11 @@ class PriSecMatrix {
     } else {
       out.slot("i") = I;
       out.slot("Dim") = IntegerVector::create(nsec, npri);
-      out.slot("Dimnames") = List::create(secnames.get(), prinames.get());      
+      out.slot("Dimnames") = List::create(secnames.get(), prinames.get());
     }
     return out;
   }
-  
+
 };
 
 

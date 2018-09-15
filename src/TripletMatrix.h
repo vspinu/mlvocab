@@ -1,5 +1,5 @@
 
- 
+
 #ifndef MLVOCAB_TRIPLET_MATRIX_H
 #define MLVOCAB_TRIPLET_MATRIX_H
 
@@ -8,25 +8,12 @@
 
 class TripletMatrix {
 
-  // FIXME: remove once CRAN is updated (https://github.com/dselivanov/r-sparsepp/issues/3)
-  struct Hash64 {
-    inline size_t operator()(uint_fast64_t a) const {
-      a = (~a) + (a << 21); // a = (a << 21) - a - 1;
-      a = a ^ (a >> 24);
-      a = (a + (a << 3)) + (a << 8); // a * 265
-      a = a ^ (a >> 14);
-      a = (a + (a << 2)) + (a << 4); // a * 21
-      a = a ^ (a >> 28);
-      a = a + (a << 31);
-      return a;
-    }
-  };
-
  public:
 
   int nrow;
   int ncol;
-  sparse_hash_map<uint_fast64_t, double, Hash64> vals;
+
+  hashmap<uint_fast64_t, double> vals;
 
   TripletMatrix():
     nrow(0), ncol(0) {};
@@ -48,7 +35,7 @@ class TripletMatrix {
   size_t size() {
     return(vals.size());
   }
-  
+
   void clear() {
     vals.clear();
   };
@@ -84,7 +71,7 @@ class TripletMatrix {
       if (ncol > static_cast<int>(weights.size()))
         Rf_error("Insufficient weights size (%d); nrow = %d", weights.size(), ncol);
     }
-    
+
     if (across == MatrixDimType::PRIMARY)
       for (auto& v : vals) {
         int rix = first32(v.first);
@@ -103,12 +90,12 @@ class TripletMatrix {
       }
   }
 
-  
+
  private:
 
   
   // LOW/HIGH bits of the hash key
-  
+
   inline uint_fast64_t to64(uint32_t i, uint32_t j) {
     return(static_cast<uint_fast64_t>(i) << 32 | j);
   }
@@ -124,18 +111,18 @@ class TripletMatrix {
 
   
   // EXPORT FUNCTIONS
-  
+
   S4 dTMatrix(Nullable<const CharacterVector&> rownames,
               Nullable<const CharacterVector&> colnames,
               bool symmetric) {
 
     int nrow = std::max(this->nrow, rownames.isNull() ? 0 : LENGTH(rownames.get()));
     int ncol = std::max(this->ncol, colnames.isNull() ? 0 : LENGTH(colnames.get()));
-    
+
     size_t nnz = size();
     IntegerVector I(nnz), J(nnz);
     NumericVector X(nnz);
-    
+
     size_t i = 0;
     for(const auto& v : vals) {
       I[i] = first32(v.first);
@@ -161,7 +148,7 @@ class TripletMatrix {
               bool C, bool symmetric) {
 
     // see the doc entry CsparseMatrix for internals of dgCMatrix
-    
+
     int nrow = std::max(this->nrow, rownames.isNull() ? 0 : LENGTH(rownames.get()));
     int ncol = std::max(this->ncol, colnames.isNull() ? 0 : LENGTH(colnames.get()));
 
@@ -169,7 +156,7 @@ class TripletMatrix {
 
     int psize = jsize + 1;
     IntegerVector P(psize);
-     
+
     size_t nnz = size();
     vector<vector<int>> vvi(jsize);
     vector<vector<double>> vvx(jsize);
@@ -208,7 +195,7 @@ class TripletMatrix {
     out.slot("Dimnames") = List::create(rownames.get(), colnames.get());
     return out;
   }
-  
+
 };
 
 

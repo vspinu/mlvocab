@@ -53,8 +53,8 @@ class Vocab {
   int nbuckets;
   int nuniqterms;
   /* bool chargram; */
+  hashmap<string, uint_fast32_t> vocabix;
 
-  sparse_hash_map<string, uint_fast32_t> vocabix;
   vector<VocabEntry> vocab;
 
  public:
@@ -78,6 +78,7 @@ class Vocab {
 
     size_t N = df.nrow();
 
+    // populate the vocabix
     for (size_t i = 0; i < N; i++) {
       const char* termc = terms[i];
       if (!is_bkt_name(termc)) {
@@ -156,7 +157,7 @@ class Vocab {
       }
 
       // 2) add all unknowns at the end
-      shm_string_iter vit;
+      hashmap_string_iter vit;
       for (size_t i = 0; i < N; i++) {
         const char* termc = terms[i];
         string term(termc);
@@ -181,7 +182,7 @@ class Vocab {
   /// INSERT
 
   void insert_entry(const string& term, size_t n = 1, size_t ndocs = 1) {
-    shm_string_iter vit = vocabix.find(term);
+    hashmap_string_iter vit = vocabix.find(term);
     if (vit == vocabix.end()) {
       size_t id = vocab.size();
       vocabix.insert(make_pair(term, id));
@@ -193,7 +194,7 @@ class Vocab {
   }
 
   void insert_doc(const vector<string>& doc) {
-    shm_string_iter vit;
+    hashmap_string_iter vit;
     unordered_set<size_t> termset;
     size_t id;
     for (const string& term : doc) {
@@ -234,7 +235,7 @@ class Vocab {
     size_t nallembs = by_row ? embeddings.nrow() : embeddings.ncol();
 
     CharacterVector embnames = by_row ? rownames(embeddings) : colnames(embeddings);
-    sparse_hash_map<string, uint_fast32_t> embmap;
+    hashmap<string, uint_fast32_t> embmap;
     uint_fast32_t i = 0;
     for (auto nm : embnames) {
       const string term = as<string>(nm);
@@ -245,7 +246,7 @@ class Vocab {
     missing_terms.reserve(vocab.size() / 10);
     NumericMatrix out(esize, nembs);
 
-    shm_string_iter eit;
+    hashmap_string_iter eit;
     string term;
     for (size_t i = 0; i < vocab.size(); i++) {
       const string& term = vocab[i].term;
@@ -415,12 +416,13 @@ class Vocab {
     check_ngram_limits(ngram_min, ngram_max);
 
     size_t CN = corpus.size();
-    shm_string_iter vit;
-
     PriSecMatrix mat(CN);
+
+    /* omp_set_num_threads(8); */
 
 #pragma omp parallel for
     for (size_t i = 0; i < CN; i++) {
+      hashmap_string_iter vit;
       const vector<string> doc = wordgrams(corpus[i], ngram_min, ngram_max, ngram_sep);
       mat.alloc(i, doc.size());
       for (const string& term : doc) {
@@ -476,7 +478,7 @@ class Vocab {
     size_t CN = corpus.size();
     size_t TN = vocab.size() + nbuckets;
     TripletMatrix tm(TN, TN);
-    shm_string_iter vit;
+    hashmap_string_iter vit;
     string term;
     vector<double> weights = ngram_weights(window_weights, ngram_min, ngram_max);
     size_t wsize = weights.size();
@@ -643,7 +645,7 @@ class Vocab {
   }
 
   void push_ix_maybe(vector<int>& v, const string& term, bool keep_unknown, int nbuckets) {
-    shm_string_iter vit = vocabix.find(term);
+    hashmap_string_iter vit = vocabix.find(term);
     // this one is used for ixs for which 0 is special; thus +1
     int uoffset = static_cast<int>(vocab.size()) + 1;
     if (vit == vocabix.end()) {

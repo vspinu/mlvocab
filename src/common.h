@@ -58,10 +58,21 @@ namespace spp {
 inline void exit(int status) throw() {}
 }
 
+#define USE_SPP
+
+#ifdef USE_SPP
 #include <sparsepp/spp.h>
-using spp::sparse_hash_map;
-typedef sparse_hash_map<string, uint32_t>::iterator shm_string_iter;
-typedef sparse_hash_map<const char*, uint32_t>::iterator shm_char_iter;
+typedef spp::sparse_hash_map<string, uint32_t>::iterator hashmap_string_iter;
+typedef spp::sparse_hash_map<const char*, uint32_t>::iterator hashmap_char_iter;
+template<typename T1, typename T2>
+using hashmap = spp::sparse_hash_map<T1, T2>;
+#else
+#include <unordered_map>
+typedef std::unordered_map<string, uint_fast32_t>::iterator hashmap_string_iter;
+typedef std::unordered_map<const char*, uint_fast32_t>::iterator hashmap_char_iter;
+template<typename T1, typename T2>
+using hashmap = std::unordered_map<T1, T2>;
+#endif
 
 
 /// GENERIC MATRIX TYPES
@@ -90,10 +101,10 @@ enum class MatrixDimType
   {
    PRIMARY,
    SECONDARY,
-   BOTH             
+   BOTH
   };
 
- 
+
   
 // SORT TWO VECTORS SIMULTANEOUSLY
 // adapted from http://stackoverflow.com/a/17074810/453735
@@ -102,7 +113,7 @@ std::vector<size_t> sorting_permutation(const vector<T>& v) {
   std::vector<size_t> p(v.size());
   std::iota(p.begin(), p.end(), 0);
   std::sort(p.begin(), p.end(),
-            [&](size_t i, size_t j){ return v[i] < v[j]; });
+            [&](size_t i, size_t j){ return v[i] < v[j];});
   return p;
 }
 
@@ -113,7 +124,7 @@ std::vector<T> apply_permutation(const std::vector<T>& vec, const std::vector<st
                  [&](std::size_t i){ return vec[i]; });
   return sorted_vec;
 }
-  
+
 template <typename T>
 void apply_permutation_in_place(std::vector<T>& vec, const std::vector<std::size_t>& p) {
   std::vector<bool> done(vec.size());
@@ -150,7 +161,7 @@ void compact_sorted(vector<T>& vec, vector<int>& ixs) {
   }
   real_i++;
   vec.resize(real_i);
-  ixs.resize(real_i);    
+  ixs.resize(real_i);
 }
 
 
