@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 #include <regex>
- 
+
 using namespace std;
 
 /* #define XSTR(x) STR(x) */
@@ -139,6 +139,8 @@ class Corpus
   bool do_utf8 = false;
   bool do_tokenize = false;
 
+  vector<vector<string>> tmp_corpus;
+
  public:
 
   Corpus(SEXP data) {
@@ -178,6 +180,7 @@ class Corpus
     this->wrgx = std::wregex(to_utf32(regex_),
                              regex_constants::ECMAScript | regex_constants::nosubs |
                              regex_constants::optimize | regex_constants::collate);
+
   }
 
   inline R_xlen_t size () const {
@@ -196,34 +199,41 @@ class Corpus
       return nms;
   }
 
-  const vector<string> operator[](R_xlen_t i) const {
-    if (is_list) {
-      SEXP doc = VECTOR_ELT(corpus, i);
-      if (!Rf_isString(doc))
-        Rf_error("Each element of a corpus list must be a character vector");
-      R_xlen_t N = Rf_xlength(doc);
-      vector<string> out;
-      out.reserve(N);
-      for (R_xlen_t i = 0; i < N; i++) {
-        string token(CHAR(STRING_ELT(doc, i)));
-        out.push_back(token);
-      }
-      return out;
-    } else {
-      const char* doc = CHAR(STRING_ELT(corpus, i));
-      if (do_tokenize) {
-        if (do_utf8) {
-          if (is_ascii(doc))
-            return tokenize(doc, rgx);
-          else
-            return wtokenize(doc, wrgx);
-        } else {
-          return tokenize(doc, rgx);
-        }
-      } else {
-        return {string(doc)};
-      }
+  inline const vector<string> get_from_list (R_xlen_t i) const {
+    SEXP doc = VECTOR_ELT(corpus, i);
+    if (!Rf_isString(doc))
+      Rf_error("Each element of a corpus list must be a character vector");
+    R_xlen_t N = Rf_xlength(doc);
+    vector<string> out;
+    out.reserve(N);
+    for (R_xlen_t i = 0; i < N; i++) {
+      string token(CHAR(STRING_ELT(doc, i)));
+      out.push_back(token);
     }
+    return out;
+  }
+
+  inline const vector<string> get_from_vector (R_xlen_t i) const {
+    const char* doc = CHAR(STRING_ELT(corpus, i));
+    if (do_tokenize) {
+      if (do_utf8) {
+        if (is_ascii(doc))
+          return tokenize(doc, rgx);
+        else
+          return wtokenize(doc, wrgx);
+      } else {
+        return tokenize(doc, rgx);
+      }
+    } else {
+      return {string(doc)};
+    }
+  }
+
+  const vector<string> operator[](R_xlen_t i) const {
+    if (is_list)
+      return get_from_list(i);
+    else
+      return get_from_vector(i);
   }
 
 };
