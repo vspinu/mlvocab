@@ -166,3 +166,25 @@ test_that("tfidf works when names don't match", {
   expect_equal(tout[nms2, ], tfidf(tdm, v)[nms2, ])
 
 })
+
+
+
+test_that("tcm bootstrap", {
+
+  ## skip_on_cran()
+  corpus <- list(a = c("The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"),
+                 b = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
+                       "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"),
+                 c = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
+                       "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"),
+                 d = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
+                       "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"),
+                 e = c("the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog",
+                       "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"))
+  v <- vocab(corpus, c(1, 2), " ")
+  dtm <- dtm(corpus, v, output = "col")
+  for(i in 1:1000) {
+    expect_equal(as.matrix(dtm), as.matrix(dtm(corpus, v, output = "row")))
+  }
+
+})
