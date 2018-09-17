@@ -48,6 +48,10 @@ inline SEXP toRstrvec(const vector<string>& vec) {
 
 /// SPARSE HASH MAP
 
+#define USE_SPP
+
+#ifdef USE_SPP
+#include <sparsepp/spp.h>
 /// comment from text2vec:
 // spp has calls to 'exit' on failure, which upsets R CMD check.
 // We won't bump into them during normal test execution so just override
@@ -57,11 +61,6 @@ inline SEXP toRstrvec(const vector<string>& vec) {
 namespace spp {
 inline void exit(int status) throw() {}
 }
-
-#define USE_SPP
-
-#ifdef USE_SPP
-#include <sparsepp/spp.h>
 typedef spp::sparse_hash_map<string, uint32_t>::iterator hashmap_string_iter;
 typedef spp::sparse_hash_map<const char*, uint32_t>::iterator hashmap_char_iter;
 template<typename T1, typename T2>
