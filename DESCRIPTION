@@ -1,6 +1,6 @@
 Package: mlvocab
 Title: Vocabulary and Corpus Preprocessing for Natural Language Pipelines
-Version: 0.0.1
+Version: 0.1
 Authors@R: person("Vitalie", "Spinu", email = "spinuvit@gmail.com", role = c("aut", "cre"))
 Description: Utilities for preprocessing of text corpora into data structures
   suitable for natural language models: integer sequences or matrices,
@@ -27,5 +27,5 @@ LazyData: true
 SystemRequirements: C++11 with suport for regex (such as GCC 4.9 or later, > 5 prefered)
 BugReports: https://github.com/vspinu/mlvocab/issues
 URL: https://github.com/vspinu/mlvocab/
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Roxygen: list(markdown = TRUE)
