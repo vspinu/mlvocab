@@ -14,7 +14,7 @@ update_vocab(vocab, corpus)
 prune_vocab(vocab, max_terms = Inf, term_count_min = 1L,
   term_count_max = Inf, doc_proportion_min = 0,
   doc_proportion_max = 1, doc_count_min = 1L, doc_count_max = Inf,
-  nbuckets = attr(vocab, "nbuckets"))
+  keep_terms = NULL, nbuckets = attr(vocab, "nbuckets"))
 }
 \arguments{
 \item{corpus}{A collection of ASCII or UTF-8 encoded documents. It can be a
@@ -47,6 +47,9 @@ this many docs}
 \item{doc_count_max, doc_proportion_max}{keep terms appearing in at \emph{most}
 this many docs}
 
+\item{keep_terms}{a character vector of terms to keep irrespective of the
+other pruning conditions.}
+
 \item{nbuckets}{How many unknown buckets to create along the remaining terms
 of the pruned \code{vocab}. All pruned terms will be hashed into this many
 buckets and the corresponding statistics (\code{term_count} and \code{doc_count})
@@ -63,8 +66,9 @@ name the output whenever appropriate.
 
 When corpus is a \code{data.frame}, the documents must be in last column,  which
 can be either a list of strings or a character vector. All other columns are
-considered document ids. If first column is a character vector most function
-will use it to name the output.
+considered document ids. If first column is a character vector most
+\code{mlvocab} functions will use it to name the output. Only basic primitive
+types could be used as ids.
 }
 \examples{
 

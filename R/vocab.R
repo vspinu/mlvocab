@@ -21,8 +21,9 @@
 ##'
 ##' When corpus is a `data.frame`, the documents must be in last column,  which
 ##' can be either a list of strings or a character vector. All other columns are
-##' considered document ids. If first column is a character vector most function
-##' will use it to name the output.
+##' considered document ids. If first column is a character vector most
+##' `mlvocab` functions will use it to name the output. Only basic primitive
+##' types could be used as ids.
 ##'
 ##' @param corpus A collection of ASCII or UTF-8 encoded documents. It can be a
 ##'   list of character vectors, a character vector or a data.frame with at
@@ -92,6 +93,8 @@ update_vocab <- function(vocab, corpus) {
 ##'   this many docs
 ##' @param doc_count_max,doc_proportion_max keep terms appearing in at _most_
 ##'   this many docs
+##' @param keep_terms a character vector of terms to keep irrespective of the
+##'   other pruning conditions.
 ##' @param nbuckets How many unknown buckets to create along the remaining terms
 ##'   of the pruned `vocab`. All pruned terms will be hashed into this many
 ##'   buckets and the corresponding statistics (`term_count` and `doc_count`)
@@ -106,6 +109,7 @@ prune_vocab <- function(vocab,
                         doc_proportion_max = 1.0,
                         doc_count_min = 1L,
                         doc_count_max = Inf,
+                        keep_terms = NULL,
                         nbuckets = attr(vocab, "nbuckets")) {
 
   ## adapted from [text2vec::prune_vocabulary()]
@@ -141,8 +145,10 @@ prune_vocab <- function(vocab,
     ind <- ind & (doc_proportion <= doc_proportion_max)
   }
 
+  keep_ind <- vocab[["term"]] %in% keep_terms
+
   ## fixme: define custom [ which drops row.names
-  pruned <- vocab[ind, ]
+  pruned <- vocab[ind | keep_ind, ]
 
   if (is.finite(max_terms) && nrow(pruned) > max_terms) {
     rnk <- rank(-pruned[["term_count"]], ties.method = "first")

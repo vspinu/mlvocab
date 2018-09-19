@@ -1,3 +1,8 @@
+Version 0.1.2
+=============
+
+* New argument `keep_terms` to `prune_vocab`
+
 Version 0.1
 ===========
 
