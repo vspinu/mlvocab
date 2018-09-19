@@ -58,15 +58,16 @@ SEXP C_dtm(SEXP corpus0, const DataFrame& vocabdf,
            const int nbuckets,
            const std::string& output,
            const int ngram_min,
-           const int ngram_max) {
+           const int ngram_max,
+           const int nthreads) {
   Vocab v(vocabdf);
   Corpus corpus(corpus0, v.separators());
   if (output == "triplet") {
-    return v.term_matrix<MatrixType::DGT>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGT>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights, nthreads);
   } else if (output == "column") {
-    return v.term_matrix<MatrixType::DGC>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGC>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights, nthreads);
   } else if (output == "row") {
-    return v.term_matrix<MatrixType::DGR>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGR>(corpus, nbuckets, true, ngram_min, ngram_max, term_weights, nthreads);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());
   }
@@ -78,15 +79,16 @@ SEXP C_tdm(SEXP corpus0, const DataFrame& vocabdf,
            const int nbuckets,
            const std::string& output,
            const int ngram_min,
-           const int ngram_max) {
+           const int ngram_max,
+           const int nthreads) {
   Vocab v(vocabdf);
   Corpus corpus(corpus0, v.separators());
   if (output == "triplet") {
-    return v.term_matrix<MatrixType::DGT>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGT>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights, nthreads);
   } else if (output == "column") {
-    return v.term_matrix<MatrixType::DGC>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGC>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights, nthreads);
   } else if (output == "row") {
-    return v.term_matrix<MatrixType::DGR>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights);
+    return v.term_matrix<MatrixType::DGR>(corpus, nbuckets, false, ngram_min, ngram_max, term_weights, nthreads);
   } else {
     Rf_error("Invalid `output_type` (%s)", output.c_str());
   }

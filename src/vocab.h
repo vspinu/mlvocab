@@ -26,7 +26,6 @@
 #include "ngram.h"
 #include <algorithm>
 #include <unordered_set>
-#include <omp.h>
 
 class VocabEntry {
  public:
@@ -411,16 +410,15 @@ class Vocab {
                    const bool dtm,
                    const int ngram_min,
                    const int ngram_max,
-                   const Nullable<NumericVector>& term_weights) {
+                   const Nullable<NumericVector>& term_weights,
+                   const int nthreads) {
 
     check_ngram_limits(ngram_min, ngram_max);
 
     size_t CN = corpus.size();
     PriSecMatrix mat(CN);
 
-    /* omp_set_num_threads(8); */
-
-#pragma omp parallel for
+#pragma omp parallel for num_threads(omp_threads(nthreads))
     for (size_t i = 0; i < CN; i++) {
       hashmap_string_iter vit;
       const vector<string> doc = wordgrams(corpus[i], ngram_min, ngram_max, ngram_sep);

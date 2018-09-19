@@ -8,9 +8,9 @@
 ##'
 ##' Most of the `mlvocab` functions accept `nbuckets` argument for
 ##' partial or full hashing of the corpus.
-##' 
+##'
 ##' Current functionality includes:
-##' 
+##'
 ##' \itemize{
 ##'
 ##' \item{term index sequences}{[tix_seq()] and [tix_mat()] produce integer
@@ -26,7 +26,7 @@
 ##' \item{tfidf weighting}{[tfidf()] computes various versions of term
 ##' frequency, inverse document frequency weighting of `dtm` and `tdm`
 ##' matrices.}
-##' 
+##'
 ##' }
 ##'
 ##' @author Vitalie Spinu (\email{spinuvit@gmail.com})
@@ -38,3 +38,10 @@
 ##' @importFrom utils head tail
 ##' @useDynLib mlvocab, .registration=TRUE
 "_PACKAGE"
+
+
+mlvocab_nthreads <- function() {
+  out <- as.integer(getOption("mlvocab.nthreads", Sys.getenv("MLVOCAB_NTHREADS", unset = 0)))
+  out[is.na(out)] <- 0
+  out
+}

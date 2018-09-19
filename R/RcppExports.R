@@ -29,12 +29,12 @@ C_corpus2ixmat <- function(corpus0, vocabdf, maxlen, pad_right, trunc_right, kee
     .Call(`_mlvocab_C_corpus2ixmat`, corpus0, vocabdf, maxlen, pad_right, trunc_right, keep_unknown, nbuckets, reverse)
 }
 
-C_dtm <- function(corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max) {
-    .Call(`_mlvocab_C_dtm`, corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max)
+C_dtm <- function(corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max, nthreads) {
+    .Call(`_mlvocab_C_dtm`, corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max, nthreads)
 }
 
-C_tdm <- function(corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max) {
-    .Call(`_mlvocab_C_tdm`, corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max)
+C_tdm <- function(corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max, nthreads) {
+    .Call(`_mlvocab_C_tdm`, corpus0, vocabdf, term_weights, nbuckets, output, ngram_min, ngram_max, nthreads)
 }
 
 C_tcm <- function(corpus0, vocabdf, term_weights, nbuckets, output, window_size, window_weights, context, ngram_min, ngram_max) {

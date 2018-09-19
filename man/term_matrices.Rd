@@ -9,11 +9,11 @@
 \usage{
 dtm(corpus, vocab = NULL, ngram = attr(vocab, "ngram"),
   nbuckets = attr(vocab, "nbuckets"), output = c("row", "triplet",
-  "column", "df"))
+  "column", "df"), nthreads = mlvocab_nthreads())
 
 tdm(corpus, vocab = NULL, ngram = attr(vocab, "ngram"),
   nbuckets = attr(vocab, "nbuckets"), output = c("column", "triplet",
-  "row", "df"))
+  "row", "df"), nthreads = mlvocab_nthreads())
 
 tcm(corpus, vocab = NULL, window_size = 5,
   window_weights = 1/seq.int(window_size), context = c("symmetric",
@@ -36,15 +36,19 @@ result matrix will consist of buckets only.}
 
 \item{output}{one of "triplet", "column", "row", "df" or an unambiguous
 abbreviation thereof. First three options return the corresponding sparse
-matrices from Matrix package, "df" results in a triplet
-\code{data.frame}.
+matrices from Matrix package, "df" results in a triplet \code{data.frame}.}
 
-The default output type corresponds to the most efficient computation in
-terms of CPU and memory usage ("row" for \code{dtm}, "column" for \code{tdm} and
-"triplet" for \code{tcm}), but benefits are marginal unless your matrices are
-so big that they barely fit into memory. If you plan to further perform
-matrix algebra on these matrices it's a good idea to choose "column" type
-because of the much better support from the Matrix package.}
+\item{nthreads}{Number of OMP threads to use for computation, 0 for maximum
+number of threads available on the machine. The value is picked from
+\code{options("mlvocab.nthreads")}, or if that is unset from the environment
+variable \code{MLVOCAB_NTHREADS}, and defaults to 0 if neither is set.
+
+The default output corresponds to the most efficient option in terms of
+CPU and memory usage ("row" for \code{dtm}, "column" for \code{tdm} and "triplet"
+for \code{tcm}), but benefits are marginal unless the matrices barely fit into
+memory. If you plan to further perform matrix algebra on these matrices it
+is recommended choose "column" type because of a much better support for
+those in the Matrix package.}
 
 \item{window_size}{sliding window size used for co-occurrence
 computation. In this implementation the window includes the context word;
@@ -66,8 +70,8 @@ the same and represent coocurence of terms \code{i} and \code{j} within
 term \code{j} on the right side of \code{i}. When "left", entry \code{(i, j) represents the coocurence of the term}j\code{on the left of term}i`.}
 }
 \description{
-These functions compute or update various term-counts of a corpus with flexible output
-specification.
+Compute and update various term-counts of a corpus with various output
+types.
 }
 \details{
 For \code{ngram_max > 1} the weights vectors is automatically extended to match

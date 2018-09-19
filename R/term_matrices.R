@@ -1,7 +1,7 @@
 ##' Term-document and term-cooccurrence matrices
 ##'
-##' These functions compute or update various term-counts of a corpus with flexible output
-##' specification.
+##' Compute and update various term-counts of a corpus with various output
+##' types.
 ##'
 ##' @param corpus text corpus; see `[vocab()]`.
 ##' @param vocab a `data.frame` produced by an early call to [vocab()]. When
@@ -11,22 +11,26 @@
 ##' @param nbuckets number of unknown buckets
 ##' @param output one of "triplet", "column", "row", "df" or an unambiguous
 ##'   abbreviation thereof. First three options return the corresponding sparse
-##'   matrices from Matrix package, "df" results in a triplet
-##'   `data.frame`.
+##'   matrices from Matrix package, "df" results in a triplet `data.frame`.
+##' @param nthreads Number of OMP threads to use for computation, 0 for maximum
+##'   number of threads available on the machine. The value is picked from
+##'   `options("mlvocab.nthreads")`, or if that is unset from the environment
+##'   variable `MLVOCAB_NTHREADS`, and defaults to 0 if neither is set.
 ##'
-##'   The default output type corresponds to the most efficient computation in
-##'   terms of CPU and memory usage ("row" for `dtm`, "column" for `tdm` and
-##'   "triplet" for `tcm`), but benefits are marginal unless your matrices are
-##'   so big that they barely fit into memory. If you plan to further perform
-##'   matrix algebra on these matrices it's a good idea to choose "column" type
-##'   because of the much better support from the Matrix package.
+##'   The default output corresponds to the most efficient option in terms of
+##'   CPU and memory usage ("row" for `dtm`, "column" for `tdm` and "triplet"
+##'   for `tcm`), but benefits are marginal unless the matrices barely fit into
+##'   memory. If you plan to further perform matrix algebra on these matrices it
+##'   is recommended choose "column" type because of a much better support for
+##'   those in the Matrix package.
 ##' @name term_matrices
 ##' @export
 dtm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
                 nbuckets = attr(vocab, "nbuckets"),
-                output = c("row", "triplet", "column", "df")) {
-  tm(C_dtm, corpus, vocab, ngram, nbuckets, output)
+                output = c("row", "triplet", "column", "df"),
+                nthreads = mlvocab_nthreads()) {
+  tm(C_dtm, corpus, vocab, ngram, nbuckets, output, nthreads)
 }
 
 ##' @rdname term_matrices
@@ -34,8 +38,9 @@ dtm <- function(corpus, vocab = NULL,
 tdm <- function(corpus, vocab = NULL,
                 ngram = attr(vocab, "ngram"),
                 nbuckets = attr(vocab, "nbuckets"),
-                output = c("column", "triplet", "row", "df")) {
-  tm(C_tdm, corpus, vocab, ngram, nbuckets, output)
+                output = c("column", "triplet", "row", "df"),
+                nthreads = mlvocab_nthreads()) {
+  tm(C_tdm, corpus, vocab, ngram, nbuckets, output, nthreads)
 }
 
 ##' @details

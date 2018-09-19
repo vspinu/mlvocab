@@ -1,6 +1,7 @@
 Version 0.1.2
 =============
 
+* Number of threads can now be controlled with `options("mlvocab.nthreads")` or environment variable `MLVOCAB_NTHREADS`
 * New argument `keep_terms` to `prune_vocab`
 
 Version 0.1

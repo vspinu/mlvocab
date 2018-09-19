@@ -22,6 +22,9 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 /* #define USE_RINTERNALS 1 // slight increase in speed */
 
@@ -44,6 +47,15 @@ inline SEXP toRstrvec(const vector<string>& vec) {
   UNPROTECT(1);
   return out;
 }
+
+inline int omp_threads(int n) {
+#ifdef _OPENMP
+  return n == 0 ? omp_get_max_threads() : n;
+#else
+  return 1;
+#endif
+}
+
 
 
 /// SPARSE HASH MAP
