@@ -1,5 +1,6 @@
 ##' `mlvocab` package
 ##'
+##'
 ##' The following two-step abstraction is provided by the `mlvocab`
 ##' package. First, the vocabulary object is built from the entire corpus with
 ##' the help of [vocab()], [update_vocab()] and [prune_vocab()]

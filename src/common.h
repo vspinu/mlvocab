@@ -48,9 +48,17 @@ inline SEXP toRstrvec(const vector<string>& vec) {
   return out;
 }
 
-inline int omp_threads(int n) {
-#ifdef _OPENMP
-  return n == 0 ? omp_get_max_threads() : n;
+inline int omp_threads(int n, int n_recommended) {
+#if defined(__sun) && defined(__SVR4)
+  // SOLARIS is dead and atomics don't seem to be working there; not even bothering ...
+  return 1;
+#elif _OPENMP
+  if (n == 0) {
+    n_recommended = std::max(1, n_recommended);
+    return std::min(n_recommended, omp_get_max_threads());
+  } else {
+    return n;
+  }
 #else
   return 1;
 #endif

@@ -20,10 +20,10 @@ NumericMatrix C_prune_embeddings(const DataFrame& vocabdf, NumericMatrix& embedd
 
 // [[Rcpp::export]]
 DataFrame C_rehash_vocab(const DataFrame& pruned_vocabdf, const DataFrame& orig_vocabdf, const int nbuckets) {
-  Vocab v(pruned_vocabdf);
-  v.sort();
-  v.rehash_unknowns(orig_vocabdf, nbuckets);
-  return v.df();
+  Vocab vocab(pruned_vocabdf);
+  vocab.sort();
+  vocab.rehash_unknowns(orig_vocabdf, nbuckets);
+  return vocab.df();
 }
 
 // [[Rcpp::export]]

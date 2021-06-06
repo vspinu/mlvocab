@@ -12,29 +12,18 @@ dscorpus <- data.frame(names = names(scorpus), corpus = unname(scorpus), strings
 test_that("vocab is computed correctly", {
 
   v <- vocab(corpus, regex = " ")
-  vt <- structure(list(term = c("the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "The"),
-                       term_count = c(5L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 1L),
-                       doc_count = c(2L, 2L, 2L, 2L, 2L, 2L, 2L,  2L, 1L)),
-                  row.names = c(NA, -9L), class = c("mlvocab_vocab", "data.frame"),
-                  ngram = c(1L, 1L),
-                  document_count = 2L, nbuckets = 0L, ngram_sep = "_", regex = " ")
+  expect_equal(v$term, c("the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "The"))
+  expect_equal(v$term_count, c(5L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 1L))
+  expect_equal(v$doc_count, c(2L, 2L, 2L, 2L, 2L, 2L, 2L,  2L, 1L))
 
-  expect_equal(v, vt)
-
-  v <- vocab(corpus, ngram = c(2, 3), ngram_sep = " ", regex = " ") %>% .[order(.[["term_count"]]), ]
-  vt <- structure(list(term = c("dog the quick", "dog the", "The quick",
-                                "lazy dog the", "The quick brown", "the quick brown", "the quick",
-                                "quick brown", "quick brown fox", "brown fox", "brown fox jumps",
-                                "fox jumps", "fox jumps over", "jumps over", "jumps over the",
-                                "over the", "over the lazy", "the lazy", "the lazy dog", "lazy dog"
-                                ),
-                       term_count = c(1L, 1L, 1L, 1L, 1L, 2L, 2L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L),
-                       doc_count = c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L)),
-                  ngram = 2:3, document_count = 2L, nbuckets = 0L, ngram_sep = " ", regex = " ",
-                  row.names = c(16L, 17L, 18L, 19L, 20L, 14L, 15L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L),
-                  class = c("mlvocab_vocab", "data.frame"
-                                                                                                                                                                                                                                           ))
-  expect_equal(v, vt)
+  v <- vocab(corpus, ngram = c(2, 3), ngram_sep = " ", regex = " ")
+  expect_equal(v$term, c("quick brown", "quick brown fox", "brown fox", "brown fox jumps",
+                         "fox jumps", "fox jumps over", "jumps over", "jumps over the",
+                         "over the", "over the lazy", "the lazy", "the lazy dog", "lazy dog",
+                         "the quick brown", "the quick", "dog the quick", "dog the", "The quick",
+                         "lazy dog the", "The quick brown"))
+  expect_equal(v$term_count, c(3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 2L, 2L, 1L, 1L, 1L, 1L, 1L))
+  expect_equal(v$doc_count, c(2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L, 1L))
 
 })
 

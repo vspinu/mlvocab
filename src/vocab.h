@@ -36,7 +36,9 @@ class VocabEntry {
   size_t ndocs;  // total count of docs
 
   bool operator < (const VocabEntry& other) const {
-    return (n > other.n);
+    // vocab sorting must be efficient, hence not term string comparison here;
+    // terms within same count are stored in order they have been entered
+    return n > other.n;
   }
 };
 
@@ -417,8 +419,9 @@ class Vocab {
 
     size_t CN = corpus.size();
     PriSecMatrix mat(CN);
+    int real_threads = omp_threads(nthreads, CN/100);
 
-#pragma omp parallel for num_threads(omp_threads(nthreads))
+#pragma omp parallel for num_threads(real_threads)
     for (size_t i = 0; i < CN; i++) {
       hashmap_string_iter vit;
       const vector<string> doc = wordgrams(corpus[i], ngram_min, ngram_max, ngram_sep);
